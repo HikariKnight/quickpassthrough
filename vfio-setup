@@ -1,0 +1,38 @@
+#!/bin/bash
+
+# Clear the screen
+clear
+
+# Show the user a warning before we start
+printf "Welcome to the VFIO enabler script!
+
+The setup done by this script is quite complex and is prone to human error or hardware incompatibilities.
+It is HIGHLY RECOMMENDED to make a backup/snapshot of your system using something like timeshift or snapper before starting.
+
+Press ENTER to continue once you have made a backup of your system.
+"
+read ENTER
+clear 
+
+printf "This script assumes a few things:
+* You have already enabled IOMMU, VT-d and/or AMD-v inside your UEFI/BIOS advanced settings.
+* You are comfortable with navigating and changing settings in your UEFI/BIOS.
+* You know how edit your bootloader configuration.
+* Your Linux distribution is an EFI installation (important to get VFIO working).
+
+NOTE: If your computer no longer fully shut down after enabling IOMMU, then there is possibly a bug
+      with your motherboard and a piece of hardware in your system, it only prevents you from using
+      the system in a headless mode and is otherwise just an annoying quirk with IOMMU on some boards.
+
+This is a list of prerequisites you will be needing before starting with VFIO:
+* 2 GPUs (iGPU/APU included)
+* A \"ghost display\" dummy plug for your second graphic card.
+* If you are planning to use the inegrated GPU on your CPU, make sure your monitor is connected to it before continuing.
+* Preferably a motherboard verified to work with IOMMU and with good IOMMU groups.
+  https://reddit.com/r/vfio is a good resource for this info.
+  (If you are unsure, you will find out while using this script)
+
+Press ENTER to continue.
+"
+read ENTER
+clear

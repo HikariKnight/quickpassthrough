@@ -78,7 +78,7 @@ mkdir -p "$SCRIPTDIR/$INITRAMFS"
 mkdir -p "$SCRIPTDIR/$QUICKEMU"
 
 # Write the cmdline file
-echo "$CMDLINE" > "$SCRIPTDIR/kernel_args"
+echo "$CMDLINE" > "$SCRIPTDIR/config/kernel_args"
 
 # Copy system configs into our config folder so we can safely edit them
 

@@ -7,6 +7,9 @@ cd $SCRIPTDIR
 # Get the config paths
 source "$SCRIPTDIR/lib/paths.sh"
 
+# Make sure all the scripts are executable
+chmod +x "$SCRIPTDIR/lib/*"
+
 # Clear the screen
 clear
 

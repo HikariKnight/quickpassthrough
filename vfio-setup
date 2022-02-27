@@ -4,6 +4,9 @@
 SCRIPTDIR=$(dirname `which $0`)
 cd $SCRIPTDIR
 
+# Get the config paths
+source "$SCRIPTDIR/lib/paths.sh"
+
 # Clear the screen
 clear
 
@@ -22,6 +25,8 @@ clear
 
 printf "This script assumes a few things:
 * You have already enabled IOMMU, VT-d and/or AMD-v inside your UEFI/BIOS advanced settings.
+* You have already added \"iommu=pt intel_iommu=on\" or \"iommu=pt amd_iommu=on\" to your 
+  kernel boot arguments and booted your system with these kernel arguments active.
 * You are comfortable with navigating and changing settings in your UEFI/BIOS.
 * You know how edit your bootloader configuration.
 * Your Linux distribution is an EFI installation (important to get VFIO working).
@@ -32,18 +37,57 @@ NOTE: If your computer no longer fully shut down after enabling IOMMU, then ther
       quirk with IOMMU on some boards.
 
 This is a list of prerequisites you will be needing before starting with VFIO:
-* 2 GPUs (iGPU/APU included)
+* 2 very different GPUs (iGPU/APU included), the easiest combination is to have 2 from different vendors (amd/intel/nvidia)
+  if both cards share the same device id (ex: both are identified as 1022:145c), then passthrough will most likely
+  not be possible unless you swap out one of the cards.
 * A \"ghost display\" dummy plug for your second graphic card (or having it hooked to a separate input on your monitor).
 * If you are planning to use the inegrated GPU on your CPU, make sure your monitor is connected to it before continuing.
 * Preferably a motherboard verified to work with IOMMU and with good IOMMU groups.
   https://reddit.com/r/vfio is a good resource for this info.
   (If you are unsure, you will find out while using this script)
 
-Press ENTER to start creating your config.
+Press ENTER to start creating your config from scratch.
+NOTE: continuing will delete the contents of \"$SCRIPTDIR/config\"
 "
 read ENTER
 clear
 
+if [ -d "$SCRIPTDIR/config" ];
+then
+    rm -r "$SCRIPTDIR/config"
+fi
+
+# Make the directories
+mkdir -p "$SCRIPTDIR/$MODPROBE"
+mkdir -p "$SCRIPTDIR/$DEFAULT"
+mkdir -p "$SCRIPTDIR/$INITRAMFS"
+mkdir -p "$SCRIPTDIR/$QUICKEMU"
+
+# Copy system configs into our config folder so we can safely edit them
+
+if [ -f "/etc/modules" ];
+then
+    # This copies /etc/modules without the vfio module lines
+    grep -v "vfio" "/etc/modules" > "$SCRIPTDIR/$MODULES"
+else
+    touch "$SCRIPTDIR/$MODULES"
+fi
+
+if [ -f "/etc/default/grub" ];
+then
+    # Currently we do not modify bootloaders, will ask users to do it instead
+    #cp "/etc/default/grub" "$SCRIPTDIR/$DEFAULT/grub"
+fi
+
+if [ -f "/etc/initramfs-tools/modules" ];
+then
+    # This copies /etc/initramfs-tools/modules without the vfio modules
+    grep -v "vfio" "/etc/initramfs-tools/modules" > "$SCRIPTDIR/$INITRAMFS"
+else
+    touch "$SCRIPTDIR/$INITRAMFS"
+fi
+    
+# Run ls-iommu so we can verify that IOMMU properly working
 "$SCRIPTDIR/utils/ls-iommu"
 
 printf "
@@ -63,4 +107,4 @@ case "${YESNO}" in
     ;;
 esac
 
-"$SCRIPTDIR/lib/get_GPU.sh"
+exec "$SCRIPTDIR/lib/get_GPU.sh"

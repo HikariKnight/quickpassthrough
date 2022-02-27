@@ -2,6 +2,9 @@
 
 function get_USB_CTL_GROUP () {
     clear
+    # Get the config paths
+    source "$SCRIPTDIR/lib/paths.sh"
+
     printf "
 For this USB controller device to be passthrough-able, it must be the ONLY device in this group!
 
@@ -23,7 +26,7 @@ then
     # Get the PCI ids
     PCI_ID=$($SCRIPTDIR/utils/ls-iommu | grep -i "group $1" | cut -d " " -f 4)
     
-    exec perl -pi -e "s/USB_CTL_ID=\"\"/USB_CTL_ID=\"$PCI_ID\"/" "$SCRIPTDIR/config/qemu-vfio_vars.conf"
+    exec perl -pi -e "s/USB_CTL_ID=\"\"/USB_CTL_ID=\"$PCI_ID\"/" "$SCRIPTDIR/$QUICKEMU/qemu-vfio_vars.conf"
 else
     exec "$SCRIPTDIR/lib/get_USB_CTL.sh"
 fi
@@ -31,8 +34,9 @@ fi
 }
 
 function main () {
-    SCRIPTDIR=$(dirname `which $0`)
+    SCRIPTDIR=$(dirname `which $0` | perl -pe "s/\/\.\.\/lib//")
     SCRIPTDIR="$SCRIPTDIR/.."
+    
     get_USB_CTL_GROUP $1
 }
 

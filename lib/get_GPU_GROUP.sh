@@ -35,7 +35,8 @@ then
 
     # Write the currently unused vfio config for quickemu
     printf "GPU_PCI_ID=($PCI_ID)
-USB_CTL_ID=\"\"" > "$SCRIPTDIR/$QUICKEMU/qemu-vfio_vars.conf"
+USB_CTL_ID=\"\"
+" > "$SCRIPTDIR/$QUICKEMU/qemu-vfio_vars.conf"
 
     # Get the PCI_ID
     local ROM_PCI_ID=$($SCRIPTDIR/utils/ls-iommu | grep -i "vga" | grep -i "group $1" | cut -d " " -f 4)

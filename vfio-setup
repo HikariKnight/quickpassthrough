@@ -77,12 +77,13 @@ if [ -f "/etc/default/grub" ];
 then
     # Currently we do not modify bootloaders, will ask users to do it instead
     #cp "/etc/default/grub" "$SCRIPTDIR/$DEFAULT/grub"
+    echo ""
 fi
 
 if [ -f "/etc/initramfs-tools/modules" ];
 then
     # This copies /etc/initramfs-tools/modules without the vfio modules
-    grep -v "vfio" "/etc/initramfs-tools/modules" > "$SCRIPTDIR/$INITRAMFS"
+    grep -v "vfio" "/etc/initramfs-tools/modules" > "$SCRIPTDIR/$INITRAMFS/modules"
 else
     touch "$SCRIPTDIR/$INITRAMFS"
 fi

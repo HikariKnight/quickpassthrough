@@ -1,9 +1,10 @@
 #!/bin/bash
 
 function get_GPU () {
+    clear
     printf "These are your graphic cards, they have to be in separate groups.
 The graphic card you want to passthrough cannot be in a group with other devices that
-does not belong to itself:
+does not belong to itself. Both cards must also have unique hardware ids [xxxx:yyyy]!:
 
 "
     echo "#------------------------------------------#"
@@ -30,9 +31,9 @@ Press q to quit
 }
 
 function main () {
-    SCRIPTDIR=$(dirname `which $0`)
+    SCRIPTDIR=$(dirname `which $0` | perl -pe "s/\/\.\.\/lib//")
     SCRIPTDIR="$SCRIPTDIR/.."
-    clear
+    
     get_GPU
 }
 

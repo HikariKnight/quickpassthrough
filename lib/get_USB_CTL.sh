@@ -1,6 +1,7 @@
 #!/bin/bash
 
 function get_USB_CTL () {
+    clear
     printf "THIS STEP IS OPTIONAL IF YOU DO NOT PLAN TO USE ANYTHING OTHER THAN MOUSE AND KEYBOARD!
 The USB Controller you want to passthrough cannot be in a group with other devices.
 Passing through a whole USB Controller (a set of hardwired 1-4 usb ports on the motherboard)
@@ -30,9 +31,9 @@ Press q to quit
 }
 
 function main () {
-    SCRIPTDIR=$(dirname `which $0`)
+    SCRIPTDIR=$(dirname `which $0` | perl -pe "s/\/\.\.\/lib//")
     SCRIPTDIR="$SCRIPTDIR/.."
-    clear
+
     get_USB_CTL
 }
 

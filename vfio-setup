@@ -46,6 +46,9 @@ This is a list of prerequisites you will be needing before starting with VFIO:
   https://reddit.com/r/vfio is a good resource for this info.
   (If you are unsure, you will find out while using this script)
 
+* It is also highly recommended to have access to your VM through VNC (RDP will not work) as once you pass through
+  a graphic card, it will most likely not possible to interact with it through spice and the normal qemu display window!
+
 Press ENTER to start creating your config from scratch.
 NOTE: continuing will delete the contents of \"$SCRIPTDIR/config\"
 "
@@ -57,11 +60,25 @@ then
     rm -r "$SCRIPTDIR/config"
 fi
 
+CPU_VENDOR=$(cat /proc/cpuinfo | grep vendor | head -1 | cut -f 2 | cut -d " " -f 2)
+CMDLINE="iommu=pt"
+
+if [ "$CPU_VENDOR" == "GenuineIntel" ];
+then
+    CMDLINE="$CMDLINE intel_iommu=on"
+elif [ "$CPU_VENDOR" == "AuthenticAMD" ];
+then
+    CMDLINE="$CMDLINE amd_iommu=on"
+fi
+
 # Make the directories
 mkdir -p "$SCRIPTDIR/$MODPROBE"
 mkdir -p "$SCRIPTDIR/$DEFAULT"
 mkdir -p "$SCRIPTDIR/$INITRAMFS"
 mkdir -p "$SCRIPTDIR/$QUICKEMU"
+
+# Write the cmdline file
+echo "$CMDLINE" > "$SCRIPTDIR/kernel_args"
 
 # Copy system configs into our config folder so we can safely edit them
 
@@ -93,9 +110,10 @@ fi
 
 printf "
 If the above list has everything inside just 1 IOMMU group the please enable
-IOMMU, VT-d or AMD-v inside your UEFI/BIOS and re-run this script!
+IOMMU, VT-d or AMD-v inside your UEFI/BIOS and add \"$CMDLINE\"
+to your kernel boot arguments and reboot your system, then re-run this script!
 "
-read -p "Is there more than 1 group in the output above? [y/N]:" YESNO
+read -p "Is there more than 1 group in the output above? [y/N]: " YESNO
 case "${YESNO}" in
     [Yy]*)
         clear

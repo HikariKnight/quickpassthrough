@@ -25,7 +25,7 @@ chmod +x ./vfio-setup
 * ~~Detect if user has an amd or intel CPU and provide the correct IOMMU kernel args based on that~~
 * ~~Tell user to enable IOMMU (VT-d/AMD-v) on their motherboard and bootloader~~
 * ~~Integrate ls-iommu and locate graphic cards and see what IOMMU group they are in~~
-~~* Enable and configure vfio modules~~
+* ~~Enable and configure vfio modules~~
 * ~~Fetch the ID for the GPUs and generate the correct kernel arguments for grub and systemd-boot~~
 * ~~Dump the GPU rom, just in case it will be needed for passthrough~~ (no rom patching planned due to complexity)
 * Get help to actually make the scripts better

@@ -22,7 +22,7 @@ vfio_virqfd
     GPU_DEVID="$1"
 
     # Ask if we shall disable video output on this card
-    read "Do you want to force disable video output in linux on this card? [Y/n]: " DISABLE_VGA
+    read -p "Do you want to force disable video output in linux on this card? [Y/n]: " DISABLE_VGA
     case "${DISABLE_VGA}" in
     [Yy]*)
         GPU_DEVID="$GPU_DEVID disable_vga=1"

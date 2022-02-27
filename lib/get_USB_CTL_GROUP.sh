@@ -26,7 +26,8 @@ then
     # Get the PCI ids
     PCI_ID=$($SCRIPTDIR/utils/ls-iommu | grep -i "group $1" | cut -d " " -f 4)
     
-    exec perl -pi -e "s/USB_CTL_ID=\"\"/USB_CTL_ID=\"$PCI_ID\"/" "$SCRIPTDIR/$QUICKEMU/qemu-vfio_vars.conf"
+    perl -pi -e "s/USB_CTL_ID=\"\"/USB_CTL_ID=\"$PCI_ID\"/" "$SCRIPTDIR/$QUICKEMU/qemu-vfio_vars.conf"
+    exec "$SCRIPTDIR/lib/set_CMDLINE.sh"
 else
     exec "$SCRIPTDIR/lib/get_USB_CTL.sh"
 fi

@@ -21,6 +21,10 @@ vfio_virqfd
     # Assign the GPU device ids to a variable
     GPU_DEVID="$1"
 
+    # Update the kernel_args file
+    CMDLINE=$(cat "$SCRIPTDIR/config/kernel_args")
+    echo "$CMDLINE vfio_pci.ids=$GPU_DEVID" > "$SCRIPTDIR/config/kernel_args"
+
     # Ask if we shall disable video output on this card
     read -p "Do you want to force disable video output in linux on this card? [Y/n]: " DISABLE_VGA
     case "${DISABLE_VGA}" in

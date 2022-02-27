@@ -30,7 +30,7 @@ chmod +x ./vfio-setup
 * ~~Dump the GPU rom, just in case it will be needed for passthrough~~ (no rom patching planned due to complexity)
 * Get help to actually make the scripts better
 * A non hacky menu system? (I will need help by some bash wizards for this)
-* Blacklist drivers? (some cards require blacklisting as softdep is not enoug`)
+* Blacklist drivers? (some cards require blacklisting as softdep is not enough)
 * Install vendor_reset kernel module? (maybe far future)
 * Setup looking-glass? (far future maybe)
 

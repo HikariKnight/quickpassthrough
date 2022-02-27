@@ -63,9 +63,11 @@ then
     rm -r "$SCRIPTDIR/config"
 fi
 
+# Get the CPU Vendor
 CPU_VENDOR=$(cat /proc/cpuinfo | grep vendor | head -1 | cut -f 2 | cut -d " " -f 2)
 CMDLINE="iommu=pt"
 
+# Adjust our kernel_args based on cpu vendor
 if [ "$CPU_VENDOR" == "GenuineIntel" ];
 then
     CMDLINE="$CMDLINE intel_iommu=on"

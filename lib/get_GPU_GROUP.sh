@@ -33,7 +33,7 @@ then
     # Get the PCI ids
     local PCI_ID=$($SCRIPTDIR/utils/ls-iommu | grep -i "group $1" | cut -d " " -f 4 | perl -pe "s/\n/ /" | perl -pe "s/\s$//")
 
-    # Write the currently unused vfio config for quickemu
+    # Write the GPU_PCI_IDs to the config that quickemu might make use of in the future
     printf "GPU_PCI_ID=($PCI_ID)
 USB_CTL_ID=\"\"
 " > "$SCRIPTDIR/$QUICKEMU/qemu-vfio_vars.conf"

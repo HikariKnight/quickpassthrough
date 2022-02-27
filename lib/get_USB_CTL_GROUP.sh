@@ -24,8 +24,9 @@ read -p "Enter the id for the device you want to passthrough: " USB_CTL_DEVID
 if [[ $USB_CTL_DEVID =~ : ]];
 then
     # Get the PCI ids
-    PCI_ID=$($SCRIPTDIR/utils/ls-iommu | grep -i "group $1" | cut -d " " -f 4)
+    local PCI_ID=$($SCRIPTDIR/utils/ls-iommu | grep -i "group $1" | cut -d " " -f 4)
     
+    # Replace the blank USB_CTL_ID with the PCI_ID for the usb controller the user wants to pass through
     perl -pi -e "s/USB_CTL_ID=\"\"/USB_CTL_ID=\"$PCI_ID\"/" "$SCRIPTDIR/$QUICKEMU/qemu-vfio_vars.conf"
     exec "$SCRIPTDIR/lib/set_CMDLINE.sh"
 else

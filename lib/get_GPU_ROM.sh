@@ -23,9 +23,9 @@ echo 0 | sudo tee $VBIOS_PATH
         echo 1 | sudo tee $VBIOS_PATH
         sudo cat $VBIOS_PATH > "$SCRIPTDIR/$QUICKEMU/vfio_card.rom"
         sudo md5sum $VBIOS_PATH | cut -d " " -f 1 > "$SCRIPTDIR/$QUICKEMU/vfio_card.rom.md5"
-        ROM_MD5=$(sudo md5sum $VBIOS_PATH | cut -d " " -f 1)
+        local ROM_MD5=$(sudo md5sum $VBIOS_PATH | cut -d " " -f 1)
         echo 0 | sudo tee $VBIOS_PATH
-        ROMFILE_MD5=$(md5sum "$SCRIPTDIR/$QUICKEMU/vfio_card.rom" | cut -d " " -f 1)
+        local ROMFILE_MD5=$(md5sum "$SCRIPTDIR/$QUICKEMU/vfio_card.rom" | cut -d " " -f 1)
 
         if [ -f $SCRIPTDIR/$QUICKEMU/vfio_card.rom ];
         then

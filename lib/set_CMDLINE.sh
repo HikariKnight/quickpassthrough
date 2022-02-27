@@ -5,7 +5,7 @@ function set_CMDLINE () {
     # Get the config paths
     source "$SCRIPTDIR/lib/paths.sh"
 
-    CMDLINE=$(cat "$SCRIPTDIR/config/kernel_args")
+    local CMDLINE=$(cat "$SCRIPTDIR/config/kernel_args")
 
     printf "Configuration is now complete, however no changes have been done to your system.
 The files needed have just been written to $SCRIPTDIR/config/etc

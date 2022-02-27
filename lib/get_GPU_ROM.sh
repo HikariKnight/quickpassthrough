@@ -1,3 +1,5 @@
+#!/bin/bash
+
 function get_GPU_ROM () {
     clear
     # Get the config paths
@@ -11,18 +13,19 @@ The VBIOS will be read from $VBIOS_PATH
 This process will require the use of sudo and will run the following commands:
 
 echo 1 | sudo tee $VBIOS_PATH
-cat $VBIOS_PATH > $SCRIPTDIR/$QUICKEMU/vfio_card.rom
+sudo cat $VBIOS_PATH > $SCRIPTDIR/$QUICKEMU/vfio_card.rom
 echo 0 | sudo tee $VBIOS_PATH
 
 "
-    read "Do you want to dump the VBIOS, choosing N will skip this step [y/N]: " YESNO
+    read -p "Do you want to dump the VBIOS, choosing N will skip this step [y/N]: " YESNO
     case "${YESNO}" in
     [Yy]*)
         echo 1 | sudo tee $VBIOS_PATH
-        cat $VBIOS_PATH > "$SCRIPTDIR/$QUICKEMU/vfio_card.rom"
-        ROM_MD5=$(md5sum $VBIOS_PATH)
+        sudo cat $VBIOS_PATH > "$SCRIPTDIR/$QUICKEMU/vfio_card.rom"
+        sudo md5sum $VBIOS_PATH | cut -d " " -f 1 > "$SCRIPTDIR/$QUICKEMU/vfio_card.rom.md5"
+        ROM_MD5=$(sudo md5sum $VBIOS_PATH | cut -d " " -f 1)
         echo 0 | sudo tee $VBIOS_PATH
-        ROMFILE_MD5=$(md5sum "$SCRIPTDIR/$QUICKEMU/vfio_card.rom")
+        ROMFILE_MD5=$(md5sum "$SCRIPTDIR/$QUICKEMU/vfio_card.rom" | cut -d " " -f 1)
 
         if [ -f $SCRIPTDIR/$QUICKEMU/vfio_card.rom ];
         then
@@ -32,14 +35,14 @@ echo 0 | sudo tee $VBIOS_PATH
                 echo "Dumping of VBIOS successful!"
                 echo 'GPU_ROMFILE="vfio_card.rom"' >> "$SCRIPTDIR/$QUICKEMU/qemu-vfio_vars.conf"
 
-                read "Press ENTER to continue." ENTER
+                read -p "Press ENTER to continue." ENTER
             else
                 echo "Checksums does not match!"
                 echo "Dumping of VBIOS failed, skipping romfile"
                 mv "$SCRIPTDIR/$QUICKEMU/vfio_card.rom" "$SCRIPTDIR/$QUICKEMU/vfio_card.rom.fail"
                 echo 'GPU_ROMFILE=""' >> "$SCRIPTDIR/$QUICKEMU/qemu-vfio_vars.conf"
 
-                read "Press ENTER to continue." ENTER
+                read -p "Press ENTER to continue." ENTER
             fi
         else
             echo 'GPU_ROMFILE=""' >> "$SCRIPTDIR/$QUICKEMU/qemu-vfio_vars.conf"

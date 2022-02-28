@@ -19,6 +19,16 @@ chmod +x ./vfio-setup
 * Enable and configure the correct kernel modules
 * Provides you with the correct kernel arguments to add to your bootloader entry
 
+## Contributing
+<img src="https://user-images.githubusercontent.com/2557889/156038229-4e70352f-9182-4474-8e32-d14d3ad67566.png" width="250px"><br>
+I know my bash skills are not great, so help is always welcome! And help is wanted here.<br>
+If you know bash well, you will be able to help! Just make a pull request with your changes!<br>
+Just remember to add comments to document the work and explain it for people who are less familiar with the bash syntax or anything else you use. 😄<br>
+<br>
+Also if you know english, you can just help proof reading. English is not my native language, plus I have dyslexia so I often make spelling mistakes.<br>
+Proof reading is still contribution!
+
+
 ## TODO
 * ~~Everything~~
 * ~~Show general warning to user and inform about making a backup and general expectations~~

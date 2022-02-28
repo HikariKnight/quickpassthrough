@@ -1,7 +1,7 @@
 # VFIO-enabler (name pending)
 A project to simplify setting up GPU passthrough for [QuickEMU](https://github.com/quickemu-project/quickemu) and libvirt
 
-Currently this project does NO MODIFICATIONS to your system, all it does is generate the files needed for testing inside `./config/`
+Currently this project does NO MODIFICATIONS to your system, all it does is generate the files needed for testing inside `./config/`<br>
 In a future version it will ask if you want changes applied to your system, however I am not enabling that until I have confirmation that this generates a working configuration for other systems than my own.
 
 You can use it by simply running

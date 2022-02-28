@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# Get the scripts directory
+SCRIPTDIR=$(dirname `which $0`)
+cd $SCRIPTDIR
+
+if [ -f $SCRIPTDIR/config/kernel_args ];
+then
+    DEVID=$(cat $SCRIPTDIR/config/kernel_args | cut -d " " -f 3 | cut -d "=" -f 2 | perl -pe "s/^([0-9a-f]{4}:).*/\1/")
+    echo "#------------------------------------------#"
+    lspci -d $DEVID -v | grep -iP "kernel driver|amd|radeon|nvidia|nouveau" | grep -vi "kernel modules"
+    echo "#------------------------------------------#"
+
+    printf "
+If the \"Kernel driver in use\" for these devices are \"vfio-pci\", then VFIO has been successfully enabled!
+"
+fi  

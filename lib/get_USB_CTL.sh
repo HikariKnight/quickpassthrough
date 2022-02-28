@@ -31,8 +31,7 @@ Press q to quit
 }
 
 function main () {
-    SCRIPTDIR=$(dirname `which $0` | perl -pe "s/\/\.\.\/lib//")
-    SCRIPTDIR="$SCRIPTDIR/.."
+    SCRIPTDIR=$(dirname `which $0` | perl -pe "s/\/\.\.\/lib//" | perl -pe "s/\/lib$//")
 
     get_USB_CTL
 }

@@ -38,8 +38,7 @@ To return to the previous page just press ENTER.
 }
 
 function main () {
-    SCRIPTDIR=$(dirname `which $0` | perl -pe "s/\/\.\.\/lib//")
-    SCRIPTDIR="$SCRIPTDIR/.."
+    SCRIPTDIR=$(dirname `which $0` | perl -pe "s/\/\.\.\/lib//" | perl -pe "s/\/lib$//")
     
     get_USB_CTL_GROUP $1
 }

@@ -54,8 +54,8 @@ softdep radeon pre: vfio vfio_pci
 
 
 function main () {
-    SCRIPTDIR=$(dirname `which $0` | perl -pe "s/\/\.\.\/lib//")
-    SCRIPTDIR="$SCRIPTDIR/.."
+    SCRIPTDIR=$(dirname `which $0` | perl -pe "s/\/\.\.\/lib//" | perl -pe "s/\/lib$//")
+    
     set_MODULES $1
 }
 

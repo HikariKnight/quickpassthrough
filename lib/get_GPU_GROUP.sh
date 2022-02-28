@@ -56,8 +56,7 @@ USB_CTL_ID=()
 }
 
 function main () {
-    SCRIPTDIR=$(dirname `which $0` | perl -pe "s/\/\.\.\/lib//")
-    SCRIPTDIR="$SCRIPTDIR/.."
+    SCRIPTDIR=$(dirname `which $0` | perl -pe "s/\/\.\.\/lib//" | perl -pe "s/\/lib$//")
     
     get_GROUP $1
 }

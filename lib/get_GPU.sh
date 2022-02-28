@@ -22,10 +22,12 @@ Press q to quit
             exec "$SCRIPTDIR/lib/get_GPU_GROUP.sh" $IOMMU_GROUP
         ;;
        [Qq]*)
-            echo ""
+            printf "Aborted, your setup is incomplete!
+DO NOT use any of the files from $SCRIPTDIR/config !
+"
         ;;
        *)
-            echo ""
+            exec "$SCRIPTDIR/lib/get_GPU.sh"
         ;;
    esac
 }

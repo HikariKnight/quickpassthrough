@@ -7,6 +7,8 @@ function get_USB_CTL_GROUP () {
 
     printf "
 For this USB controller device to be passthrough-able, it must be the ONLY device in this group!
+Passing through more than just the USB controller can in some cases cause system issues
+if you do not know what you are doing.
 
 "
     echo "#------------------------------------------#"
@@ -14,20 +16,19 @@ For this USB controller device to be passthrough-able, it must be the ONLY devic
     echo "#------------------------------------------#"
     
     printf "
-To use this device for passthrough please type in the device id in the format (without brackets or quotes) --> \"xxxx:yyyy\"
-NOTE: The device ID is the part inside the last [] brackets, example: [1002:aaf0]
+To use any of the devices shown for passthrough, all of them have to be passed through
 
-To return to the previous page just press ENTER without typing in any ids
+To return to the previous page just press ENTER.
 "
-read -p "Enter the id for the device you want to passthrough: " USB_CTL_DEVID
+read -p "Do you want to use the displayed devices for passthrough? [y/N]: " YESNO
 
-if [[ $USB_CTL_DEVID =~ : ]];
+if [[ ${YESNO} =~ [Yy]* ]];
 then
     # Get the PCI ids
-    local PCI_ID=$($SCRIPTDIR/utils/ls-iommu | grep -i "group $1" | cut -d " " -f 4)
+    local PCI_ID=$($SCRIPTDIR/utils/ls-iommu | grep -i "group $1" | cut -d " " -f 4 | perl -pe "s/\n/ /" | perl -pe "s/\s$//")
     
     # Replace the blank USB_CTL_ID with the PCI_ID for the usb controller the user wants to pass through
-    perl -pi -e "s/USB_CTL_ID=\"\"/USB_CTL_ID=\"$PCI_ID\"/" "$SCRIPTDIR/$QUICKEMU/qemu-vfio_vars.conf"
+    perl -pi -e "s/USB_CTL_ID=\(\)/USB_CTL_ID=\($PCI_ID\)/" "$SCRIPTDIR/$QUICKEMU/qemu-vfio_vars.conf"
     exec "$SCRIPTDIR/lib/set_CMDLINE.sh"
 else
     exec "$SCRIPTDIR/lib/get_USB_CTL.sh"

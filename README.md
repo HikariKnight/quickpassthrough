@@ -2,6 +2,7 @@
 A project to simplify setting up GPU passthrough for [QuickEMU](https://github.com/quickemu-project/quickemu) and libvirt
 
 Currently this project does NO MODIFICATIONS to your system, all it does is generate the files needed for testing inside `./config/`
+In a future version it will ask if you want changes applied to your system, however I am not enabling that until I have confirmation that this generates a working configuration for other systems than my own.
 
 You can use it by simply running
 ```bash
@@ -40,6 +41,7 @@ Proof reading is still contribution!
 * ~~Dump the GPU rom, just in case it will be needed for passthrough~~ (no rom patching planned due to complexity)
 * Get help to actually make the scripts better
 * A non hacky menu system? (I will need help by some bash wizards for this)
+* Colored highlight/text for important information?
 * Blacklist drivers? (some cards require blacklisting as softdep is not enough)
 * Install vendor_reset kernel module? (maybe far future)
 * Setup looking-glass? (far future maybe)
@@ -50,3 +52,5 @@ Proof reading is still contribution!
 I wanted the dependencies to be minimal without the need for compilation and not have a potential breaking change in the future (like with the transition from python2 to python3).
 
 I know enough bash to make things work, but I am in no way a professional in writing bash scripts as I usually write python and golang.
+
+There is also quite a lot of perl usage as I am quite familiar with the perl regex format over something like sed

@@ -20,20 +20,21 @@ To use any of the devices shown for passthrough, all of them have to be passed t
 
 To return to the previous page just press ENTER.
 "
-read -p "Do you want to use the displayed devices for passthrough? [y/N]: " YESNO
+    read -p "Do you want to use the displayed devices for passthrough? [y/N]: " YESNO
 
-if [[ ${YESNO} =~ [Yy]* ]];
-then
-    # Get the PCI ids
-    local PCI_ID=$($SCRIPTDIR/utils/ls-iommu | grep -i "group $1" | cut -d " " -f 4 | perl -pe "s/\n/ /" | perl -pe "s/\s$//")
-    
-    # Replace the blank USB_CTL_ID with the PCI_ID for the usb controller the user wants to pass through
-    perl -pi -e "s/USB_CTL_ID=\(\)/USB_CTL_ID=\($PCI_ID\)/" "$SCRIPTDIR/$QUICKEMU/qemu-vfio_vars.conf"
-    exec "$SCRIPTDIR/lib/set_CMDLINE.sh"
-else
-    exec "$SCRIPTDIR/lib/get_USB_CTL.sh"
-fi
-
+    case "${YESNO}" in
+        [Yy]*)
+            # Get the PCI ids
+            local PCI_ID=$($SCRIPTDIR/utils/ls-iommu | grep -i "group $1" | cut -d " " -f 4 | perl -pe "s/\n/ /" | perl -pe "s/\s$//")
+            
+            # Replace the blank USB_CTL_ID with the PCI_ID for the usb controller the user wants to pass through
+            perl -pi -e "s/USB_CTL_ID=\(\)/USB_CTL_ID=\($PCI_ID\)/" "$SCRIPTDIR/$QUICKEMU/qemu-vfio_vars.conf"
+            exec "$SCRIPTDIR/lib/set_CMDLINE.sh"
+        ;;
+        *)
+            exec "$SCRIPTDIR/lib/get_USB_CTL.sh"
+        ;;
+    esac
 }
 
 function main () {

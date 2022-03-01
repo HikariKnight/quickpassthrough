@@ -22,7 +22,10 @@ $CMDLINE
 Make sure that the files inside \"$SCRIPTDIR/config/etc\" are copied to your /etc
 AND PLEASE MAKE A BACKUP FIRST!
 
-Then reboot your system and run \"$SCRIPTDIR/vfio-verify\" to check if your GPU is properly set up.
+Then run \"sudo update-initramfs -u\", that way you can boot an older kernel and edit out
+the vfio kernel arguments if your system does not boot after this so you can restore your files from your backup.
+
+Finally reboot your system and run \"$SCRIPTDIR/vfio-verify\" to check if your GPU is properly set up.
 NOTE: Some AMD GPUs will require the vendor-reset kernel module from https://github.com/gnif/vendor-reset to be installed!
 
 The files inside \"$SCRIPTDIR/$QUICKEMU\" are currently unused files, however they provide

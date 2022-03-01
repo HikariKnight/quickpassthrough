@@ -111,22 +111,36 @@ else
 fi
     
 # Run ls-iommu so we can verify that IOMMU properly working
-"$SCRIPTDIR/utils/ls-iommu"
+LS_IOMMU=$($SCRIPTDIR/utils/ls-iommu)
 
-printf "
-If the above list has everything inside just 1 IOMMU group the please enable
-IOMMU, VT-d or AMD-v inside your UEFI/BIOS and add \"$CMDLINE\"
+if [[ $LS_IOMMU =~ ^IOMMU[[:space:]]Group[[:space:]]+\*: ]];
+then
+    printf "IOMMU IS NOT ENABLED!
+Please enable IOMMU, VT-d or AMD-v inside your UEFI/BIOS and add \"$CMDLINE\"
 to your kernel boot arguments and reboot your system, then re-run this script!
 "
+    exit 1
+
+else
+    echo "$LS_IOMMU"
+fi
+
+echo ""
 read -p "Is there more than 1 group in the output above? [y/N]: " YESNO
 case "${YESNO}" in
     [Yy]*)
         clear
     ;;
     [Nn]*)
+        printf "Please enable IOMMU, VT-d or AMD-v inside your UEFI/BIOS and add \"$CMDLINE\"
+to your kernel boot arguments and reboot your system, then re-run this script!
+"
         exit 1
     ;;
     *)
+        printf "Please enable IOMMU, VT-d or AMD-v inside your UEFI/BIOS and add \"$CMDLINE\"
+to your kernel boot arguments and reboot your system, then re-run this script!
+"
         exit 1
     ;;
 esac

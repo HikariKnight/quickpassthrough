@@ -10,6 +10,19 @@ source "$SCRIPTDIR/lib/paths.sh"
 # Make sure all the scripts are executable
 chmod +x "$SCRIPTDIR/lib/*"
 
+# Get the CPU Vendor
+CPU_VENDOR=$(cat /proc/cpuinfo | grep vendor | head -1 | cut -f 2 | cut -d " " -f 2)
+CMDLINE="iommu=pt"
+
+# Adjust our kernel_args based on cpu vendor
+if [ "$CPU_VENDOR" == "GenuineIntel" ];
+then
+    CMDLINE="$CMDLINE intel_iommu=on"
+elif [ "$CPU_VENDOR" == "AuthenticAMD" ];
+then
+    CMDLINE="$CMDLINE amd_iommu=on"
+fi
+
 # Clear the screen
 clear
 
@@ -32,10 +45,10 @@ clear
 
 printf "This script assumes a few things:
 * You have already enabled IOMMU, VT-d and/or AMD-v inside your UEFI/BIOS advanced settings.
-* You have already added \"iommu=pt intel_iommu=on\" or \"iommu=pt amd_iommu=on\" to your 
+* You have already added \"$CMDLINE\" to your 
   kernel boot arguments and booted your system with these kernel arguments active.
 * You are comfortable with navigating and changing settings in your UEFI/BIOS.
-* You know how edit your bootloader configuration.
+* You know how edit your bootloader configuration and kernel arguments.
 * Your Linux distribution is an EFI installation (important to get VFIO working).
 
 NOTE: If your computer no longer fully shut down after enabling IOMMU, then there is possibly a bug
@@ -65,19 +78,6 @@ clear
 if [ -d "$SCRIPTDIR/config" ];
 then
     rm -r "$SCRIPTDIR/config"
-fi
-
-# Get the CPU Vendor
-CPU_VENDOR=$(cat /proc/cpuinfo | grep vendor | head -1 | cut -f 2 | cut -d " " -f 2)
-CMDLINE="iommu=pt"
-
-# Adjust our kernel_args based on cpu vendor
-if [ "$CPU_VENDOR" == "GenuineIntel" ];
-then
-    CMDLINE="$CMDLINE intel_iommu=on"
-elif [ "$CPU_VENDOR" == "AuthenticAMD" ];
-then
-    CMDLINE="$CMDLINE amd_iommu=on"
 fi
 
 # Make the directories

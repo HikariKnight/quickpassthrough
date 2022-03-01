@@ -4,14 +4,25 @@
 SCRIPTDIR=$(dirname `which $0`)
 cd $SCRIPTDIR
 
+# If there is a config generated, then $SCRIPTDIR/config/kernel_args
+# should exist, which contains all the info we need
 if [ -f $SCRIPTDIR/config/kernel_args ];
 then
+    # Fetch part of the device id we need
     DEVID=$(cat $SCRIPTDIR/config/kernel_args | cut -d " " -f 3 | cut -d "=" -f 2 | perl -pe "s/^([0-9a-f]{4}:).*/\1/")
     echo "#------------------------------------------#"
+    # List info about the vfio gpu and what kernel driver is being used
     lspci -d $DEVID -v | grep -iP "kernel driver|amd|radeon|nvidia|nouveau" | grep -vi "kernel modules"
     echo "#------------------------------------------#"
 
     printf "
 If the \"Kernel driver in use\" for these devices are \"vfio-pci\", then VFIO has been successfully enabled!
+If the system freezes when you start a VM with the passthrough then you might need to force disable video output
+for the card on boot (or if you do not have another GPU from the same vendor (AMD/NVIDIA), you can blacklist the driver).
 "
+
+else
+    # Tell user to run the setup first if the kernel_args file is not found
+    echo "Please run \"$SCRIPTDIR/vfio-setup\" first!"
+
 fi  

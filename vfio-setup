@@ -21,6 +21,10 @@ It is HIGHLY RECOMMENDED to make a backup/snapshot of your system using somethin
 
 Once everything is configured, your 2nd graphic card will hopefully be dedicated for use inside a virtual machine.
 
+Even though that this script is intended to make this setup easier, it is recommended that you
+read through a guide and learn what is actually being done so that you can get familiar the process.
+A full documentation for debian/ubuntu systems can be found here: https://github.com/hikariknight/vfio-setup-docs/wiki
+
 Press ENTER to continue once you have made a backup of your system.
 "
 read ENTER
@@ -113,8 +117,10 @@ fi
 # Run ls-iommu so we can verify that IOMMU properly working
 LS_IOMMU=$($SCRIPTDIR/utils/ls-iommu)
 
+# Detect if IOMMU is disabled (output will start with "IOMMU Group *:" if disabled)
 if [[ $LS_IOMMU =~ ^IOMMU[[:space:]]Group[[:space:]]+\*: ]];
 then
+    # Tell user to enable IOMMU then try again
     printf "IOMMU IS NOT ENABLED!
 Please enable IOMMU, VT-d or AMD-v inside your UEFI/BIOS and add \"$CMDLINE\"
 to your kernel boot arguments and reboot your system, then re-run this script!
@@ -122,10 +128,13 @@ to your kernel boot arguments and reboot your system, then re-run this script!
     exit 1
 
 else
+    # Show the output of ls-iommu for manual verification
     echo "$LS_IOMMU"
 fi
 
 echo ""
+
+# Have user visually verify that IOMMU is working
 read -p "Is there more than 1 group in the output above? [y/N]: " YESNO
 case "${YESNO}" in
     [Yy]*)

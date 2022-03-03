@@ -8,7 +8,6 @@ You can use it by simply running
 ```bash
 git clone https://github.com/HikariKnight/VFIO-enabler.git
 cd VFIO-enabler
-chmod +x ./vfio-setup
 ./vfio-setup
 ```
 

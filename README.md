@@ -35,7 +35,7 @@ Proof reading is still contribution!
 
 ## TODO
 
-* ~~Everything
+* ~~Everything~~
 * ~~Show general warning to user and inform about making a backup and general expectations~~
 * ~~Detect if user has an amd or intel CPU and provide the correct IOMMU kernel args based on that~~
 * ~~Tell user to enable IOMMU (VT-d/AMD-v) on their motherboard and bootloader~~

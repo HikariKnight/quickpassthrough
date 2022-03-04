@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Get the scripts directory
-SCRIPTDIR=$(dirname `which $0`)
+SCRIPTDIR=$(dirname "$(which $0)")
 cd $SCRIPTDIR
 
 # If there is a config generated, then $SCRIPTDIR/config/kernel_args
@@ -25,4 +25,4 @@ else
     # Tell user to run the setup first if the kernel_args file is not found
     echo "Please run \"$SCRIPTDIR/vfio-setup\" first!"
 
-fi  
+fi

@@ -45,7 +45,7 @@ USB_CTL_ID=()
 
             # Get the GPU ROM
             "$SCRIPTDIR/lib/get_GPU_ROM.sh" "$ROM_PCI_ID"
-            
+
             # Start setting up modules
             exec "$SCRIPTDIR/lib/set_MODULES.sh" $GPU_DEVID
         ;;
@@ -56,8 +56,8 @@ USB_CTL_ID=()
 }
 
 function main () {
-    SCRIPTDIR=$(dirname `which $0` | perl -pe "s/\/\.\.\/lib//" | perl -pe "s/\/lib$//")
-    
+    SCRIPTDIR=$(dirname "$(which $0)" | perl -pe "s/\/\.\.\/lib//" | perl -pe "s/\/lib$//")
+
     get_GROUP $1
 }
 

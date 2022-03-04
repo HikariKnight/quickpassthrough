@@ -10,7 +10,7 @@ is only needed if you intend to use other devices than just mouse and keyboard w
 "
     echo "#------------------------------------------#"
     exec "$SCRIPTDIR/utils/ls-iommu" | grep -i "usb controller" | cut -d " " -f 1-4,8-
-    echo "#------------------------------------------#"    
+    echo "#------------------------------------------#"
     printf "
 Press q to quit
 "
@@ -31,7 +31,7 @@ Press q to quit
 }
 
 function main () {
-    SCRIPTDIR=$(dirname `which $0` | perl -pe "s/\/\.\.\/lib//" | perl -pe "s/\/lib$//")
+    SCRIPTDIR=$(dirname "$(which $0)" | perl -pe "s/\/\.\.\/lib//" | perl -pe "s/\/lib$//")
 
     get_USB_CTL
 }

@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Get the scripts directory
-SCRIPTDIR=$(dirname `which $0`)
-cd $SCRIPTDIR
+SCRIPTDIR=$(dirname "$(which $0)")
+cd "$SCRIPTDIR"
 
 # Get the config paths
 source "$SCRIPTDIR/lib/paths.sh"
@@ -41,11 +41,11 @@ A full documentation for debian/ubuntu systems can be found here: https://github
 Press ENTER to continue once you have made a backup of your system.
 "
 read ENTER
-clear 
+clear
 
 printf "This script assumes a few things:
 * You have already enabled IOMMU, VT-d and/or AMD-v inside your UEFI/BIOS advanced settings.
-* You have already added \"$CMDLINE\" to your 
+* You have already added \"$CMDLINE\" to your
   kernel boot arguments and booted your system with these kernel arguments active.
 * You are comfortable with navigating and changing settings in your UEFI/BIOS.
 * You know how edit your bootloader configuration and kernel arguments.
@@ -113,7 +113,7 @@ then
 else
     touch "$SCRIPTDIR/$INITRAMFS"
 fi
-    
+
 # Run ls-iommu so we can verify that IOMMU properly working
 LS_IOMMU=$($SCRIPTDIR/utils/ls-iommu)
 

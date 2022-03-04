@@ -5,7 +5,7 @@ function get_GPU_ROM () {
     # Get the config paths
     source "$SCRIPTDIR/lib/paths.sh"
 
-    VBIOS_PATH=$(find /sys/devices -name rom | grep $1)
+    VBIOS_PATH=$(find /sys/devices -name rom | grep "$1")
     printf "We will now attempt to dump the vbios of your selected GPU.
 Passing a VBIOS rom to the card used for passthrough is required for some cards, but not all.
 Some cards also requires you to patch your VBIOS romfile, check online if this is neccessary for your card.
@@ -20,14 +20,14 @@ echo 0 | sudo tee $VBIOS_PATH
     read -p "Do you want to dump the VBIOS, choosing N will skip this step [y/N]: " YESNO
     case "${YESNO}" in
     [Yy]*)
-        echo 1 | sudo tee $VBIOS_PATH
-        sudo cat $VBIOS_PATH > "$SCRIPTDIR/$QUICKEMU/vfio_card.rom"
-        sudo md5sum $VBIOS_PATH | cut -d " " -f 1 > "$SCRIPTDIR/$QUICKEMU/vfio_card.rom.md5"
-        local ROM_MD5=$(sudo md5sum $VBIOS_PATH | cut -d " " -f 1)
-        echo 0 | sudo tee $VBIOS_PATH
+        echo 1 | sudo tee "$VBIOS_PATH"
+        sudo cat "$VBIOS_PATH" > "$SCRIPTDIR/$QUICKEMU/vfio_card.rom"
+        sudo md5sum "$VBIOS_PATH" | cut -d " " -f 1 > "$SCRIPTDIR/$QUICKEMU/vfio_card.rom.md5"
+        local ROM_MD5=$(sudo md5sum "$VBIOS_PATH" | cut -d " " -f 1)
+        echo 0 | sudo tee "$VBIOS_PATH"
         local ROMFILE_MD5=$(md5sum "$SCRIPTDIR/$QUICKEMU/vfio_card.rom" | cut -d " " -f 1)
 
-        if [ -f $SCRIPTDIR/$QUICKEMU/vfio_card.rom ];
+        if [ -f "$SCRIPTDIR"/$QUICKEMU/vfio_card.rom ];
         then
             if [ "$ROM_MD5" == "$ROMFILE_MD5" ];
             then
@@ -59,8 +59,8 @@ echo 0 | sudo tee $VBIOS_PATH
 
 
 function main () {
-    SCRIPTDIR=$(dirname `which $0` | perl -pe "s/\/\.\.\/lib//" | perl -pe "s/\/lib$//")
-    
+    SCRIPTDIR=$(dirname "$(which $0)" | perl -pe "s/\/\.\.\/lib//" | perl -pe "s/\/lib$//")
+
     get_GPU_ROM $1
 }
 

@@ -3,9 +3,9 @@
 function set_CMDLINE () {
     clear
     # Get the config paths
-    source "$SCRIPTDIR/lib/paths.sh"
+    source "${SCRIPTDIR}/lib/paths.sh"
 
-    local CMDLINE=$(cat "$SCRIPTDIR/config/kernel_args")
+    local CMDLINE=$(cat "${SCRIPTDIR}/config/kernel_args")
 
     printf "Configuration is now complete, however no changes have been done to your system.
 The files needed have just been written to $SCRIPTDIR/config/etc
@@ -33,8 +33,8 @@ the required information that the QuickEMU project can hook into and use to add 
 
 ######################################################################
 ####  In the future, when I have enough confirmation that this script works for other people.
-####  This page will get replaced with a prompt asking if you want to apply the changes and make backups   
-####  of your current system config.                                                                       
+####  This page will get replaced with a prompt asking if you want to apply the changes and make backups
+####  of your current system config.
 ######################################################################
 
 "
@@ -42,7 +42,7 @@ the required information that the QuickEMU project can hook into and use to add 
 
 
 function main () {
-    SCRIPTDIR=$(dirname `which $0` | perl -pe "s/\/\.\.\/lib//" | perl -pe "s/\/lib$//")
+    SCRIPTDIR=$(dirname "$(which $0)" | perl -pe "s/\/\.\.\/lib//" | perl -pe "s/\/lib$//")
     set_CMDLINE
 }
 

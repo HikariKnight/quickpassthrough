@@ -25,7 +25,7 @@ To return to the previous page just press ENTER.
     case "${YESNO}" in
         [Yy]*)
             # Get the PCI ids
-            local PCI_ID=$($SCRIPTDIR/utils/ls-iommu | grep -i "group $1" | cut -d " " -f 4 | perl -pe "s/\n/ /" | perl -pe "s/\s$//")
+            local PCI_ID=$($SCRIPTDIR/utils/ls-iommu | grep -i "group $1" | cut -d " " -f 4 | perl -pe "s/([0-9a-f]{2}:[0-9a-f]{2}.[0-9a-f]{1})\n/\"\1\" /" | perl -pe "s/\s$//")
 
             # Replace the blank USB_CTL_ID with the PCI_ID for the usb controller the user wants to pass through
             perl -pi -e "s/USB_CTL_ID=\(\)/USB_CTL_ID=\($PCI_ID\)/" "$SCRIPTDIR/$QUICKEMU/qemu-vfio_vars.conf"

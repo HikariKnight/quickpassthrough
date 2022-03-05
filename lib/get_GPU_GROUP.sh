@@ -33,7 +33,7 @@ To return to the previous page just press ENTER without typing in anything.
             local GPU_DEVID=$($SCRIPTDIR/utils/ls-iommu | grep -i "group $1" | perl -pe "s/.+\[([0-9a-f]{4}:[0-9a-f]{4})\].+/\1/" | perl -pe "s/\n/,/" | perl -pe "s/,$/\n/")
 
             # Get the PCI ids
-            local PCI_ID=$($SCRIPTDIR/utils/ls-iommu | grep -i "group $1" | cut -d " " -f 4 | perl -pe "s/\n/ /" | perl -pe "s/\s$//")
+            local PCI_ID=$($SCRIPTDIR/utils/ls-iommu | grep -i "group $1" | cut -d " " -f 4 | perl -pe "s/([0-9a-f]{2}:[0-9a-f]{2}.[0-9a-f]{1})\n/\"\1\" /" | perl -pe "s/\s$//")
 
             # Write the GPU_PCI_IDs to the config that quickemu might make use of in the future
             printf "GPU_PCI_ID=($PCI_ID)

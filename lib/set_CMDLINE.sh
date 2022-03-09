@@ -22,8 +22,8 @@ $CMDLINE
 Make sure that the files inside \"$SCRIPTDIR/config/etc\" are copied to your /etc
 AND PLEASE MAKE A BACKUP FIRST!
 
-Then run \"sudo update-initramfs -u\", that way you can boot an older kernel and edit out
-the vfio kernel arguments if your system does not boot after this so you can restore your files from your backup.
+Then run \"sudo update-initramfs -u\", that way you can boot an older kernel without vfio if needed, before commiting fully.
+You can remove the the vfio_pci kernel arguments from the linux line in your bootloader to disable/unbind the graphic card from the vfio driver on boot.
 
 Finally reboot your system and run \"$SCRIPTDIR/vfio-verify\" to check if your GPU is properly set up.
 NOTE: Some AMD GPUs will require the vendor-reset kernel module from https://github.com/gnif/vendor-reset to be installed!

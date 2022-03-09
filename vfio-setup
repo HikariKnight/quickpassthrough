@@ -27,7 +27,8 @@ fi
 clear
 
 # Show the user a warning before we start
-printf "Welcome to the VFIO enabler script!
+printf "Welcome to QuickPassthrough!
+Written for systems using initramfs.
 
 The setup done by this script is quite complex and is prone to human error or hardware incompatibilities.
 It is HIGHLY RECOMMENDED to make a backup/snapshot of your system using something like timeshift or snapper before starting.
@@ -58,10 +59,10 @@ NOTE: If your computer no longer fully shut down after enabling IOMMU, then ther
 
 This is a list of prerequisites you will be needing before starting with VFIO:
 * 2 very different GPUs (iGPU/APU included), the easiest combination is to have 2 from different vendors (amd/intel/nvidia)
-  if both cards share the same device id (ex: both are identified as 1022:145c), then passthrough will most likely
+  if both cards share the same device id (ex: both are identified as 1022:145c), then passthrough will
   not be possible unless you swap out one of the cards.
 * A \"ghost display\" dummy plug for your second graphic card (or having it hooked to a separate input on your monitor).
-* If you are planning to use the inegrated GPU on your CPU, make sure your monitor is connected to it before continuing.
+* If you are planning to use the inegrated GPU on your CPU, make sure your monitor is connected to it and working/enabled before continuing.
 * Preferably a motherboard verified to work with IOMMU and with good IOMMU groups.
   https://reddit.com/r/vfio is a good resource for this info.
   (If you are unsure, you will find out while using this script)

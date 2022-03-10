@@ -24,8 +24,6 @@ function set_KERNELSTUB () {
     # Apply new parameters
     CMDLINE=$(cat "${SCRIPTDIR}/config/kernel_args")
     sudo kernelstub -a "$CMDLINE"
-
-    show_FINISH
 }
 
 # Function to configure grub

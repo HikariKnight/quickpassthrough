@@ -41,7 +41,7 @@ A full documentation for debian/ubuntu systems can be found here: https://github
 
 Press ENTER to continue once you have made a backup of your system.
 "
-read ENTER
+read -r
 clear
 
 echo "This script assumes a few things:
@@ -73,7 +73,7 @@ This is a list of prerequisites you will be needing before starting with VFIO:
 Press ENTER to start creating your config from scratch.
 NOTE: continuing will delete the contents of \"$SCRIPTDIR/config\"
 "
-read ENTER
+read -r
 clear
 
 if [ -d "$SCRIPTDIR/config" ];
@@ -116,7 +116,7 @@ else
 fi
 
 # Run ls-iommu so we can verify that IOMMU properly working
-LS_IOMMU=$($SCRIPTDIR/utils/ls-iommu)
+LS_IOMMU=$("$SCRIPTDIR/utils/ls-iommu")
 
 # Detect if IOMMU is disabled (output will start with "IOMMU Group *:" if disabled)
 if [[ $LS_IOMMU =~ ^IOMMU[[:space:]]Group[[:space:]]+\*: ]];
@@ -136,7 +136,7 @@ fi
 echo ""
 
 # Have user visually verify that IOMMU is working
-read -p "Is there more than 1 group in the output above? [y/N]: " YESNO
+read -r -p "Is there more than 1 group in the output above? [y/N]: " YESNO
 case "${YESNO}" in
     [Yy]*)
         clear

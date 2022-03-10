@@ -5,9 +5,10 @@ function set_CMDLINE () {
     # Get the config paths
     source "${SCRIPTDIR}/lib/paths.sh"
 
-    local CMDLINE=$(cat "${SCRIPTDIR}/config/kernel_args")
+    local CMDLINE
+    CMDLINE=$(cat "${SCRIPTDIR}/config/kernel_args")
 
-    printf "Configuration is now complete, however no changes have been done to your system.
+    echo "Configuration is now complete, however no changes have been done to your system.
 The files needed have just been written to $SCRIPTDIR/config/etc
 
 At this point if you know what you are doing, you can use these files to enable VFIO on your system

@@ -9,10 +9,12 @@ function make_BACKUP () {
         # Make the backup directories   
         mkdir -p "$BACKUPDIR/etc/initramfs-tools"
         mkdir -p "$BACKUPDIR/etc/modprobe.d"
+        mkdir -p "$BACKUPDIR/etc/default"
 
-        # Replace system files
+        # Backup system files
         sudo cp -v "/etc/modules" "$BACKUPDIR/etc/modules"
         sudo cp -v "/etc/initramfs-tools/modules" "$BACKUPDIR/etc/initramfs-rools/modules"
+        sudp cp -v "/etc/default/grub" "$BACKUPDIR/etc/default/grub"
 
         # If a vfio.conf file exists, backup that too
         if [ -f "/etc/modprobe.d/vfio.conf" ];
@@ -56,7 +58,7 @@ unless a backup already exist.
 Then the files above will be copied to your system followed by running \"update-initramfs -u\"
 to build your new initrd image (all of this will require sudo permissions!)"
 	
-	read -p "Do you want to proceed with the installation of the files? [Y/n]: " YESNO
+	read -p "Do you want to proceed with the installation of the files? (no=skip) [Y/n]: " YESNO
 
     case "${YESNO}" in
         [Yy]*)
@@ -65,7 +67,7 @@ to build your new initrd image (all of this will require sudo permissions!)"
             exec "$SCRIPTDIR/lib/set_CMDLINE.sh"
         ;;
         *)
-            exit 1
+            exec "$SCRIPTDIR/lib/set_CMDLINE.sh"
         ;;
     esac
 }

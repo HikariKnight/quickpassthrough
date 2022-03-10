@@ -30,18 +30,21 @@ To return to the previous page just press ENTER without typing in anything.
     case "${YESNO}" in
         [Yy]*)
             # Get the hardware ids from the selected group
-            local GPU_DEVID=$($SCRIPTDIR/utils/ls-iommu | grep -i "group $1" | perl -pe "s/.+\[([0-9a-f]{4}:[0-9a-f]{4})\].+/\1/" | perl -pe "s/\n/,/" | perl -pe "s/,$/\n/")
+            local GPU_DEVID
+            GPU_DEVID=$($SCRIPTDIR/utils/ls-iommu | grep -i "group $1" | perl -pe "s/.+\[([0-9a-f]{4}:[0-9a-f]{4})\].+/\1/" | perl -pe "s/\n/,/" | perl -pe "s/,$/\n/")
 
             # Get the PCI ids
-            local PCI_ID=$($SCRIPTDIR/utils/ls-iommu | grep -i "group $1" | cut -d " " -f 4 | perl -pe "s/([0-9a-f]{2}:[0-9a-f]{2}.[0-9a-f]{1})\n/\"\1\" /" | perl -pe "s/\s$//")
+            local PCI_ID
+            PCI_ID=$($SCRIPTDIR/utils/ls-iommu | grep -i "group $1" | cut -d " " -f 4 | perl -pe "s/([0-9a-f]{2}:[0-9a-f]{2}.[0-9a-f]{1})\n/\"\1\" /" | perl -pe "s/\s$//")
 
             # Write the GPU_PCI_IDs to the config that quickemu might make use of in the future
             printf "GPU_PCI_ID=($PCI_ID)
 USB_CTL_ID=()
 " > "$SCRIPTDIR/$QUICKEMU/qemu-vfio_vars.conf"
 
-            # Get the PCI_ID
-            local ROM_PCI_ID=$($SCRIPTDIR/utils/ls-iommu | grep -i "vga" | grep -i "group $1" | cut -d " " -f 4)
+            # Get the rom PCI_ID
+            local ROM_PCI_ID
+            ROM_PCI_ID=$($SCRIPTDIR/utils/ls-iommu | grep -i "vga" | grep -i "group $1" | cut -d " " -f 4)
 
             # Get the GPU ROM
             "$SCRIPTDIR/lib/get_GPU_ROM.sh" "$ROM_PCI_ID"

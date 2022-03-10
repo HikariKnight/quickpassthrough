@@ -2,8 +2,7 @@
 
 A project to simplify setting up GPU passthrough for [QuickEMU](https://github.com/quickemu-project/quickemu) and libvirt
 
-Currently this project does **NO MODIFICATIONS** to your system, all it does is generate the files needed for testing inside `./config/`
-In a future version it will ask if you want changes applied to your system, however I am not enabling that until I have confirmation that this generates a working configuration for other systems than my own.
+Currently this project works with systems using initramfs-tools, if you want support for systems using other initrd image builders like dracut, consider contributing!
 
 You can use it by simply running
 
@@ -43,10 +42,9 @@ Proof reading is still contribution!
 * ~~Enable and configure vfio modules~~
 * ~~Fetch the ID for the GPUs and generate the correct kernel arguments for grub and systemd-boot~~
 * ~~Dump the GPU rom, just in case it will be needed for passthrough~~ (no rom patching planned due to complexity)
-* Get help to actually make the scripts better
+* ~~Get help to actually make the scripts better~~
 * A non-hacky menu system? (I will need help by some bash wizards for this)
 * Coloured highlight/text for important information?
-* Blacklist drivers? (some cards require blacklisting as softdep is not enough)
 * Install vendor_reset kernel module? (maybe far future)
 * Setup looking-glass? (far future maybe)
 

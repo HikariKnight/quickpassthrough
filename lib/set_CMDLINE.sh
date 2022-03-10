@@ -107,6 +107,9 @@ NOTE: Some AMD GPUs will require the vendor-reset kernel module from https://git
     do
         echo "* $dev"
     done
+
+    echo "For performance tuning and advanced configuration look at:
+https://github.com/HikariKnight/vfio-setup-docs/wiki"
 }
 
 function set_CMDLINE () {

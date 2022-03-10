@@ -102,9 +102,8 @@ fi
 
 if [ -f "/etc/default/grub" ];
 then
-    # Currently we do not modify bootloaders, will ask users to do it instead
-    #cp "/etc/default/grub" "$SCRIPTDIR/$DEFAULT/grub"
-    echo ""
+    # Copy grub config
+    cp "/etc/default/grub" "$SCRIPTDIR/$DEFAULT/grub"
 fi
 
 if [ -f "/etc/initramfs-tools/modules" ];

@@ -58,8 +58,6 @@ function set_MODULES () {
     read -p "Do you want to force disable video output in linux on this card? [Y/n]: " DISABLE_VGA
     case "${DISABLE_VGA}" in
     [Yy]*)
-        GPU_DEVID="${GPU_DEVID} disable_vga=1"
-        
         # Update kernel_args file
         echo "${CMDLINE} vfio_pci.ids=${GPU_DEVID} vfio_pci.disable_vga=1" > "$SCRIPTDIR/config/kernel_args"
     ;;

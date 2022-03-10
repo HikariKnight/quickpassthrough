@@ -50,7 +50,7 @@ $SCRIPTDIR/$INITRAMFS/modules
 $SCRIPTDIR/$MODPROBE/vfio.conf
 
 By proceeding, a backup of your system's version of these files will be placed in
-$SCRIPTDIR/config/backup
+$SCRIPTDIR/backup
 unless a backup already exist.
 
 Then the files above will be copied to your system followed by running \"update-initramfs -u\"

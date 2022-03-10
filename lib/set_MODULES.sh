@@ -43,6 +43,8 @@ function set_MODULES () {
     # Get the config paths
     source "$SCRIPTDIR/lib/paths.sh"
     
+    # Insert modules in the correct locations as early as possible without
+    # conflicting with vendor-reset module if it is enabled
     insert_MODULES 4 "$SCRIPTDIR/$MODULES"
     insert_MODULES 11 "$SCRIPTDIR/$INITRAMFS/modules"
 

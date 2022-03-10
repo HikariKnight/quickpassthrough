@@ -1,7 +1,10 @@
 #!/bin/bash
 
-function insert_MODULES () {
+function insert_MODULES() {
     # Get the header and enabled modules separately from the /etc/modules file
+    local MODULES_HEADER
+    local MODULES_ENABLED
+    local VENDOR_RESET
     MODULES_HEADER=$(head -n $1 "$2" | grep -P "^#" | grep -v "# Added by quickpassthrough")
     MODULES_ENABLED=$(cat "$2" | grep -vP "^#" | grep -v "vendor-reset")
     VENDOR_RESET=0

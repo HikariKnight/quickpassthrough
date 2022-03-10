@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# Function to configure systemd-boot using kernelstub
 function set_KERNELSTUB () {
     clear
     # Tell what we are going to do
@@ -27,17 +28,47 @@ function set_KERNELSTUB () {
     show_FINISH
 }
 
+# Function to configure grub
+function set_GRUB () {
+    clear
+    # Get the config paths
+    source "$SCRIPTDIR/lib/paths.sh"
+
+    local CMDLINE
+    CMDLINE=$(cat "$SCRIPTDIR/config/kernel_args")
+
+    # HIGHLY EXPERIMENTAL!
+    GRUB_CMDLINE=$(cat "/etc/default/grub" | grep -P "^GRUB_CMDLINE_LINUX_DEFAULT" | perl -pe "s/GRUB_CMDLINE_LINUX_DEFAULT=\"(.+)\"/\1/" | perl -pe "s/iommu=(pt|on)|amd_iommu=on|vfio_pci.ids=.+|vfio_pci.disable_vga=\d{1}//g" | perl -pe "s/(^\s+|\s+$)//g")
+    GRUB_CMDLINE_LINUX_DEFAULT=$(cat "/etc/default/grub" | grep -P "^GRUB_CMDLINE_LINUX_DEFAULT")
+
+    # Update the GRUB_CMDLINE_LINUX_DEFAULT line
+    perl -pi -e "s/${GRUB_CMDLINE_LINUX_DEFAULT}/GRUB_CMDLINE_LINUX_DEFAULT=\"${GRUB_CMDLINE} ${CMDLINE}\"/" "${SCRIPTDIR}/config/etc/default/grub"
+
+    echo "The script will now replace your default grub file with a new one.
+Then attempt to update grub and generate a new grub.cfg.
+If generating the grub.cfg file fails, you can find a backup of your grub default file here:
+$SCRIPTDIR/backup/etc/default/grub
+"
+    read -r -p "Press ENTER to continue"
+
+    sudo cp -v "$SCRIPTDIR/config/etc/default/grub" "/etc/default/grub"
+    sudo grub-mkconfig -o "/boot/grub/grub.cfg"
+
+    echo ""
+    read -r -p "Please verify there was no errors generating the grub.cfg file, then press ENTER"    
+}
+
 function show_FINISH () {
     clear
     # Get the config paths
-    source "${SCRIPTDIR}/lib/paths.sh"
+    source "$SCRIPTDIR/lib/paths.sh"
 
     local CMDLINE
-    CMDLINE=$(cat "${SCRIPTDIR}/config/kernel_args")
+    CMDLINE=$(cat "$SCRIPTDIR/config/kernel_args")
 
     echo "Configuration is now complete!"
 
-    if [ $1 == 0 ];
+    if [ "$1" == 0 ];
     then
         printf "For VFIO to work properly you need to make sure these kernel parameters are in your bootloader entry:
 #-----------------------------------------------#
@@ -68,7 +99,7 @@ the required information that the QuickEMU project can hook into and use to add 
 The PCI Devices with these IDs are what you should add to your VMs:
 NOTE: Some AMD GPUs will require the vendor-reset kernel module from https://github.com/gnif/vendor-reset to be installed!"
 
-    source "$SCRIPTDIR/config/quickemu/qemu-vfio_vars.conf"
+    source "${SCRIPTDIR}/config/quickemu/qemu-vfio_vars.conf"
 
     for dev in "${GPU_PCI_ID[@]}"
     do
@@ -88,8 +119,16 @@ function set_CMDLINE () {
     # If kernelstub is detected (program to manage systemd-boot)
     if which kernelstub ;
     then
-        # Configure kernelstub then exit
+        # Configure kernelstub
         set_KERNELSTUB
+        BOOTLOADER_AUTOCONFIG=1
+    fi
+
+    # If grub exists
+    if which grub-mkconfig ;
+    then
+        # Configure grub
+        set_GRUB
         BOOTLOADER_AUTOCONFIG=1
     fi
 

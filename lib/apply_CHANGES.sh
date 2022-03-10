@@ -2,16 +2,19 @@
 
 function make_BACKUP () {
     local BACKUPDIR
-    BACKUPDIR="$SCRIPTDIR/config/backup"
+    BACKUPDIR="$SCRIPTDIR/backup"
 
     if [ ! -d "$BACKUPDIR" ];
     then
+        # Make the backup directories   
         mkdir -p "$BACKUPDIR/etc/initramfs-tools"
         mkdir -p "$BACKUPDIR/etc/modprobe.d"
 
+        # Replace system files
         sudo cp -v "/etc/modules" "$BACKUPDIR/etc/modules"
         sudo cp -v "/etc/initramfs-tools/modules" "$BACKUPDIR/etc/initramfs-rools/modules"
 
+        # If a vfio.conf file exists, backup that too
         if [ -f "/etc/modprobe.d/vfio.conf" ];
         then
             sudo cp -v "/etc/modprobe.d/vfio.conf" "$BACKUPDIR/etc/modprobe.d/vfio.conf"

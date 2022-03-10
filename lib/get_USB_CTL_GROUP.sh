@@ -29,7 +29,7 @@ To return to the previous page just press ENTER.
 
             # Replace the blank USB_CTL_ID with the PCI_ID for the usb controller the user wants to pass through
             perl -pi -e "s/USB_CTL_ID=\(\)/USB_CTL_ID=\($PCI_ID\)/" "$SCRIPTDIR/$QUICKEMU/qemu-vfio_vars.conf"
-            exec "$SCRIPTDIR/lib/set_CMDLINE.sh"
+            exec "$SCRIPTDIR/lib/apply_CHANGES.sh"
         ;;
         *)
             exec "$SCRIPTDIR/lib/get_USB_CTL.sh"

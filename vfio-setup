@@ -44,7 +44,7 @@ Press ENTER to continue once you have made a backup of your system.
 read ENTER
 clear
 
-printf "This script assumes a few things:
+echo "This script assumes a few things:
 * You have already enabled IOMMU, VT-d and/or AMD-v inside your UEFI/BIOS advanced settings.
 * You have already added \"$CMDLINE\" to your
   kernel boot arguments and booted your system with these kernel arguments active.
@@ -122,7 +122,7 @@ LS_IOMMU=$($SCRIPTDIR/utils/ls-iommu)
 if [[ $LS_IOMMU =~ ^IOMMU[[:space:]]Group[[:space:]]+\*: ]];
 then
     # Tell user to enable IOMMU then try again
-    printf "IOMMU IS NOT ENABLED!
+    echo "IOMMU IS NOT ENABLED!
 Please enable IOMMU, VT-d or AMD-v inside your UEFI/BIOS and add \"$CMDLINE\"
 to your kernel boot arguments and reboot your system, then re-run this script!
 "
@@ -142,13 +142,13 @@ case "${YESNO}" in
         clear
     ;;
     [Nn]*)
-        printf "Please enable IOMMU, VT-d or AMD-v inside your UEFI/BIOS and add \"$CMDLINE\"
+        echo "Please enable IOMMU, VT-d or AMD-v inside your UEFI/BIOS and add \"$CMDLINE\"
 to your kernel boot arguments and reboot your system, then re-run this script!
 "
         exit 1
     ;;
     *)
-        printf "Please enable IOMMU, VT-d or AMD-v inside your UEFI/BIOS and add \"$CMDLINE\"
+        echo "Please enable IOMMU, VT-d or AMD-v inside your UEFI/BIOS and add \"$CMDLINE\"
 to your kernel boot arguments and reboot your system, then re-run this script!
 "
         exit 1

@@ -5,8 +5,7 @@ function get_GROUP () {
     # Get the config paths
     source "$SCRIPTDIR/lib/paths.sh"
 
-    printf "
-For this card to be passthrough-able, it must contain only:
+    printf "For this card to be passthrough-able, it must contain only:
 * The GPU/Graphic card
 * The GPU Audio Controller
 

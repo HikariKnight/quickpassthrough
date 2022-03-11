@@ -42,7 +42,11 @@ A full documentation for debian/ubuntu systems can be found here: https://github
 Press ENTER to continue once you have made a backup of your system.
 "
 read -r
-clear
+
+# Separator
+printf "
+############################################################
+"
 
 echo "This script assumes a few things:
 * You have already enabled IOMMU, VT-d and/or AMD-v inside your UEFI/BIOS advanced settings.
@@ -74,7 +78,11 @@ Press ENTER to start creating your config from scratch.
 NOTE: continuing will delete the contents of \"$SCRIPTDIR/config\"
 "
 read -r
-clear
+
+# Separator
+printf "
+############################################################
+"
 
 if [ -d "$SCRIPTDIR/config" ];
 then
@@ -138,7 +146,7 @@ echo ""
 read -r -p "Is there more than 1 group in the output above? [y/N]: " YESNO
 case "${YESNO}" in
     [Yy]*)
-        clear
+        echo ""
     ;;
     [Nn]*)
         echo "Please enable IOMMU, VT-d or AMD-v inside your UEFI/BIOS and add \"$CMDLINE\"

@@ -13,7 +13,7 @@ function make_BACKUP () {
 
         # Backup system files
         sudo cp -v "/etc/modules" "$BACKUPDIR/etc/modules"
-        sudo cp -v "/etc/initramfs-tools/modules" "$BACKUPDIR/etc/initramfs-rools/modules"
+        sudo cp -v "/etc/initramfs-tools/modules" "$BACKUPDIR/etc/initramfs-tools/modules"
         sudp cp -v "/etc/default/grub" "$BACKUPDIR/etc/default/grub"
 
         # If a vfio.conf file exists, backup that too

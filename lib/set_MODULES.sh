@@ -55,7 +55,8 @@ function set_MODULES () {
     CMDLINE=$(cat "$SCRIPTDIR/config/kernel_args")
 
     # Ask if we shall disable video output on this card
-    echo "Disabling video output in Linux for the card you want to use in a VM
+    echo "
+Disabling video output in Linux for the card you want to use in a VM
 will make it easier to successfully do the passthrough without issues."
     read -p "Do you want to force disable video output in linux on this card? [Y/n]: " DISABLE_VGA
     case "${DISABLE_VGA}" in

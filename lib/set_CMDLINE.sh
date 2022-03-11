@@ -2,7 +2,11 @@
 
 # Function to configure systemd-boot using kernelstub
 function set_KERNELSTUB () {
-    clear
+    # Separator
+    printf "
+############################################################
+"
+
     # Tell what we are going to do
     echo "Adding vfio kernel arguments to systemd-boot using kernelstub"
 
@@ -28,7 +32,11 @@ function set_KERNELSTUB () {
 
 # Function to configure grub
 function set_GRUB () {
-    clear
+    # Separator
+    printf "
+############################################################
+"
+
     # Get the config paths
     source "$SCRIPTDIR/lib/paths.sh"
 
@@ -69,7 +77,11 @@ $SCRIPTDIR/backup/etc/default/grub
 }
 
 function show_FINISH () {
-    clear
+    # Separator
+    printf "
+############################################################
+"
+
     # Get the config paths
     source "$SCRIPTDIR/lib/paths.sh"
 

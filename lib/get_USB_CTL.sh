@@ -22,10 +22,10 @@ Press q to quit
             exec "$SCRIPTDIR/lib/get_USB_CTL_GROUP.sh" $IOMMU_GROUP
         ;;
        [Qq]*)
-            exec "$SCRIPTDIR/lib/set_CMDLINE.sh"
+            exec "$SCRIPTDIR/lib/apply_CHANGES.sh"
         ;;
        *)
-            exec "$SCRIPTDIR/lib/set_CMDLINE.sh"
+            exec "$SCRIPTDIR/lib/apply_CHANGES.sh"
         ;;
    esac
 }

@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 
 # Function to configure systemd-boot using kernelstub
 function set_KERNELSTUB () {

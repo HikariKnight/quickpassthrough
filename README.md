@@ -1,4 +1,4 @@
-# VFIO-enabler (name pending)
+# QuickPassthrough
 
 A project to simplify setting up GPU passthrough on your Linux host for [QuickEMU](https://github.com/quickemu-project/quickemu)(vfio support not developed yet) and libvirt/virt-manager
 
@@ -7,8 +7,8 @@ Currently this project works with systems using initramfs-tools, if you want sup
 You can use it by simply running
 
 ```bash
-git clone https://github.com/HikariKnight/VFIO-enabler.git
-cd VFIO-enabler
+git clone https://github.com/HikariKnight/quickpassthrough.git
+cd quickpassthrough
 ./vfio-setup
 ```
 
@@ -18,8 +18,10 @@ cd VFIO-enabler
 * Enable and configure vfio modules
 * Configure 2nd GPU for GPU Passthrough
 * Dump the selected GPU rom (as some cards require a romfile for passthrough to work), however no rom patching support planned.
-* Enable and configure the correct kernel modules
-* Provides you with the correct kernel arguments to add to your bootloader entry
+* Enable and configure the correct kernel modules and load them early (initramfs-tools only for now)
+* Configure kernel arguments for systemd-boot (using kernelstub)
+* Configure kernel arguments for grub2
+* Provides you with the correct kernel arguments to add to your bootloader entry if a supported bootloader is not found
 
 ## Contributing
 

@@ -17,8 +17,6 @@ then
 
     printf "
 If the \"Kernel driver in use\" for these devices are \"vfio-pci\", then VFIO has been successfully enabled!
-If the system freezes when you start a VM with the passthrough then you might need to force disable video output
-for the card on boot (or if you do not have another GPU from the same vendor (AMD/NVIDIA), you can blacklist the driver).
 
 NOTE: If your system freezes when starting a VM that uses your VFIO enabled card..
 consider adding the below line to your bootloaders kernel arguments:

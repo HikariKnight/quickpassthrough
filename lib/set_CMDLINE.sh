@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 
 # Function to configure systemd-boot using kernelstub
 function set_KERNELSTUB () {
@@ -40,7 +40,7 @@ function set_GRUB () {
     local GRUB_CMDLINE_LINUX
 
     # Check if there is a GRUB_CMDLINE_LINUX_DEFAULT line in grub config
-    if grep -q "GRUB_CMDLINE_LINUX_DEFAULT=" ;
+    if grep -q "GRUB_CMDLINE_LINUX_DEFAULT=" "$SCRIPTDIR/config/etc/default/grub" ;
     then
         # Update the GRUB_CMDLINE_LINUX_DEFAULT line
         GRUB_CMDLINE=$(cat "/etc/default/grub" | grep -P "^GRUB_CMDLINE_LINUX_DEFAULT" | perl -pe "s/GRUB_CMDLINE_LINUX_DEFAULT=\"(.+)\"/\1/" | perl -pe "s/iommu=(pt|on)|amd_iommu=on|vfio_pci.ids=.+|vfio_pci.disable_vga=\d{1}//g" | perl -pe "s/(^\s+|\s+$)//g")

@@ -1,6 +1,6 @@
 # VFIO-enabler (name pending)
 
-A project to simplify setting up GPU passthrough for [QuickEMU](https://github.com/quickemu-project/quickemu) and libvirt
+A project to simplify setting up GPU passthrough on your Linux host for [QuickEMU](https://github.com/quickemu-project/quickemu)(vfio support not developed yet) and libvirt/virt-manager
 
 Currently this project works with systems using initramfs-tools, if you want support for systems using other initrd image builders like dracut, consider contributing!
 

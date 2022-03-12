@@ -85,7 +85,10 @@ vfio
 vfio_iommu_type1
 vfio_pci
 vfio_virqfd
-"
+
+
+Press ENTER to continue once you have done the above."
+    read -r
         
     fi
 

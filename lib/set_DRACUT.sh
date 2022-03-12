@@ -4,7 +4,7 @@ function set_DRACUT () {
     source "$SCRIPTDIR/lib/paths.sh"
 
     # Write the dracut config
-    echo "add_drivers+=\" vfio_pci vfio vfio_iommu_type1 vfio_virqfd \"" > "$SCRIPTDIR/$DRACUT"
+    echo "add_drivers+=\" vfio_pci vfio vfio_iommu_type1 vfio_virqfd \"" > "$SCRIPTDIR/$DRACUT/10-vfio.conf"
 
     # Get the kernel_args file content
     CMDLINE=$(cat "$SCRIPTDIR/config/kernel_args")

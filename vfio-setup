@@ -129,8 +129,10 @@ fi
 
 if [ -f "/etc/dracut.conf" ];
 then
+    # Create the dracut folder
+    mkdir -p "$SCRIPTDIR/$DRACUT"
     # Create a dracut.conf.d file
-    touch "$SCRIPTDIR/$DRACUT" 
+    touch "$SCRIPTDIR/$DRACUT/10-vfio.conf" 
 fi
 
 # Run ls-iommu so we can verify that IOMMU properly working

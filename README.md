@@ -28,7 +28,7 @@ cd quickpassthrough
 <img src="https://user-images.githubusercontent.com/2557889/156038229-4e70352f-9182-4474-8e32-d14d3ad67566.png" width="250px">
 
 I know my bash skills are not great, so help is always welcome! And help is wanted here.
-If you know bash well, you will be able to help! Just make a pull request with your changes!
+If you know bash well, you will be able to help! Just make a pull request to the [dev branch](https://github.com/HikariKnight/quickpassthrough/tree/dev) with your changes!
 Just remember to add comments to document the work and explain it for people who are less familiar with the bash syntax or anything else you use. 😄
 
 Also if you know English, you can help by just proof reading. English is not my native language, plus I have dyslexia so I often make spelling mistakes.

@@ -15,11 +15,11 @@ is only needed if you intend to use other devices than just mouse and keyboard w
 Press q to quit
 "
 
-    read -p "Which group number do you want to check?: " IOMMU_GROUP
+    read -r -p "Which group number do you want to check?: " IOMMU_GROUP
 
    case "${IOMMU_GROUP}" in
        [1-9]*)
-            exec "$SCRIPTDIR/lib/get_USB_CTL_GROUP.sh" $IOMMU_GROUP
+            exec "$SCRIPTDIR/lib/get_USB_CTL_GROUP.sh" "$IOMMU_GROUP"
         ;;
        [Qq]*)
             exec "$SCRIPTDIR/lib/apply_CHANGES.sh"
@@ -31,7 +31,7 @@ Press q to quit
 }
 
 function main () {
-    SCRIPTDIR=$(dirname "$(which $0)" | perl -pe "s/\/\.\.\/lib//" | perl -pe "s/\/lib$//")
+    SCRIPTDIR=$(dirname "$(realpath "$0")" | perl -pe "s/\/\.\.\/lib//" | perl -pe "s/\/lib$//")
 
     get_USB_CTL
 }

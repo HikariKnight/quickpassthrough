@@ -48,17 +48,17 @@ function set_GRUB () {
     local GRUB_CMDLINE_LINUX
 
     # Check if there is a GRUB_CMDLINE_LINUX_DEFAULT line in grub config
-    if grep -q "GRUB_CMDLINE_LINUX_DEFAULT=" "$SCRIPTDIR/config/etc/default/grub" ;
+    if grep -q "GRUB_CMDLINE_LINUX_DEFAULT=" "$SCRIPTDIR/$DEFAULT/grub" ;
     then
         # Update the GRUB_CMDLINE_LINUX_DEFAULT line
         GRUB_CMDLINE=$(cat "/etc/default/grub" | grep -P "^GRUB_CMDLINE_LINUX_DEFAULT" | perl -pe "s/GRUB_CMDLINE_LINUX_DEFAULT=\"(.+)\"/\1/" | perl -pe "s/iommu=(pt|on)|amd_iommu=on|vfio_pci.ids=.+|vfio_pci.disable_vga=\d{1}//g" | perl -pe "s/(^\s+|\s+$)//g")
         GRUB_CMDLINE_LINUX=$(cat "/etc/default/grub" | grep -P "^GRUB_CMDLINE_LINUX_DEFAULT")
-        perl -pi -e "s/${GRUB_CMDLINE_LINUX}/GRUB_CMDLINE_LINUX_DEFAULT=\"${GRUB_CMDLINE} ${CMDLINE}\"/" "${SCRIPTDIR}/config/etc/default/grub"
+        perl -pi -e "s/${GRUB_CMDLINE_LINUX}/GRUB_CMDLINE_LINUX_DEFAULT=\"${GRUB_CMDLINE} ${CMDLINE}\"/" "${SCRIPTDIR}/$DEFAULT/grub"
     else
         # Update the GRUB_CMDLINE_LINUX line
         GRUB_CMDLINE=$(cat "/etc/default/grub" | grep -P "^GRUB_CMDLINE_LINUX" | perl -pe "s/GRUB_CMDLINE_LINUX=\"(.+)\"/\1/" | perl -pe "s/iommu=(pt|on)|amd_iommu=on|vfio_pci.ids=.+|vfio_pci.disable_vga=\d{1}//g" | perl -pe "s/(^\s+|\s+$)//g")
         GRUB_CMDLINE_LINUX=$(cat "/etc/default/grub" | grep -P "^GRUB_CMDLINE_LINUX")
-        perl -pi -e "s/${GRUB_CMDLINE_LINUX}/GRUB_CMDLINE_LINUX=\"${GRUB_CMDLINE} ${CMDLINE}\"/" "${SCRIPTDIR}/config/etc/default/grub"
+        perl -pi -e "s/${GRUB_CMDLINE_LINUX}/GRUB_CMDLINE_LINUX=\"${GRUB_CMDLINE} ${CMDLINE}\"/" "${SCRIPTDIR}/$DEFAULT/grub"
     fi
     
 
@@ -69,7 +69,7 @@ $SCRIPTDIR/backup/etc/default/grub
 "
     read -r -p "Press ENTER to continue"
 
-    sudo cp -v "$SCRIPTDIR/config/etc/default/grub" "/etc/default/grub"
+    sudo cp -v "$SCRIPTDIR/$DEFAULT/grub" "/etc/default/grub"
 
     # Generate grub.cfg
     if [ -d "/boot/grub" ];
@@ -116,8 +116,8 @@ proceed to add it to your virtual machines.
 
 A backup the files we replaced on your system can be found inside
 $SCRIPTDIR/backup/
-In order to restore these files just copy them back to your system and run
-\"sudo update-initramfs -u\"
+In order to restore these files just copy them back to your system and
+rebuild your initramfs image.
 
 You can remove the the vfio_pci kernel arguments from the linux line in your bootloader
 to disable/unbind the graphic card from the vfio driver on boot.
@@ -125,7 +125,7 @@ to disable/unbind the graphic card from the vfio driver on boot.
 The files inside \"$SCRIPTDIR/$QUICKEMU\" are currently unused files, however they provide
 the required information that the QuickEMU project can hook into and use to add support for VFIO enabled VMs.
 
-The PCI Devices with these IDs are what you should add to your VMs:
+The PCI Devices with these IDs are what you should add to your VMs using Virt Manager:
 NOTE: Some AMD GPUs will require the vendor-reset kernel module from https://github.com/gnif/vendor-reset to be installed!"
 
     source "${SCRIPTDIR}/config/quickemu/qemu-vfio_vars.conf"
@@ -139,7 +139,17 @@ NOTE: Some AMD GPUs will require the vendor-reset kernel module from https://git
         echo "* $dev"
     done
 
-    echo "For performance tuning and advanced configuration look at:
+echo "
+To add the graphic card to your VM using qemu directly, use the following arguments:"
+    for dev in "${GPU_PCI_ID[@]}"
+    do
+
+        echo -n "-device vfio-pci,host=$dev "
+    done
+    printf "\n"
+
+    echo "
+For performance tuning and advanced configuration look at:
 https://github.com/HikariKnight/vfio-setup-docs/wiki"
 }
 
@@ -149,7 +159,7 @@ function set_CMDLINE () {
     BOOTLOADER_AUTOCONFIG=0
     
     # If kernelstub is detected (program to manage systemd-boot)
-    if which kernelstub ;
+    if which kernelstub > /dev/null 2>&1 ;
     then
         # Configure kernelstub
         set_KERNELSTUB
@@ -157,7 +167,7 @@ function set_CMDLINE () {
     fi
 
     # If grub exists
-    if which grub-mkconfig ;
+    if which grub-mkconfig > /dev/null 2>&1 ;
     then
         # Configure grub
         set_GRUB
@@ -169,7 +179,8 @@ function set_CMDLINE () {
 
 
 function main () {
-    SCRIPTDIR=$(dirname "$(which $0)" | perl -pe "s/\/\.\.\/lib//" | perl -pe "s/\/lib$//")
+    SCRIPTDIR=$(dirname "$(realpath "$0")" | perl -pe "s/\/\.\.\/lib//" | perl -pe "s/\/lib$//")
+    
     set_CMDLINE
 }
 

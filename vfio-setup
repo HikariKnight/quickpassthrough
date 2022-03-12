@@ -1,14 +1,11 @@
 #!/bin/bash
 
 # Get the scripts directory
-SCRIPTDIR=$(dirname "$(which $0)")
+SCRIPTDIR=$(dirname "$(realpath "$0")")
 cd "$SCRIPTDIR"
 
 # Get the config paths
 source "$SCRIPTDIR/lib/paths.sh"
-
-# Make sure all the scripts are executable
-chmod +x "$SCRIPTDIR/lib/*"
 
 # Get the CPU Vendor
 CPU_VENDOR=$(cat /proc/cpuinfo | grep vendor | head -1 | cut -f 2 | cut -d " " -f 2)
@@ -91,35 +88,48 @@ fi
 
 # Make the directories
 mkdir -p "$SCRIPTDIR/$MODPROBE"
-mkdir -p "$SCRIPTDIR/$DEFAULT"
-mkdir -p "$SCRIPTDIR/$INITRAMFS"
 mkdir -p "$SCRIPTDIR/$QUICKEMU"
 
 # Write the cmdline file
 echo "$CMDLINE" > "$SCRIPTDIR/config/kernel_args"
 
-# Copy system configs into our config folder so we can safely edit them
-
+# Copy system configs that exists into our config folder so we can safely edit them
 if [ -f "/etc/modules" ];
 then
     # This copies /etc/modules without the vfio module lines
     grep -v "vfio" "/etc/modules" > "$SCRIPTDIR/$ETCMODULES"
-else
-    touch "$SCRIPTDIR/$ETCMODULES"
 fi
 
 if [ -f "/etc/default/grub" ];
 then
+    # Create the default folder
+    mkdir -p "$SCRIPTDIR/$DEFAULT"
+
     # Copy grub config
     cp "/etc/default/grub" "$SCRIPTDIR/$DEFAULT/grub"
 fi
 
 if [ -f "/etc/initramfs-tools/modules" ];
 then
+    # Create the initramfs folder
+    mkdir -p "$SCRIPTDIR/$INITRAMFS"
+
     # This copies /etc/initramfs-tools/modules without the vfio modules
     grep -v "vfio" "/etc/initramfs-tools/modules" > "$SCRIPTDIR/$INITRAMFS/modules"
-else
-    touch "$SCRIPTDIR/$INITRAMFS"
+fi
+
+if [ -f "/etc/mkinitcpio.conf" ];
+then
+    # Copy mkinitcpio.conf to our config folder
+    cp "/etc/mkinitcpio.conf" "$SCRIPTDIR/$MKINITCPIO"
+fi
+
+if [ -f "/etc/dracut.conf" ];
+then
+    # Create the dracut folder
+    mkdir -p "$SCRIPTDIR/$DRACUT"
+    # Create a dracut.conf.d file
+    touch "$SCRIPTDIR/$DRACUT/10-vfio.conf" 
 fi
 
 # Run ls-iommu so we can verify that IOMMU properly working

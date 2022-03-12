@@ -20,7 +20,7 @@ To use any of the devices shown for passthrough, all of them have to be passed t
 
 To return to the previous page just press ENTER.
 "
-    read -p "Do you want to use the displayed devices for passthrough? [y/N]: " YESNO
+    read -r -p "Do you want to use the displayed devices for passthrough? [y/N]: " YESNO
 
     case "${YESNO}" in
         [Yy]*)
@@ -39,7 +39,7 @@ To return to the previous page just press ENTER.
 }
 
 function main () {
-    SCRIPTDIR=$(dirname "$(which $0)" | perl -pe "s/\/\.\.\/lib//" | perl -pe "s/\/lib$//")
+    SCRIPTDIR=$(dirname "$(realpath "$0")" | perl -pe "s/\/\.\.\/lib//" | perl -pe "s/\/lib$//")
 
     get_USB_CTL_GROUP $1
 }

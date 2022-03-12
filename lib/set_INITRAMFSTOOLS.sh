@@ -48,7 +48,10 @@ function set_INITRAMFSTOOLS () {
     insert_INITRAMFSTOOLS 4 "$SCRIPTDIR/$ETCMODULES"
     insert_INITRAMFSTOOLS 11 "$SCRIPTDIR/$INITRAMFS/modules"
 
+    # Bind GPU to VFIO
     "$SCRIPTDIR/lib/set_VFIO.sh" "$1"
+
+    # Configure modprobe
     "$SCRIPTDIR/lib/set_MODPROBE.sh" "$1"
 
     exec "$SCRIPTDIR/lib/get_USB_CTL.sh"

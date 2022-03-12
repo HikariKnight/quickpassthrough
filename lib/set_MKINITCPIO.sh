@@ -4,8 +4,8 @@ function set_MKINITCPIO () {
     source "$SCRIPTDIR/lib/paths.sh"
 
     # Grab the current modules but exclude vfio and vendor-reset
-    CURRENTMODULES=$(grep -P "^MODULES" /etc/mkinitcpio.conf | perl -pe "s/MODULES=\((.+)\)/\1/")
-    MODULES="$(grep -P "^MODULES" /etc/mkinitcpio.conf | perl -pe "s/MODULES=\((.+)\)/\1/" | perl -pe "s/\s?(vfio_iommu_type1|vfio_pci|vfio_virqfd|vfio|vendor-reset)\s?//g")"
+    CURRENTMODULES=$(grep -P "^MODULES" "$SCRIPTDIR/$MKINITCPIO" | perl -pe "s/MODULES=\((.+)\)/\1/")
+    MODULES="$(grep -P "^MODULES" "$SCRIPTDIR/$MKINITCPIO" | perl -pe "s/MODULES=\((.+)\)/\1/" | perl -pe "s/\s?(vfio_iommu_type1|vfio_pci|vfio_virqfd|vfio|vendor-reset)\s?//g")"
 
     if [[ $CURRENTMODULES =~ "vendor-reset" ]];
     then

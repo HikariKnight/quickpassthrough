@@ -55,10 +55,10 @@ By proceeding, a backup of your system's version of these files will be placed i
 $SCRIPTDIR/backup
 unless a backup already exist.
 
-Then the files above will be copied to your system followed by running \"update-initramfs -u\"
-to build your new initrd image (all of this will require sudo permissions!)"
+Then the files above will be copied to your system followed by running followed by updating your
+initramfs and then attempt adding new kernel arguments to your bootloader."
 	
-	read -p "Do you want to proceed with the installation of the files? (no=skip) [Y/n]: " YESNO
+	read -p "Do you want to proceed with the installation of the files? (no=quit) [Y/n]: " YESNO
 
     case "${YESNO}" in
         [Yy]*)
@@ -67,7 +67,7 @@ to build your new initrd image (all of this will require sudo permissions!)"
             exec "$SCRIPTDIR/lib/set_CMDLINE.sh"
         ;;
         *)
-            exec "$SCRIPTDIR/lib/set_CMDLINE.sh"
+            exit 1
         ;;
     esac
 }
@@ -75,7 +75,7 @@ to build your new initrd image (all of this will require sudo permissions!)"
 
 function main () {
     SCRIPTDIR=$(dirname "$(realpath "$0")" | perl -pe "s/\/\.\.\/lib//" | perl -pe "s/\/lib$//")
-    
+
     apply_CHANGES
 }
 

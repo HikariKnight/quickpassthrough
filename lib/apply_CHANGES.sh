@@ -76,7 +76,7 @@ function copy_FILES () {
 Rebuilding initramfs"
         sudo update-initramfs -u
 
-    elif [ -d "/etc/dracut.conf" ];
+    elif [ -f "/etc/dracut.conf" ];
     then
         cp -v "$SCRIPTDIR/$DRACUT/10-vfio.conf" "/etc/dracut.conf.d/10-vfio.conf"
         echo "

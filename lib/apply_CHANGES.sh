@@ -32,7 +32,7 @@ backup skipped."
 
 function copy_FILES () {
     echo "Starting copying files to the system!"
-    sudo cp -v "$SCRIPTDIR/$MODULES" "/etc/modules"
+    sudo cp -v "$SCRIPTDIR/$ETCMODULES" "/etc/modules"
     sudo cp -v "$SCRIPTDIR/$INITRAMFS/modules" "/etc/initramfs-tools/modules"
     sudo cp -v "$SCRIPTDIR/$MODPROBE/vfio.conf" "/etc/modprobe.d/vfio.conf"
 
@@ -47,7 +47,7 @@ function apply_CHANGES () {
     source "$SCRIPTDIR/lib/paths.sh"
 
     echo "Configuration is now complete and these files have been generated for your system:
-$SCRIPTDIR/$MODULES
+$SCRIPTDIR/$ETCMODULES
 $SCRIPTDIR/$INITRAMFS/modules
 $SCRIPTDIR/$MODPROBE/vfio.conf
 

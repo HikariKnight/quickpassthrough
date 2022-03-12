@@ -16,7 +16,7 @@ function insert_MODULES() {
     fi
 
     # Write header
-    echo "$MODULES_HEADER" > "$2"
+    echo "$ETCMODULES_HEADER" > "$2"
     
     # If vendor-reset existed from before
     if [ $VENDOR_RESET == 1 ];
@@ -36,7 +36,7 @@ vfio_virqfd
 " >> "$2"
 
     # Write the previously enabled modules under vfio in the load order
-    echo "$MODULES_ENABLED" >> "$2"
+    echo "$ETCMODULES_ENABLED" >> "$2"
 }
 
 function set_MODULES () {
@@ -45,7 +45,7 @@ function set_MODULES () {
     
     # Insert modules in the correct locations as early as possible without
     # conflicting with vendor-reset module if it is enabled
-    insert_MODULES 4 "$SCRIPTDIR/$MODULES"
+    insert_MODULES 4 "$SCRIPTDIR/$ETCMODULES"
     insert_MODULES 11 "$SCRIPTDIR/$INITRAMFS/modules"
 
     # Assign the GPU device ids to a variable

@@ -103,9 +103,9 @@ echo "$CMDLINE" > "$SCRIPTDIR/config/kernel_args"
 if [ -f "/etc/modules" ];
 then
     # This copies /etc/modules without the vfio module lines
-    grep -v "vfio" "/etc/modules" > "$SCRIPTDIR/$MODULES"
+    grep -v "vfio" "/etc/modules" > "$SCRIPTDIR/$ETCMODULES"
 else
-    touch "$SCRIPTDIR/$MODULES"
+    touch "$SCRIPTDIR/$ETCMODULES"
 fi
 
 if [ -f "/etc/default/grub" ];

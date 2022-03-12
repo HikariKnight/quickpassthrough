@@ -125,7 +125,7 @@ to disable/unbind the graphic card from the vfio driver on boot.
 The files inside \"$SCRIPTDIR/$QUICKEMU\" are currently unused files, however they provide
 the required information that the QuickEMU project can hook into and use to add support for VFIO enabled VMs.
 
-The PCI Devices with these IDs are what you should add to your VMs:
+The PCI Devices with these IDs are what you should add to your VMs using Virt Manager:
 NOTE: Some AMD GPUs will require the vendor-reset kernel module from https://github.com/gnif/vendor-reset to be installed!"
 
     source "${SCRIPTDIR}/config/quickemu/qemu-vfio_vars.conf"
@@ -138,6 +138,15 @@ NOTE: Some AMD GPUs will require the vendor-reset kernel module from https://git
     do
         echo "* $dev"
     done
+
+echo "
+To add the graphic card to your VM using qemu directly, use the following arguments:"
+    for dev in "${GPU_PCI_ID[@]}"
+    do
+
+        echo -n "-device vfio-pci,host=$dev "
+    done
+    printf "\n"
 
     echo "
 For performance tuning and advanced configuration look at:

@@ -7,9 +7,6 @@ cd "$SCRIPTDIR"
 # Get the config paths
 source "$SCRIPTDIR/lib/paths.sh"
 
-# Make sure all the scripts are executable
-chmod +x "$SCRIPTDIR/lib/*"
-
 # Get the CPU Vendor
 CPU_VENDOR=$(cat /proc/cpuinfo | grep vendor | head -1 | cut -f 2 | cut -d " " -f 2)
 CMDLINE="iommu=pt"

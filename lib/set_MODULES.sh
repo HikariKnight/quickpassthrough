@@ -16,7 +16,7 @@ function insert_MODULES() {
     fi
 
     # Write header
-    echo "$ETCMODULES_HEADER" > "$2"
+    echo "$MODULES_HEADER" > "$2"
     
     # If vendor-reset existed from before
     if [ $VENDOR_RESET == 1 ];
@@ -36,7 +36,7 @@ vfio_virqfd
 " >> "$2"
 
     # Write the previously enabled modules under vfio in the load order
-    echo "$ETCMODULES_ENABLED" >> "$2"
+    echo "$MODULES_ENABLED" >> "$2"
 }
 
 function set_MODULES () {

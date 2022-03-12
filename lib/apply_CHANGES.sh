@@ -74,7 +74,7 @@ to build your new initrd image (all of this will require sudo permissions!)"
 
 
 function main () {
-    SCRIPTDIR=$(dirname "$(which $0)" | perl -pe "s/\/\.\.\/lib//" | perl -pe "s/\/lib$//")
+    SCRIPTDIR=$(dirname "$(realpath $0)" | perl -pe "s/\/\.\.\/lib//" | perl -pe "s/\/lib$//")
     apply_CHANGES
 }
 

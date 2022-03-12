@@ -37,7 +37,7 @@ will make it easier to successfully do the passthrough without issues."
 }
 
 function main () {
-    SCRIPTDIR=$(dirname "$(which $0)" | perl -pe "s/\/\.\.\/lib//" | perl -pe "s/\/lib$//")
+    SCRIPTDIR=$(dirname "$(realpath $0)" | perl -pe "s/\/\.\.\/lib//" | perl -pe "s/\/lib$//")
 
     set_VFIO "$1"
 }

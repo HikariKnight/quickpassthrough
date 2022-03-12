@@ -119,13 +119,13 @@ initramfs and then attempt adding new kernel arguments to your bootloader."
 	read -p "Do you want to proceed with the installation of the files? (no=quit) [Y/n]: " YESNO
 
     case "${YESNO}" in
-        [Yy]*)
+        [Nn]*)
+            exit 1
+        ;;
+        *)
             make_BACKUP
             copy_FILES
             exec "$SCRIPTDIR/lib/set_CMDLINE.sh"
-        ;;
-        *)
-            exit 1
         ;;
     esac
 }

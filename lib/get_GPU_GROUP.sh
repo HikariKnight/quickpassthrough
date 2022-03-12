@@ -49,7 +49,7 @@ USB_CTL_ID=()
             "$SCRIPTDIR/lib/get_GPU_ROM.sh" "$ROM_PCI_ID"
 
             # Start setting up modules
-            exec "$SCRIPTDIR/lib/set_MODULES.sh" $GPU_DEVID
+            exec "$SCRIPTDIR/lib/set_INITRAMFSTOOLS.sh" $GPU_DEVID
         ;;
         *)
             exec "$SCRIPTDIR/lib/get_GPU.sh"

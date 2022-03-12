@@ -1,6 +1,6 @@
 #!/bin/bash
 
-function insert_MODULES() {
+function insert_INITRAMFSTOOLS() {
     # Get the header and enabled modules separately from the /etc/modules file
     local MODULES_HEADER
     local MODULES_ENABLED
@@ -39,14 +39,14 @@ vfio_virqfd
     echo "$MODULES_ENABLED" >> "$2"
 }
 
-function set_MODULES () {
+function set_INITRAMFSTOOLS () {
     # Get the config paths
     source "$SCRIPTDIR/lib/paths.sh"
     
     # Insert modules in the correct locations as early as possible without
     # conflicting with vendor-reset module if it is enabled
-    insert_MODULES 4 "$SCRIPTDIR/$ETCMODULES"
-    insert_MODULES 11 "$SCRIPTDIR/$INITRAMFS/modules"
+    insert_INITRAMFSTOOLS 4 "$SCRIPTDIR/$ETCMODULES"
+    insert_INITRAMFSTOOLS 11 "$SCRIPTDIR/$INITRAMFS/modules"
 
     # Assign the GPU device ids to a variable
     GPU_DEVID="$1"
@@ -100,7 +100,7 @@ softdep radeon pre: vfio vfio_pci
 function main () {
     SCRIPTDIR=$(dirname "$(which $0)" | perl -pe "s/\/\.\.\/lib//" | perl -pe "s/\/lib$//")
 
-    set_MODULES "$1"
+    set_INITRAMFSTOOLS "$1"
 }
 
 main "$1"

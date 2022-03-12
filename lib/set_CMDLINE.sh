@@ -48,17 +48,17 @@ function set_GRUB () {
     local GRUB_CMDLINE_LINUX
 
     # Check if there is a GRUB_CMDLINE_LINUX_DEFAULT line in grub config
-    if grep -q "GRUB_CMDLINE_LINUX_DEFAULT=" "$SCRIPTDIR/config/etc/default/grub" ;
+    if grep -q "GRUB_CMDLINE_LINUX_DEFAULT=" "$SCRIPTDIR/$DEFAULT/grub" ;
     then
         # Update the GRUB_CMDLINE_LINUX_DEFAULT line
         GRUB_CMDLINE=$(cat "/etc/default/grub" | grep -P "^GRUB_CMDLINE_LINUX_DEFAULT" | perl -pe "s/GRUB_CMDLINE_LINUX_DEFAULT=\"(.+)\"/\1/" | perl -pe "s/iommu=(pt|on)|amd_iommu=on|vfio_pci.ids=.+|vfio_pci.disable_vga=\d{1}//g" | perl -pe "s/(^\s+|\s+$)//g")
         GRUB_CMDLINE_LINUX=$(cat "/etc/default/grub" | grep -P "^GRUB_CMDLINE_LINUX_DEFAULT")
-        perl -pi -e "s/${GRUB_CMDLINE_LINUX}/GRUB_CMDLINE_LINUX_DEFAULT=\"${GRUB_CMDLINE} ${CMDLINE}\"/" "${SCRIPTDIR}/config/etc/default/grub"
+        perl -pi -e "s/${GRUB_CMDLINE_LINUX}/GRUB_CMDLINE_LINUX_DEFAULT=\"${GRUB_CMDLINE} ${CMDLINE}\"/" "${SCRIPTDIR}/$DEFAULT/grub"
     else
         # Update the GRUB_CMDLINE_LINUX line
         GRUB_CMDLINE=$(cat "/etc/default/grub" | grep -P "^GRUB_CMDLINE_LINUX" | perl -pe "s/GRUB_CMDLINE_LINUX=\"(.+)\"/\1/" | perl -pe "s/iommu=(pt|on)|amd_iommu=on|vfio_pci.ids=.+|vfio_pci.disable_vga=\d{1}//g" | perl -pe "s/(^\s+|\s+$)//g")
         GRUB_CMDLINE_LINUX=$(cat "/etc/default/grub" | grep -P "^GRUB_CMDLINE_LINUX")
-        perl -pi -e "s/${GRUB_CMDLINE_LINUX}/GRUB_CMDLINE_LINUX=\"${GRUB_CMDLINE} ${CMDLINE}\"/" "${SCRIPTDIR}/config/etc/default/grub"
+        perl -pi -e "s/${GRUB_CMDLINE_LINUX}/GRUB_CMDLINE_LINUX=\"${GRUB_CMDLINE} ${CMDLINE}\"/" "${SCRIPTDIR}/$DEFAULT/grub"
     fi
     
 
@@ -69,7 +69,7 @@ $SCRIPTDIR/backup/etc/default/grub
 "
     read -r -p "Press ENTER to continue"
 
-    sudo cp -v "$SCRIPTDIR/config/etc/default/grub" "/etc/default/grub"
+    sudo cp -v "$SCRIPTDIR/$DEFAULT/grub" "/etc/default/grub"
 
     # Generate grub.cfg
     if [ -d "/boot/grub" ];

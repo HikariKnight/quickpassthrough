@@ -2,8 +2,6 @@
 
 A project to simplify setting up GPU passthrough on your Linux host for [QuickEMU](https://github.com/quickemu-project/quickemu)(vfio support not developed yet) and libvirt/virt-manager
 
-Currently this project works with systems using initramfs-tools, if you want support for systems using other initrd image builders like dracut, consider contributing!
-
 You can use it by simply running
 
 ```bash
@@ -18,7 +16,7 @@ cd quickpassthrough
 * Enable and configure vfio modules
 * Configure 2nd GPU for GPU Passthrough
 * Dump the selected GPU rom (as some cards require a romfile for passthrough to work), however no rom patching support planned.
-* Enable and configure the correct kernel modules and load them early (initramfs-tools only for now)
+* Enable and configure the correct kernel modules and load them early (initramfs-tools, dracut and mkinitcpio)
 * Configure kernel arguments for systemd-boot (using kernelstub)
 * Configure kernel arguments for grub2
 * Provides you with the correct kernel arguments to add to your bootloader entry if a supported bootloader is not found
@@ -28,7 +26,7 @@ cd quickpassthrough
 <img src="https://user-images.githubusercontent.com/2557889/156038229-4e70352f-9182-4474-8e32-d14d3ad67566.png" width="250px">
 
 I know my bash skills are not great, so help is always welcome! And help is wanted here.
-If you know bash well, you will be able to help! Just make a pull request to the [dev branch](https://github.com/HikariKnight/quickpassthrough/tree/dev) with your changes!
+If you know bash well, you will be able to help! Just make a pull request with your changes!
 Just remember to add comments to document the work and explain it for people who are less familiar with the bash syntax or anything else you use. 😄
 
 Also if you know English, you can help by just proof reading. English is not my native language, plus I have dyslexia so I often make spelling mistakes.

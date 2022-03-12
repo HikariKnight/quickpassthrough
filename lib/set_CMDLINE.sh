@@ -150,7 +150,7 @@ function set_CMDLINE () {
     BOOTLOADER_AUTOCONFIG=0
     
     # If kernelstub is detected (program to manage systemd-boot)
-    if which kernelstub ;
+    if which kernelstub > /dev/null ;
     then
         # Configure kernelstub
         set_KERNELSTUB
@@ -158,7 +158,7 @@ function set_CMDLINE () {
     fi
 
     # If grub exists
-    if which grub-mkconfig ;
+    if which grub-mkconfig > /dev/null ;
     then
         # Configure grub
         set_GRUB

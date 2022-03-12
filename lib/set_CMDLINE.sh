@@ -70,7 +70,14 @@ $SCRIPTDIR/backup/etc/default/grub
     read -r -p "Press ENTER to continue"
 
     sudo cp -v "$SCRIPTDIR/config/etc/default/grub" "/etc/default/grub"
-    sudo grub-mkconfig -o "/boot/grub/grub.cfg"
+
+    # Generate grub.cfg
+    if [ -d "/boot/grub" ];
+    then
+        sudo grub-mkconfig -o "/boot/grub/grub.cfg"
+    else
+        sudo grub-mkconfig -o "/boot/grub2/grub.cfg"
+    fi
 
     echo ""
     read -r -p "Please verify there was no errors generating the grub.cfg file, then press ENTER"    

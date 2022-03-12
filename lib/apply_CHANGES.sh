@@ -13,7 +13,7 @@ function make_BACKUP () {
             cp -v "/etc/initramfs-tools/modules" "$BACKUPDIR/etc/initramfs-tools/modules"
             cp -v "/etc/modules" "$BACKUPDIR/etc/modules"
 
-        elif [ -d "/etc/dracut.conf.d" ];
+        elif [ -d "/etc/dracut.conf" ];
         then
             mkdir -p "$BACKUPDIR/etc/dracut.conf.d"
             if [ -f "/etc/dracut.conf.d/10-vfio.conf" ];
@@ -68,7 +68,7 @@ function copy_FILES () {
 Rebuilding initramfs"
         sudo update-initramfs -u
 
-    elif [ -d "/etc/dracut.conf.d" ];
+    elif [ -d "/etc/dracut.conf" ];
     then
         cp -v "$SCRIPTDIR/$DRACUT/10-vfio.conf" "/etc/dracut.conf.d/10-vfio.conf"
         echo "

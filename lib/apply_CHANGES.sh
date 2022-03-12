@@ -58,7 +58,11 @@ backup skipped.
 function copy_FILES () {
     echo "Starting copying files to the system!"
 
-    sudo cp -v "$SCRIPTDIR/$MODPROBE/vfio.conf" "/etc/modprobe.d/vfio.conf"
+    if [ -d "/etc/modprobe.d" ];
+    then
+        sudo cp -v "$SCRIPTDIR/$MODPROBE/vfio.conf" "/etc/modprobe.d/vfio.conf"
+
+    fi
 
     if [ -d "/etc/initramfs-tools" ];
     then

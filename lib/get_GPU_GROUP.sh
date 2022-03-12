@@ -49,7 +49,24 @@ USB_CTL_ID=()
             "$SCRIPTDIR/lib/get_GPU_ROM.sh" "$ROM_PCI_ID"
 
             # Start setting up modules
-            exec "$SCRIPTDIR/lib/set_INITRAMFSTOOLS.sh" "$GPU_DEVID"
+            if [ -d "/etc/initramfs-tools" ];
+            then
+                exec "$SCRIPTDIR/lib/set_INITRAMFSTOOLS.sh" "$GPU_DEVID"
+            
+            elif [ -d "/etc/dracut.conf" ];
+            then
+                exec "$SCRIPTDIR/lib/set_DRACUT.sh" "$GPU_DEVID"
+            
+            elif [ -f "/etc/mkinitcpio.conf" ];
+            then
+                exec "$SCRIPTDIR/lib/set_MKINITCPIO.sh" "$GPU_DEVID"
+            else
+                # Bind GPU to VFIO
+                "$SCRIPTDIR/lib/set_VFIO.sh" "$1"
+
+                # Configure modprobe
+                "$SCRIPTDIR/lib/set_MODPROBE.sh" "$1"
+            fi
         ;;
         *)
             exec "$SCRIPTDIR/lib/get_GPU.sh"

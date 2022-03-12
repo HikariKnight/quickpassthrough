@@ -17,6 +17,11 @@ function set_MKINITCPIO () {
         perl -pi -e "s/MODULES=\(${CURRENTMODULES}\)/MODULES=\(vfio vfio_iommu_type1 vfio_pci vfio_virqfd ${MODULES}\)/" "$SCRIPTDIR/$MKINITCPIO"
     fi
 
+    # Bind GPU to VFIO
+    "$SCRIPTDIR/lib/set_VFIO.sh" "$1"
+
+    # Configure modprobe
+    exec "$SCRIPTDIR/lib/set_MODPROBE.sh" "$1"
 }
 
 function main () {

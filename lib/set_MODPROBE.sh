@@ -26,6 +26,8 @@ softdep nouveau pre: vfio vfio_pci
 softdep amdgpu pre: vfio vfio_pci
 softdep radeon pre: vfio vfio_pci
 "  "${GPU_DEVID}"  > "$SCRIPTDIR/$MODPROBE/vfio.conf"
+
+    exec "$SCRIPTDIR/lib/get_USB_CTL.sh"
 }
 
 function main () {

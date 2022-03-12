@@ -36,15 +36,19 @@ function make_BACKUP () {
 
         fi
 
-        mkdir -p "$BACKUPDIR/etc/modprobe.d"
-
-        # If a vfio.conf file exists, backup that too
-        if [ -f "/etc/modprobe.d/vfio.conf" ];
+        if [ -d "/etc/modprobe.d" ];
         then
-            cp -v "/etc/modprobe.d/vfio.conf" "$BACKUPDIR/etc/modprobe.d/vfio.conf"
+            mkdir -p "$BACKUPDIR/etc/modprobe.d"
+
+            # If a vfio.conf file exists, backup that too
+            if [ -f "/etc/modprobe.d/vfio.conf" ];
+            then
+                cp -v "/etc/modprobe.d/vfio.conf" "$BACKUPDIR/etc/modprobe.d/vfio.conf"
+
+            fi
 
         fi
-        
+
         printf "Backup completed!\n"
 
     else
@@ -78,6 +82,13 @@ Rebuilding initramfs"
         echo "
 Rebuilding initramfs"
         sudo dracut -f -kver "$(uname -r)"
+
+    elif [ -f "/etc/mkinitcpio.conf" ];
+    then
+        cp -v "$SCRIPTDIR/$MKINITCPIO" "/etc/mkinitcpio.conf"
+        echo "
+Rebuilding initramfs"
+        sudo mkinitcpio -P
 
     else
         echo "

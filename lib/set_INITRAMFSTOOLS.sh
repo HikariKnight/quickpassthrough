@@ -52,9 +52,7 @@ function set_INITRAMFSTOOLS () {
     "$SCRIPTDIR/lib/set_VFIO.sh" "$1"
 
     # Configure modprobe
-    "$SCRIPTDIR/lib/set_MODPROBE.sh" "$1"
-
-    exec "$SCRIPTDIR/lib/get_USB_CTL.sh"
+    exec "$SCRIPTDIR/lib/set_MODPROBE.sh" "$1"
 }
 
 

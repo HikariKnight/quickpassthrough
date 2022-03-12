@@ -1,6 +1,6 @@
 #!/bin/bash
 
-function get_GROUP () {
+function get_GPU_GROUP () {
     clear
     # Get the config paths
     source "$SCRIPTDIR/lib/paths.sh"
@@ -58,9 +58,9 @@ USB_CTL_ID=()
 }
 
 function main () {
-    SCRIPTDIR=$(dirname "$(realpath $0)" | perl -pe "s/\/\.\.\/lib//" | perl -pe "s/\/lib$//")
+    SCRIPTDIR=$(dirname "$(realpath "$0")" | perl -pe "s/\/\.\.\/lib//" | perl -pe "s/\/lib$//")
 
-    get_GROUP "$1"
+    get_GPU_GROUP "$1"
 }
 
 main "$1"

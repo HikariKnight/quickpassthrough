@@ -61,7 +61,7 @@ echo 0 | sudo tee $VBIOS_PATH
 
 
 function main () {
-    SCRIPTDIR=$(dirname "$(realpath $0)" | perl -pe "s/\/\.\.\/lib//" | perl -pe "s/\/lib$//")
+    SCRIPTDIR=$(dirname "$(realpath "$0")" | perl -pe "s/\/\.\.\/lib//" | perl -pe "s/\/lib$//")
 
     get_GPU_ROM "$1"
 }

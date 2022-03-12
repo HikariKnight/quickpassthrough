@@ -13,7 +13,7 @@ function set_VFIO () {
     echo "
 Disabling video output in Linux for the card you want to use in a VM
 will make it easier to successfully do the passthrough without issues."
-    read -p "Do you want to force disable video output in linux on this card? [Y/n]: " DISABLE_VGA
+    read -r -p "Do you want to force disable video output in linux on this card? [Y/n]: " DISABLE_VGA
     case "${DISABLE_VGA}" in
     [Yy]*)
         # Update kernel_args file
@@ -37,7 +37,7 @@ will make it easier to successfully do the passthrough without issues."
 }
 
 function main () {
-    SCRIPTDIR=$(dirname "$(realpath $0)" | perl -pe "s/\/\.\.\/lib//" | perl -pe "s/\/lib$//")
+    SCRIPTDIR=$(dirname "$(realpath "$0")" | perl -pe "s/\/\.\.\/lib//" | perl -pe "s/\/lib$//")
 
     set_VFIO "$1"
 }

@@ -170,7 +170,7 @@ function set_CMDLINE () {
 
 
 function main () {
-    SCRIPTDIR=$(dirname "$(realpath $0)" | perl -pe "s/\/\.\.\/lib//" | perl -pe "s/\/lib$//")
+    SCRIPTDIR=$(dirname "$(realpath "$0")" | perl -pe "s/\/\.\.\/lib//" | perl -pe "s/\/lib$//")
     
     set_CMDLINE
 }

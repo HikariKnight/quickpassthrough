@@ -29,7 +29,7 @@ echo 0 | sudo tee $VBIOS_PATH
         local ROMFILE_MD5
         ROMFILE_MD5=$(md5sum "$SCRIPTDIR/$QUICKEMU/vfio_card.rom" | cut -d " " -f 1)
 
-        if [ -f "$SCRIPTDIR"/$QUICKEMU/vfio_card.rom ];
+        if [ -f "$SCRIPTDIR/$QUICKEMU/vfio_card.rom" ];
         then
             if [ "$ROM_MD5" == "$ROMFILE_MD5" ];
             then

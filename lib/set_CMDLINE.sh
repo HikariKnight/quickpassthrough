@@ -116,8 +116,8 @@ proceed to add it to your virtual machines.
 
 A backup the files we replaced on your system can be found inside
 $SCRIPTDIR/backup/
-In order to restore these files just copy them back to your system and run
-\"sudo update-initramfs -u\"
+In order to restore these files just copy them back to your system and
+rebuild your initramfs image.
 
 You can remove the the vfio_pci kernel arguments from the linux line in your bootloader
 to disable/unbind the graphic card from the vfio driver on boot.

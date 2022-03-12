@@ -81,7 +81,7 @@ Rebuilding initramfs"
         cp -v "$SCRIPTDIR/$DRACUT/10-vfio.conf" "/etc/dracut.conf.d/10-vfio.conf"
         echo "
 Rebuilding initramfs"
-        sudo dracut -f --kver "$(uname -r)"
+        sudo dracut -f -v --kver "$(uname -r)"
 
     elif [ -f "/etc/mkinitcpio.conf" ];
     then

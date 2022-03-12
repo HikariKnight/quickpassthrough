@@ -6,39 +6,90 @@ function make_BACKUP () {
 
     if [ ! -d "$BACKUPDIR" ];
     then
-        # Make the backup directories   
-        mkdir -p "$BACKUPDIR/etc/initramfs-tools"
-        mkdir -p "$BACKUPDIR/etc/modprobe.d"
-        mkdir -p "$BACKUPDIR/etc/default"
+        # Make the backup directories and backup the files  
+        if [ -d "/etc/initramfs-tools" ];
+        then
+            mkdir -p "$BACKUPDIR/etc/initramfs-tools"
+            cp -v "/etc/initramfs-tools/modules" "$BACKUPDIR/etc/initramfs-tools/modules"
+            cp -v "/etc/modules" "$BACKUPDIR/etc/modules"
 
-        # Backup system files
-        sudo cp -v "/etc/modules" "$BACKUPDIR/etc/modules"
-        sudo cp -v "/etc/initramfs-tools/modules" "$BACKUPDIR/etc/initramfs-tools/modules"
-        sudp cp -v "/etc/default/grub" "$BACKUPDIR/etc/default/grub"
+        elif [ -d "/etc/dracut.conf.d" ];
+        then
+            mkdir -p "$BACKUPDIR/etc/dracut.conf.d"
+            if [ -f "/etc/dracut.conf.d/10-vfio.conf" ];
+            then
+                cp -v "/etc/dracut.conf.d/10-vfio.conf" "$BACKUPDIR/etc/dracut.conf.d/10-vfio.conf"
+
+            fi
+
+        elif [ -f "/etc/mkinitcpio.conf" ];
+        then
+            mkdir -p "$BACKUPDIR/etc"
+            cp -v "/etc/mkinitcpio.conf" "$BACKUPDIR/etc/mkinitcpio.conf"
+
+        fi
+
+        if [ -f "/etc/default/grub" ];
+        then
+            mkdir -p "$BACKUPDIR/etc/default"
+            cp -v "/etc/default/grub" "$BACKUPDIR/etc/default/grub"
+
+        fi
+
+        mkdir -p "$BACKUPDIR/etc/modprobe.d"
 
         # If a vfio.conf file exists, backup that too
         if [ -f "/etc/modprobe.d/vfio.conf" ];
         then
-            sudo cp -v "/etc/modprobe.d/vfio.conf" "$BACKUPDIR/etc/modprobe.d/vfio.conf"
+            cp -v "/etc/modprobe.d/vfio.conf" "$BACKUPDIR/etc/modprobe.d/vfio.conf"
+
         fi
         
-        echo "Backup completed!"
+        printf "Backup completed!\n"
 
     else
-        echo "A backup already exists!
-backup skipped."
+        echo "
+A backup already exists!
+backup skipped.
+"
     fi
 }
 
 function copy_FILES () {
     echo "Starting copying files to the system!"
-    sudo cp -v "$SCRIPTDIR/$ETCMODULES" "/etc/modules"
-    sudo cp -v "$SCRIPTDIR/$INITRAMFS/modules" "/etc/initramfs-tools/modules"
+
     sudo cp -v "$SCRIPTDIR/$MODPROBE/vfio.conf" "/etc/modprobe.d/vfio.conf"
 
-    echo ""
-    echo "Rebuilding initramfs"
-    sudo update-initramfs -u
+    if [ -d "/etc/initramfs-tools" ];
+    then
+        sudo cp -v "$SCRIPTDIR/$ETCMODULES" "/etc/modules"
+        sudo cp -v "$SCRIPTDIR/$INITRAMFS/modules" "/etc/initramfs-tools/modules"
+        echo "
+Rebuilding initramfs"
+        sudo update-initramfs -u
+
+    elif [ -d "/etc/dracut.conf.d" ];
+    then
+        cp -v "$SCRIPTDIR/$DRACUT/10-vfio.conf" "/etc/dracut.conf.d/10-vfio.conf"
+        echo "
+Rebuilding initramfs"
+        sudo dracut -f -kver "$(uname -r)"
+
+    else
+        echo "
+Unsupported initramfs infrastructure
+In order to make vfio work, please add these modules to your
+initramfs and make them load early, then rebuild initramfs.
+
+vfio
+vfio_iommu_type1
+vfio_pci
+vfio_virqfd
+"
+        
+    fi
+
+    
 }
 
 function apply_CHANGES () {

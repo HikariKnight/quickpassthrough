@@ -1,4 +1,6 @@
 #!/bin/bash
+# shellcheck disable=SC1091
+
 function set_MODPROBE () {
     # Get the config paths
     source "$SCRIPTDIR/lib/paths.sh"

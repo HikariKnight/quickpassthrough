@@ -1,12 +1,13 @@
 #!/bin/bash
+# shellcheck disable=SC1091
 
 function insert_INITRAMFSTOOLS() {
     # Get the header and enabled modules separately from the /etc/modules file
     local MODULES_HEADER
     local MODULES_ENABLED
     local VENDOR_RESET
-    MODULES_HEADER=$(head -n $1 "$2" | grep -P "^#" | grep -v "# Added by quickpassthrough")
-    MODULES_ENABLED=$(cat "$2" | grep -vP "^#" | grep -v "vendor-reset")
+    MODULES_HEADER=$(head -n "$1" "$2" | grep -P "^#" | grep -v "# Added by quickpassthrough")
+    MODULES_ENABLED=$(grep -vP "^#" "$2" | grep -v "vendor-reset" | perl  -pe  "s/^\n//")
     VENDOR_RESET=0
     
     # If vendor-reset is present

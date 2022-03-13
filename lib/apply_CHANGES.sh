@@ -1,4 +1,5 @@
 #!/bin/bash
+# shellcheck disable=SC1091
 
 function make_BACKUP () {
     local BACKUPDIR
@@ -127,7 +128,7 @@ unless a backup already exist.
 Then the files above will be copied to your system followed by running followed by updating your
 initramfs and then attempt adding new kernel arguments to your bootloader."
 	
-	read -p "Do you want to proceed with the installation of the files? (no=quit) [Y/n]: " YESNO
+	read -r -p "Do you want to proceed with the installation of the files? (no=quit) [Y/n]: " YESNO
 
     case "${YESNO}" in
         [Nn]*)

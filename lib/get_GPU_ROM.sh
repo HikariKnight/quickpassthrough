@@ -1,4 +1,5 @@
 #!/bin/bash
+# shellcheck disable=SC1091,SC2024
 
 function get_GPU_ROM () {
     clear

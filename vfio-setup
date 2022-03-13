@@ -64,7 +64,7 @@ This is a list of prerequisites you will be needing before starting with VFIO:
   if both cards share the same device id (ex: both are identified as 1022:145c), then passthrough will
   not be possible unless you swap out one of the cards.
 * A \"ghost display\" dummy plug for your second graphic card (or having it hooked to a separate input on your monitor).
-* If you are planning to use the inegrated GPU on your CPU, make sure your monitor is connected to it and working/enabled before continuing.
+* If you are planning to use the integrated GPU on your CPU, make sure your monitor is connected to it and working/enabled before continuing.
 * Preferably a motherboard verified to work with IOMMU and with good IOMMU groups.
   https://reddit.com/r/vfio is a good resource for this info.
   (If you are unsure, you will find out while using this script)
@@ -130,7 +130,7 @@ then
     # Create the dracut folder
     mkdir -p "$SCRIPTDIR/$DRACUT"
     # Create a dracut.conf.d file
-    touch "$SCRIPTDIR/$DRACUT/10-vfio.conf" 
+    touch "$SCRIPTDIR/$DRACUT/10-vfio.conf"
 fi
 
 # Run ls-iommu so we can verify that IOMMU properly working

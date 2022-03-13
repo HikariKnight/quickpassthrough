@@ -16,7 +16,7 @@ function set_KERNELSTUB () {
 
     # Check if systemd-boot already has vfio parameters from before
     KERNELSTUB_TEST=$(sudo kernelstub -p 2>&1 | grep "Kernel Boot Options" | perl -pe "s/.+Kernel Boot Options:\..+(vfio_pci.ids=.+ ).+/\1/")
-    
+
     # If there are already vfio_pci parameters in kernelstub
     if [[ "$KERNELSTUB_TEST" =~ vfio_pci.ids ]] ;
     then
@@ -61,7 +61,7 @@ function set_GRUB () {
         GRUB_CMDLINE_LINUX=$(grep -P "^GRUB_CMDLINE_LINUX" "/etc/default/grub")
         perl -pi -e "s/${GRUB_CMDLINE_LINUX}/GRUB_CMDLINE_LINUX=\"${GRUB_CMDLINE} ${CMDLINE}\"/" "${SCRIPTDIR}/$DEFAULT/grub"
     fi
-    
+
 
     echo "The script will now replace your default grub file with a new one.
 Then attempt to update grub and generate a new grub.cfg.
@@ -81,7 +81,7 @@ $SCRIPTDIR/backup/etc/default/grub
     fi
 
     echo ""
-    read -r -p "Please verify there was no errors generating the grub.cfg file, then press ENTER"    
+    read -r -p "Please verify there were no errors generating the grub.cfg file, then press ENTER"
 }
 
 function show_FINISH () {
@@ -108,7 +108,7 @@ function show_FINISH () {
 " "$CMDLINE"
     fi
 
-    echo "Restart your system and run 
+    echo "Restart your system and run
 \"$SCRIPTDIR/vfio-verify\"
 to check if your GPU is properly set up.
 
@@ -155,10 +155,10 @@ https://github.com/HikariKnight/vfio-setup-docs/wiki"
 }
 
 function set_CMDLINE () {
-    # Make a variable to tell if 
+    # Make a variable to tell if
     local BOOTLOADER_AUTOCONFIG
     BOOTLOADER_AUTOCONFIG=0
-    
+
     # If kernelstub is detected (program to manage systemd-boot)
     if which kernelstub > /dev/null 2>&1 ;
     then
@@ -181,7 +181,7 @@ function set_CMDLINE () {
 
 function main () {
     SCRIPTDIR=$(dirname "$(realpath "$0")" | perl -pe "s/\/\.\.\/lib//" | perl -pe "s/\/lib$//")
-    
+
     set_CMDLINE
 }
 

@@ -1,18 +1,19 @@
 #!/bin/bash
+# shellcheck disable=SC2002,SC2164
 
 # Get the scripts directory
-SCRIPTDIR=$(dirname "$(which $0)")
+SCRIPTDIR=$(dirname "$(which "$0")")
 cd "$SCRIPTDIR"
 
 # If there is a config generated, then $SCRIPTDIR/config/kernel_args
 # should exist, which contains all the info we need
-if [ -f $SCRIPTDIR/config/kernel_args ];
+if [ -f "$SCRIPTDIR/config/kernel_args" ];
 then
     # Fetch part of the device id we need
-    DEVID=$(cat $SCRIPTDIR/config/kernel_args | cut -d " " -f 3 | cut -d "=" -f 2 | perl -pe "s/^([0-9a-f]{4}:).*/\1/")
+    DEVID=$(cat "$SCRIPTDIR/config/kernel_args" | cut -d " " -f 3 | cut -d "=" -f 2 | perl -pe "s/^([0-9a-f]{4}:).*/\1/")
     echo "#------------------------------------------#"
     # List info about the vfio gpu and what kernel driver is being used
-    lspci -d $DEVID -v | grep -iP "kernel driver|amd|radeon|nvidia|nouveau" | grep -vi "kernel modules"
+    lspci -d "$DEVID" -v | grep -iP "kernel driver|amd|radeon|nvidia|nouveau" | grep -vi "kernel modules"
     echo "#------------------------------------------#"
 
     printf "

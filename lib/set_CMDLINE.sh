@@ -1,4 +1,5 @@
 #!/bin/bash
+# shellcheck disable=SC1091
 
 # Function to configure systemd-boot using kernelstub
 function set_KERNELSTUB () {
@@ -51,13 +52,13 @@ function set_GRUB () {
     if grep -q "GRUB_CMDLINE_LINUX_DEFAULT=" "$SCRIPTDIR/$DEFAULT/grub" ;
     then
         # Update the GRUB_CMDLINE_LINUX_DEFAULT line
-        GRUB_CMDLINE=$(cat "/etc/default/grub" | grep -P "^GRUB_CMDLINE_LINUX_DEFAULT" | perl -pe "s/GRUB_CMDLINE_LINUX_DEFAULT=\"(.+)\"/\1/" | perl -pe "s/iommu=(pt|on)|amd_iommu=on|vfio_pci.ids=.+|vfio_pci.disable_vga=\d{1}//g" | perl -pe "s/(^\s+|\s+$)//g")
-        GRUB_CMDLINE_LINUX=$(cat "/etc/default/grub" | grep -P "^GRUB_CMDLINE_LINUX_DEFAULT")
+        GRUB_CMDLINE=$(grep -P "^GRUB_CMDLINE_LINUX_DEFAULT" "/etc/default/grub" | perl -pe "s/GRUB_CMDLINE_LINUX_DEFAULT=\"(.+)\"/\1/" | perl -pe "s/iommu=(pt|on)|amd_iommu=on|vfio_pci.ids=.+|vfio_pci.disable_vga=\d{1}//g" | perl -pe "s/(^\s+|\s+$)//g")
+        GRUB_CMDLINE_LINUX=$(grep -P "^GRUB_CMDLINE_LINUX_DEFAULT" "/etc/default/grub")
         perl -pi -e "s/${GRUB_CMDLINE_LINUX}/GRUB_CMDLINE_LINUX_DEFAULT=\"${GRUB_CMDLINE} ${CMDLINE}\"/" "${SCRIPTDIR}/$DEFAULT/grub"
     else
         # Update the GRUB_CMDLINE_LINUX line
-        GRUB_CMDLINE=$(cat "/etc/default/grub" | grep -P "^GRUB_CMDLINE_LINUX" | perl -pe "s/GRUB_CMDLINE_LINUX=\"(.+)\"/\1/" | perl -pe "s/iommu=(pt|on)|amd_iommu=on|vfio_pci.ids=.+|vfio_pci.disable_vga=\d{1}//g" | perl -pe "s/(^\s+|\s+$)//g")
-        GRUB_CMDLINE_LINUX=$(cat "/etc/default/grub" | grep -P "^GRUB_CMDLINE_LINUX")
+        GRUB_CMDLINE=$(grep -P "^GRUB_CMDLINE_LINUX" "/etc/default/grub" | perl -pe "s/GRUB_CMDLINE_LINUX=\"(.+)\"/\1/" | perl -pe "s/iommu=(pt|on)|amd_iommu=on|vfio_pci.ids=.+|vfio_pci.disable_vga=\d{1}//g" | perl -pe "s/(^\s+|\s+$)//g")
+        GRUB_CMDLINE_LINUX=$(grep -P "^GRUB_CMDLINE_LINUX" "/etc/default/grub")
         perl -pi -e "s/${GRUB_CMDLINE_LINUX}/GRUB_CMDLINE_LINUX=\"${GRUB_CMDLINE} ${CMDLINE}\"/" "${SCRIPTDIR}/$DEFAULT/grub"
     fi
     

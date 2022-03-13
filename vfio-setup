@@ -1,14 +1,15 @@
 #!/bin/bash
+# shellcheck disable=SC1091
 
 # Get the scripts directory
 SCRIPTDIR=$(dirname "$(realpath "$0")")
-cd "$SCRIPTDIR"
+cd "$SCRIPTDIR" || exit
 
 # Get the config paths
 source "$SCRIPTDIR/lib/paths.sh"
 
 # Get the CPU Vendor
-CPU_VENDOR=$(cat /proc/cpuinfo | grep vendor | head -1 | cut -f 2 | cut -d " " -f 2)
+CPU_VENDOR=$(grep "vendor_id" /proc/cpuinfo | head -1 | cut -f 2 | cut -d " " -f 2)
 CMDLINE="iommu=pt"
 
 # Adjust our kernel_args based on cpu vendor

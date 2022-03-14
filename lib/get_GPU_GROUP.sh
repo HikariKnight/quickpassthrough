@@ -39,8 +39,7 @@ To return to the previous page just press ENTER without typing in anything.
 
             # Write the GPU_PCI_IDs to the config that quickemu might make use of in the future
             echo "GPU_PCI_ID=($PCI_ID)
-USB_CTL_ID=()
-" > "$SCRIPTDIR/$QUICKEMU/qemu-vfio_vars.conf"
+USB_CTL_ID=()" > "$SCRIPTDIR/$QUICKEMU/qemu-vfio_vars.conf"
 
             # Get the rom PCI_ID
             local ROM_PCI_ID

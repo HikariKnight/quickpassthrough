@@ -43,10 +43,11 @@ Proof reading is still contribution!
 * ~~Fetch the ID for the GPUs and generate the correct kernel arguments for grub and systemd-boot~~
 * ~~Dump the GPU rom, just in case it will be needed for passthrough~~ (no rom patching planned due to complexity)
 * ~~Get help to actually make the scripts better~~
+* Automatically handle GPUs where parts of it might be in separate IOMMU groups (ex: RX5600XT)
 * A non-hacky menu system? (I will need help by some bash wizards for this)
 * Coloured highlight/text for important information?
-* Install vendor_reset kernel module? (maybe far future)
-* Setup looking-glass? (far future maybe)
+* Install vendor\_reset kernel module? (maybe far future, need to detect if user is using a card that needs it, can however mention where to get it)
+* Suggest looking-glass if they are going to run Windows
 
 ----
 

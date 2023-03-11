@@ -7,7 +7,6 @@ function set_VFIO () {
 
     # Assign the GPU device ids to a variable
     GPU_DEVID="$1"
-    echo $GPU_DEVID
 
     # Get the kernel_args file content
     CMDLINE=$(cat "$SCRIPTDIR/config/kernel_args")

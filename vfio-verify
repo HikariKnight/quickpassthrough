@@ -9,15 +9,13 @@ cd "$SCRIPTDIR"
 # should exist, which contains all the info we need
 if [ -f "$SCRIPTDIR/config/kernel_args" ];
 then
-    # Fetch part of the device id we need
-    DEVID=$(cat "$SCRIPTDIR/config/kernel_args" | cut -d " " -f 3 | cut -d "=" -f 2 | perl -pe "s/^([0-9a-f]{4}:).*/\1/")
     echo "#------------------------------------------#"
     # List info about the vfio gpu and what kernel driver is being used
-    lspci -d "$DEVID" -v | grep -iP "kernel driver|amd|radeon|nvidia|nouveau" | grep -vi "kernel modules"
+    "$SCRIPTDIR/utils/ls-iommu" -g -r -k
     echo "#------------------------------------------#"
 
     printf "
-If the \"Kernel driver in use\" for these devices are \"vfio-pci\", then VFIO has been successfully enabled!
+If the \"Kernel driver in use\" for the passed through devices are \"vfio-pci\", then VFIO has been successfully enabled!
 
 NOTE: If your system freezes when starting a VM that uses your VFIO enabled card..
 consider adding the below line to your bootloaders kernel arguments:

@@ -14,10 +14,11 @@ Optionally it may also include:
 * GPU USB Host Controller
 * GPU Serial Port
 * GPU USB Type-C UCSI Controller
+* PCI Bridge (if they are in their own IOMMU groups)
 
 "
     echo "#------------------------------------------#"
-    exec "$SCRIPTDIR/utils/ls-iommu" | grep -i "group $1" | cut -d " " -f 1-4,8- | perl -pe "s/\[[0-9a-f]{4}\]: //"
+    exec "$SCRIPTDIR/utils/ls-iommu" -i "$1" -r | cut -d " " -f 1-5,6- | perl -pe "s/\[[0-9a-f]{4}\]: //"
     echo "#------------------------------------------#"
 
     printf "
@@ -31,11 +32,11 @@ To return to the previous page just press ENTER without typing in anything.
         [Yy]*)
             # Get the hardware ids from the selected group
             local GPU_DEVID
-            GPU_DEVID=$("$SCRIPTDIR/utils/ls-iommu" | grep -i "group $1" | perl -pe "s/.+\[([0-9a-f]{4}:[0-9a-f]{4})\].+/\1/" | perl -pe "s/\n/,/" | perl -pe "s/,$/\n/")
+            GPU_DEVID=$("$SCRIPTDIR/utils/ls-iommu" -i "$1" -r --id | perl -pe "s/\n/,/" | perl -pe "s/,$/\n/")
 
             # Get the PCI ids
             local PCI_ID
-            PCI_ID=$("$SCRIPTDIR/utils/ls-iommu" | grep -i "group $1" | cut -d " " -f 4 | perl -pe "s/([0-9a-f]{2}:[0-9a-f]{2}.[0-9a-f]{1})\n/\"\1\" /" | perl -pe "s/\s$//")
+            PCI_ID=$("$SCRIPTDIR/utils/ls-iommu" -i "$1" -r --pciaddr | perl -pe "s/([0-9a-f]{2}:[0-9a-f]{2}.[0-9a-f]{1})\n/\"\1\" /" | perl -pe "s/\s$//")
 
             # Write the GPU_PCI_IDs to the config that quickemu might make use of in the future
             echo "GPU_PCI_ID=($PCI_ID)
@@ -43,7 +44,7 @@ USB_CTL_ID=()" > "$SCRIPTDIR/$QUICKEMU/qemu-vfio_vars.conf"
 
             # Get the rom PCI_ID
             local ROM_PCI_ID
-            ROM_PCI_ID=$("$SCRIPTDIR/utils/ls-iommu" | grep -i "vga" | grep -i "group $1" | cut -d " " -f 4)
+            ROM_PCI_ID=$("$SCRIPTDIR/utils/ls-iommu" -g | grep -iP "group\s+$1:" | cut -d " " -f 5)
 
             # Get the GPU ROM
             "$SCRIPTDIR/lib/get_GPU_ROM.sh" "$ROM_PCI_ID"
@@ -62,10 +63,10 @@ USB_CTL_ID=()" > "$SCRIPTDIR/$QUICKEMU/qemu-vfio_vars.conf"
                 exec "$SCRIPTDIR/lib/set_MKINITCPIO.sh" "$GPU_DEVID"
             else
                 # Bind GPU to VFIO
-                "$SCRIPTDIR/lib/set_VFIO.sh" "$1"
+                "$SCRIPTDIR/lib/set_VFIO.sh" "$GPU_DEVID"
 
                 # Configure modprobe
-                "$SCRIPTDIR/lib/set_MODPROBE.sh" "$1"
+                "$SCRIPTDIR/lib/set_MODPROBE.sh" "$GPU_DEVID"
             fi
         ;;
         *)

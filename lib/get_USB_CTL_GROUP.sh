@@ -13,7 +13,7 @@ if you do not know what you are doing.
 
 "
     echo "#------------------------------------------#"
-    exec "$SCRIPTDIR/utils/ls-iommu" | grep -i "group $1" | cut -d " " -f 1-4,8- | perl -pe "s/\[[0-9a-f]{4}\]: //"
+    exec "$SCRIPTDIR/utils/ls-iommu" -i "$1" | cut -d " " -f 1-5,6- | perl -pe "s/ \[[0-9a-f]{4}\]: /: /"
     echo "#------------------------------------------#"
 
     printf "
@@ -27,7 +27,7 @@ To return to the previous page just press ENTER.
         [Yy]*)
             # Get the PCI ids
             local PCI_ID
-            PCI_ID=$("$SCRIPTDIR/utils/ls-iommu" | grep -i "group $1" | cut -d " " -f 4 | perl -pe "s/([0-9a-f]{2}:[0-9a-f]{2}.[0-9a-f]{1})\n/\"\1\" /" | perl -pe "s/\s$//")
+            PCI_ID=$("$SCRIPTDIR/utils/ls-iommu" -i "$1" | cut -d " " -f 5 | perl -pe "s/([0-9a-f]{4}:[0-9a-f]{2}:[0-9a-f]{2}.[0-9a-f]{1})\n/\"\1\" /" | perl -pe "s/\s$//")
 
             # Replace the blank USB_CTL_ID with the PCI_ID for the usb controller the user wants to pass through
             perl -pi -e "s/USB_CTL_ID=\(\)/USB_CTL_ID=\($PCI_ID\)/" "$SCRIPTDIR/$QUICKEMU/qemu-vfio_vars.conf"
@@ -42,7 +42,7 @@ To return to the previous page just press ENTER.
 function main () {
     SCRIPTDIR=$(dirname "$(realpath "$0")" | perl -pe "s/\/\.\.\/lib//" | perl -pe "s/\/lib$//")
 
-    get_USB_CTL_GROUP $1
+    get_USB_CTL_GROUP "$1"
 }
 
-main $1
+main "$1"

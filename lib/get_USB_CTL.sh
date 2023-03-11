@@ -9,7 +9,7 @@ is only needed if you intend to use other devices than just mouse and keyboard w
 
 "
     echo "#------------------------------------------#"
-    exec "$SCRIPTDIR/utils/ls-iommu" | grep -i "usb controller" | cut -d " " -f 1-4,8-
+    exec "$SCRIPTDIR/utils/ls-iommu" | grep -i "usb controller" | cut -d " " -f 1-5,9-
     echo "#------------------------------------------#"
     printf "
 Press q to quit

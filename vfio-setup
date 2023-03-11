@@ -82,6 +82,26 @@ printf "
 ############################################################
 "
 
+if [ ! -d "$SCRIPTDIR/utils" ];
+then
+    mkdir "$SCRIPTDIR/utils"
+fi
+
+if [ ! -f "$SCRIPTDIR/utils/ls-iommu.tar.gz" ];
+then
+    printf "Checking for newest version of ls-iommu\n"
+    LS_IOMMU_VERSION=$($READAPI https://api.github.com/repos/hikariknight/ls-iommu/releases/latest | grep "tag_name" | perl -pe "s/.+\"tag_name\"\:\s+\"(\d+\.\d+\.\d+)\",/\1/")
+    printf "Downloading required tool ls-iommu from https://github.com/hikariknight/ls-iommu\n"
+    cd "$SCRIPTDIR/utils" || exit
+    $DOWNLOAD https://github.com/HikariKnight/ls-iommu/releases/download/${LS_IOMMU_VERSION}/ls-iommu_${LS_IOMMU_VERSION}_Linux_x86_64.tar.gz
+    tar -zxf "$SCRIPTDIR/utils/ls-iommu.tar.gz" --directory "$SCRIPTDIR/utils/"
+else
+    if [ ! -f "$SCRIPTDIR/utils/ls-iommu" ];
+    then
+        tar -zxf "$SCRIPTDIR/utils/ls-iommu.tar.gz" --directory "$SCRIPTDIR/utils/"
+    fi
+fi
+
 if [ -d "$SCRIPTDIR/config" ];
 then
     rm -r "$SCRIPTDIR/config"
@@ -134,10 +154,10 @@ then
 fi
 
 # Run ls-iommu so we can verify that IOMMU properly working
-LS_IOMMU=$("$SCRIPTDIR/utils/ls-iommu")
+LS_IOMMU=$($SCRIPTDIR/utils/ls-iommu)
 
-# Detect if IOMMU is disabled (output will start with "IOMMU Group *:" if disabled)
-if [[ $LS_IOMMU =~ ^IOMMU[[:space:]]Group[[:space:]]+\*: ]];
+# Detect if IOMMU is disabled (output will be empty)
+if [[ "$LS_IOMMU" == "" ]];
 then
     # Tell user to enable IOMMU then try again
     echo "IOMMU IS NOT ENABLED!

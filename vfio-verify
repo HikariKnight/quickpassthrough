@@ -16,6 +16,7 @@ then
 
     printf "
 If the \"Kernel driver in use\" for the passed through devices are \"vfio-pci\", then VFIO has been successfully enabled!
+GPU Devices using \"pcieport\" can be ignored.
 
 NOTE: If your system freezes when starting a VM that uses your VFIO enabled card..
 consider adding the below line to your bootloaders kernel arguments:

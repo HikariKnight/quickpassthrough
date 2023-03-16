@@ -42,12 +42,8 @@ To return to the previous page just press ENTER without typing in anything.
             echo "GPU_PCI_ID=($PCI_ID)
 USB_CTL_ID=()" > "$SCRIPTDIR/$QUICKEMU/qemu-vfio_vars.conf"
 
-            # Get the rom PCI_ID
-            local ROM_PCI_ID
-            ROM_PCI_ID=$("$SCRIPTDIR/utils/ls-iommu" -g | grep -iP "group\s+$1:" | cut -d " " -f 5)
-
             # Get the GPU ROM
-            "$SCRIPTDIR/lib/get_GPU_ROM.sh" "$ROM_PCI_ID"
+            "$SCRIPTDIR/lib/get_GPU_ROM.sh" "$1"
 
             # Start setting up modules
             if [ -d "/etc/initramfs-tools" ];

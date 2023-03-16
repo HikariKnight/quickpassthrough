@@ -6,7 +6,7 @@ function get_GPU_ROM () {
     # Get the config paths
     source "$SCRIPTDIR/lib/paths.sh"
 
-    VBIOS_PATH=$(find /sys/devices -name rom | grep "$1")
+    VBIOS_PATH=$("$SCRIPTDIR/utils/ls-iommu" -g -i "$1" --rom)
     echo "We will now attempt to dump the vbios of your selected GPU.
 Passing a VBIOS rom to the card used for passthrough is required for some cards, but not all.
 Some cards also requires you to patch your VBIOS romfile, check online if this is neccessary for your card.

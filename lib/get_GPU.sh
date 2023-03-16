@@ -8,7 +8,7 @@ does not belong to itself. Both cards must also have unique hardware ids [xxxx:y
 
 "
     echo "#------------------------------------------#"
-    exec "$SCRIPTDIR/utils/ls-iommu" -g | cut -d " " -f 1-5,10-
+    "$SCRIPTDIR/utils/ls-iommu" -g -F name,device_id,optional_revision
     echo "#------------------------------------------#"
 
     printf "

@@ -18,11 +18,11 @@ Optionally it may also include:
 
 "
     echo "#------------------------------------------#"
-    exec "$SCRIPTDIR/utils/ls-iommu" -i "$1" -r | cut -d " " -f 1-5,6- | perl -pe "s/\[[0-9a-f]{4}\]: //"
+    "$SCRIPTDIR/utils/ls-iommu" -i "$1" -r -F subclass_name:,name,device_id,optional_revision # | cut -d " " -f 1-5,6- | perl -pe "s/\[[0-9a-f]{4}\]: //"
     echo "#------------------------------------------#"
 
     printf "
-To use any of these devices for passthrough ALL of them has to be passed through to the VMs\
+To use any of these devices for passthrough ALL of them (except PCI bridges in their own IOMMU groups) has to be passed through to the VMs\
 
 To return to the previous page just press ENTER without typing in anything.
 "

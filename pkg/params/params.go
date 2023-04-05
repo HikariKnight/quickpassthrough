@@ -48,10 +48,10 @@ func NewParams() *Params {
 	parser := argparse.NewParser("quickpassthrough", "A utility to help you configure your host for GPU Passthrough")
 
 	// Configure arguments
-	/*gpu := parser.Flag("g", "gpu", &argparse.Options{
+	gui := parser.Flag("g", "gui", &argparse.Options{
 		Required: false,
-		Help:     "List all GPUs. (use -i # to only display results from specified IOMMU group)",
-	})*/
+		Help:     "Launch GUI (placeholder for now)",
+	})
 
 	// Parse arguments
 	err := parser.Parse(os.Args)
@@ -72,6 +72,7 @@ func NewParams() *Params {
 	}
 
 	// Add all parsed arguments to a struct for portability since we will use them all over the program
+	pArg.addFlag("gui", *gui)
 	/*pArg.addFlag("gpu", *gpu)
 	pArg.addFlag("usb", *usb)
 	pArg.addFlag("nic", *nic)

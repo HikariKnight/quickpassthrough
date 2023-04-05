@@ -3,3 +3,4 @@ backup/
 utils/
 utils.old/
 bin/
+dist/

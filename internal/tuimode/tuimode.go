@@ -1,28 +1,41 @@
 package tuimode
 
+// A simple example demonstrating the use of multiple text input components
+// from the Bubbles component library.
+
 import (
-	"code.rocketnine.space/tslocum/cview"
+	"log"
+
+	tea "github.com/charmbracelet/bubbletea"
 )
 
+type model struct{}
+
+func (m model) Init() tea.Cmd {
+	return nil
+}
+
+// This is where we handle all the events
+func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	switch msg := msg.(type) {
+	case tea.KeyMsg:
+		switch msg.String() {
+		case "ctrl+c":
+			return m, tea.Quit
+		}
+	}
+	return m, nil
+}
+
+// This is where we change what is shown on the screen
+func (m model) View() string {
+	return "test\n"
+}
+
+// This is where we build everything
 func App() {
-	// Create a TUI app
-	app := cview.NewApplication()
-	defer app.HandlePanic()
-	app.EnableMouse(true)
-
-	// Generate flex grid
-	flex := cview.NewFlex()
-	flex.SetDirection(cview.FlexRow)
-
-	tv := cview.NewTextView()
-	tv.SetBorder(true)
-	tv.SetTitle("Hello, world!")
-	tv.SetText("Lorem ipsum dolor sit amet")
-	flex.AddItem(tv, 0, 0, true)
-	flex.AddItem(tv, 0, 1, false)
-
-	app.SetRoot(flex, true)
-	if err := app.Run(); err != nil {
-		panic(err)
+	p := tea.NewProgram(model{}, tea.WithAltScreen())
+	if _, err := p.Run(); err != nil {
+		log.Fatal(err)
 	}
 }

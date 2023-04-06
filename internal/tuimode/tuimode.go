@@ -6,6 +6,7 @@ package tuimode
 import (
 	"bufio"
 	"bytes"
+	"fmt"
 	"io"
 	"log"
 	"os/exec"
@@ -18,10 +19,14 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-var docStyle = lipgloss.NewStyle().Margin(1, 2)
-var titleStyle = lipgloss.NewStyle().
-	Background(lipgloss.Color("#5F5FD7")).
-	Foreground(lipgloss.Color("#FFFFFF"))
+var (
+	docStyle   = lipgloss.NewStyle().Margin(2, 2)
+	titleStyle = lipgloss.NewStyle().
+			Background(lipgloss.Color("#5F5FD7")).
+			Foreground(lipgloss.Color("#FFFFFF"))
+	helpStyle = lipgloss.NewStyle().
+			Foreground(lipgloss.Color(241))
+)
 
 type status int
 
@@ -103,7 +108,7 @@ func (m *model) processSelection() {
 		m.lists[GPU_GROUP].SetItems(items)
 
 		// Adjust height to correct for a bigger title
-		m.lists[GPU_GROUP].SetSize(m.width, m.height-1)
+		m.lists[GPU_GROUP].SetSize(m.width, m.height)
 
 		// Change focus to next index
 		m.focused++
@@ -130,7 +135,7 @@ func (m *model) processSelection() {
 		m.lists[USB_GROUP].SetItems(items)
 
 		// Adjust height to correct for a bigger title
-		m.lists[USB_GROUP].SetSize(m.width, m.height-1)
+		m.lists[USB_GROUP].SetSize(m.width, m.height)
 
 		// Change focus to next index
 		m.focused++
@@ -147,6 +152,14 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "enter":
 			if m.loaded {
 				m.processSelection()
+				//return m, nil
+			}
+		case "ctrl+z", "backspace":
+			if m.focused > 0 {
+				m.focused--
+				return m, nil
+			} else {
+				return m, tea.Quit
 			}
 		}
 	case tea.WindowSizeMsg:
@@ -173,18 +186,30 @@ func (m model) View() string {
 		title := ""
 		switch m.focused {
 		case GPUS:
-			title = "Select a GPU to check the IOMMU groups of"
+			title = fmt.Sprintf(
+				"\n %s\n",
+				titleStyle.Render("Select a GPU to check the IOMMU groups of"),
+			)
 
 		case GPU_GROUP:
-			title = "Press ENTER/RETURN to set up all these devices for passthrough.\nThis list should only contain items related to your GPU."
+			title = fmt.Sprintf(
+				"\n %s\n %s",
+				titleStyle.Render("Press ENTER/RETURN to set up all these devices for passthrough."), titleStyle.Render("This list should only contain items related to your GPU."),
+			)
 
 		case USB:
-			title = "[OPTIONAL]: Select a USB Controller to check the IOMMU groups of"
+			title = fmt.Sprintf(
+				"\n %s\n",
+				titleStyle.Render("[OPTIONAL]: Select a USB Controller to check the IOMMU groups of"),
+			)
 
 		case USB_GROUP:
-			title = "Press ENTER/RETURN to set up all these devices for passthrough.\nThis list should only contain the USB controller you want to use."
+			title = fmt.Sprintf(
+				"\n %s\n %s",
+				titleStyle.Render("Press ENTER/RETURN to set up all these devices for passthrough."), titleStyle.Render("This list should only contain the USB controller you want to use."),
+			)
 		}
-		return lipgloss.JoinVertical(lipgloss.Left, titleStyle.Render(title), m.lists[m.focused].View())
+		return lipgloss.JoinVertical(lipgloss.Left, title, m.lists[m.focused].View())
 	} else {
 		return "Loading..."
 	}

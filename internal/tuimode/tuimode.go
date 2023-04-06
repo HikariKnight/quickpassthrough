@@ -9,6 +9,7 @@ import (
 	"io"
 	"log"
 	"os/exec"
+	"regexp"
 	"strings"
 
 	"github.com/HikariKnight/ls-iommu/pkg/errorcheck"
@@ -18,6 +19,18 @@ import (
 )
 
 var docStyle = lipgloss.NewStyle().Margin(1, 2)
+var titleStyle = lipgloss.NewStyle().
+	Background(lipgloss.Color("#5F5FD7")).
+	Foreground(lipgloss.Color("#FFFFFF"))
+
+type status int
+
+const (
+	GPUS status = iota
+	GPU_GROUP
+	USB
+	USB_GROUP
+)
 
 type item struct {
 	title, desc string
@@ -28,48 +41,174 @@ func (i item) Description() string { return i.desc }
 func (i item) FilterValue() string { return i.title }
 
 type model struct {
-	lists map[string]list.Model
-	list  list.Model
+	fetched []bool
+	lists   []list.Model
+	loaded  bool
+	focused status
+	width   int
+	height  int
 }
 
-func initLists() model {
-	m := model{lists: make(map[string]list.Model)}
-	return m
-}
+func (m *model) initLists(width, height int) {
+	defaultList := list.New([]list.Item{}, list.NewDefaultDelegate(), width, height)
 
-func (m model) addItems(obj string, items []list.Item) {
-	m.lists[obj] = list.New(items, list.NewDefaultDelegate(), 0, 0)
+	// Disable features we wont need
+	defaultList.SetShowTitle(false)
+	defaultList.SetFilteringEnabled(false)
+	defaultList.SetSize(width, height)
+
+	// Add height and width to our model so we can use it later
+	m.width = width
+	m.height = height
+
+	m.lists = []list.Model{defaultList, defaultList, defaultList, defaultList}
+	m.fetched = []bool{false, false, false, false}
+	m.focused = GPUS
+
+	// Init GPU list
+	//m.lists[GPUS].Title = "Select a GPU to check the IOMMU groups of"
+	items := GetIOMMU("-g", "-F", "name,device_id,optional_revision")
+	m.lists[GPUS].SetShowTitle(false)
+	m.lists[GPUS].SetItems(items)
+	m.fetched[GPUS] = true
+
+	m.lists[GPU_GROUP].Title = ""
+	m.lists[GPU_GROUP].SetItems(items)
+
+	// Init USB Controller list
+	items = GetIOMMU("-u", "-F", "name,device_id,optional_revision")
+	m.lists[USB].SetItems(items)
+	m.fetched[USB] = true
+
+	m.lists[USB_GROUP].Title = ""
+	m.lists[USB_GROUP].SetItems(items)
 }
 
 func (m model) Init() tea.Cmd {
 	return nil
 }
 
+// This function processes the enter event
+func (m *model) processSelection() {
+	switch m.focused {
+	case GPUS:
+		// Gets the selected item
+		selectedItem := m.lists[m.focused].SelectedItem()
+
+		// Gets the IOMMU group of the selected item
+		iommu_group_regex := regexp.MustCompile(`(\d{1,3})`)
+		iommu_group := iommu_group_regex.FindString(selectedItem.(item).desc)
+
+		items := GetIOMMU("-gr", "-i", iommu_group, "-F", "name,device_id,optional_revision")
+		m.lists[GPU_GROUP].SetItems(items)
+
+		// Adjust height to correct for a bigger title
+		m.lists[GPU_GROUP].SetSize(m.width, m.height-1)
+
+		// Change focus to next index
+		m.focused++
+
+	case GPU_GROUP:
+		// Gets the selected item
+		/*selectedItem := m.lists[m.focused].SelectedItem()
+
+		// Gets the IOMMU group of the selected item
+		iommu_group_regex := regexp.MustCompile(`(\d{1,3})`)
+		iommu_group := iommu_group_regex.FindString(selectedItem.(item).desc)
+
+		items := GetIOMMU("-gr", "-i", iommu_group, "--id")*/
+		m.focused++
+	case USB:
+		// Gets the selected item
+		selectedItem := m.lists[m.focused].SelectedItem()
+
+		// Gets the IOMMU group of the selected item
+		iommu_group_regex := regexp.MustCompile(`(\d{1,3})`)
+		iommu_group := iommu_group_regex.FindString(selectedItem.(item).desc)
+
+		items := GetIOMMU("-ur", "-i", iommu_group, "-F", "name,device_id,optional_revision")
+		m.lists[USB_GROUP].SetItems(items)
+
+		// Adjust height to correct for a bigger title
+		m.lists[USB_GROUP].SetSize(m.width, m.height-1)
+
+		// Change focus to next index
+		m.focused++
+	}
+}
+
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
-		if msg.String() == "ctrl+c" {
+		switch msg.String() {
+		case "ctrl+c", "q":
 			return m, tea.Quit
+
+		case "enter":
+			if m.loaded {
+				m.processSelection()
+			}
 		}
 	case tea.WindowSizeMsg:
-		h, v := docStyle.GetFrameSize()
-		m.list.SetSize(msg.Width-h, msg.Height-v)
+		if !m.loaded {
+			// Get the terminal frame size
+			h, v := docStyle.GetFrameSize()
+
+			// Initialize the static lists and make sure the content
+			// does not extend past the screen
+			m.initLists(msg.Width-h, msg.Height-v)
+
+			// Set model loaded to true
+			m.loaded = true
+		}
 	}
 
 	var cmd tea.Cmd
-	m.list, cmd = m.list.Update(msg)
+	m.lists[m.focused], cmd = m.lists[m.focused].Update(msg)
 	return m, cmd
 }
 
 func (m model) View() string {
-	return docStyle.Render(m.list.View())
+	if m.loaded {
+		title := ""
+		switch m.focused {
+		case GPUS:
+			title = "Select a GPU to check the IOMMU groups of"
+
+		case GPU_GROUP:
+			title = "Press ENTER/RETURN to set up all these devices for passthrough.\nThis list should only contain items related to your GPU."
+
+		case USB:
+			title = "[OPTIONAL]: Select a USB Controller to check the IOMMU groups of"
+
+		case USB_GROUP:
+			title = "Press ENTER/RETURN to set up all these devices for passthrough.\nThis list should only contain the USB controller you want to use."
+		}
+		return lipgloss.JoinVertical(lipgloss.Left, titleStyle.Render(title), m.lists[m.focused].View())
+	} else {
+		return "Loading..."
+	}
+}
+
+func NewModel() *model {
+	return &model{}
 }
 
 // This is where we build everything
 func App() {
+	m := NewModel()
+
+	// Start the program with the model
+	p := tea.NewProgram(m, tea.WithAltScreen())
+	if _, err := p.Run(); err != nil {
+		log.Fatal(err)
+	}
+}
+
+func GetIOMMU(args ...string) []list.Item {
 	var stdout, stderr bytes.Buffer
 
-	cmd := exec.Command("utils/ls-iommu", "-g", "-F", "name,device_id,optional_revision")
+	cmd := exec.Command("utils/ls-iommu", args...)
 	cmd.Stderr = &stderr
 	cmd.Stdout = &stdout
 
@@ -91,14 +230,5 @@ func App() {
 		items = append(items, item{title: objects[1], desc: objects[0]})
 	}
 
-	l := list.New(items, list.NewDefaultDelegate(), 0, 0)
-	l.Title = "Select a GPU to check the IOMMU groups of"
-
-	m := model{list: l}
-
-	// Start the program with the model
-	p := tea.NewProgram(m, tea.WithAltScreen())
-	if _, err := p.Run(); err != nil {
-		log.Fatal(err)
-	}
+	return items
 }

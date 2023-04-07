@@ -8,7 +8,6 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"log"
 	"os/exec"
 	"regexp"
 	"strings"
@@ -27,7 +26,7 @@ var (
 	helpStyle = lipgloss.NewStyle().
 			Foreground(lipgloss.Color(241))
 	listStyle = lipgloss.NewStyle().
-			BorderStyle(lipgloss.DoubleBorder())
+			BorderStyle(lipgloss.RoundedBorder())
 )
 
 type status int
@@ -110,7 +109,7 @@ func (m *model) processSelection() {
 		m.lists[GPU_GROUP].SetItems(items)
 
 		// Adjust height to correct for a bigger title
-		m.lists[GPU_GROUP].SetSize(m.width, m.height)
+		m.lists[GPU_GROUP].SetSize(m.width, m.height-1)
 
 		// Change focus to next index
 		m.focused++
@@ -137,7 +136,7 @@ func (m *model) processSelection() {
 		m.lists[USB_GROUP].SetItems(items)
 
 		// Adjust height to correct for a bigger title
-		m.lists[USB_GROUP].SetSize(m.width, m.height)
+		m.lists[USB_GROUP].SetSize(m.width, m.height-1)
 
 		// Change focus to next index
 		m.focused++
@@ -188,47 +187,46 @@ func (m model) View() string {
 		switch m.focused {
 		case GPUS:
 			title = fmt.Sprintf(
-				"\n %s\n",
-				titleStyle.Render("Select a GPU to check the IOMMU groups of"),
+				" Select a GPU to check the IOMMU groups of",
 			)
 
 		case GPU_GROUP:
-			title = fmt.Sprintf(
-				"\n %s\n %s",
-				titleStyle.Render("Press ENTER/RETURN to set up all these devices for passthrough."), titleStyle.Render("This list should only contain items related to your GPU."),
+			title = fmt.Sprint(
+				" Press ENTER/RETURN to set up all these devices for passthrough.\n",
+				" This list should only contain items related to your GPU.",
 			)
 
 		case USB:
-			title = fmt.Sprintf(
-				"\n %s\n",
-				titleStyle.Render("[OPTIONAL]: Select a USB Controller to check the IOMMU groups of"),
+			title = fmt.Sprint(
+				" [OPTIONAL]: Select a USB Controller to check the IOMMU groups of",
 			)
 
 		case USB_GROUP:
-			title = fmt.Sprintf(
-				"\n %s\n %s",
-				titleStyle.Render("Press ENTER/RETURN to set up all these devices for passthrough."), titleStyle.Render("This list should only contain the USB controller you want to use."),
+			title = fmt.Sprint(
+				" Press ENTER/RETURN to set up all these devices for passthrough.\n",
+				" This list should only contain the USB controller you want to use.",
 			)
 		}
-		return lipgloss.JoinVertical(lipgloss.Left, title, listStyle.Render(m.lists[m.focused].View()))
+		return lipgloss.JoinVertical(lipgloss.Left, listStyle.SetString(fmt.Sprintf("%s\n", titleStyle.Render(title))).Render(m.lists[m.focused].View()))
 	} else {
 		return "Loading..."
 	}
 }
 
 func NewModel() *model {
+	// Create a blank model and return it
 	return &model{}
 }
 
 // This is where we build everything
 func App() {
+	// Make a blank model to keep our state in
 	m := NewModel()
 
 	// Start the program with the model
 	p := tea.NewProgram(m, tea.WithAltScreen())
-	if _, err := p.Run(); err != nil {
-		log.Fatal(err)
-	}
+	_, err := p.Run()
+	errorcheck.ErrorCheck(err, "Failed to initialize UI")
 }
 
 func GetIOMMU(args ...string) []list.Item {

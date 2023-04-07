@@ -8,11 +8,14 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"os"
 	"os/exec"
+	"path/filepath"
 	"regexp"
 	"strings"
 
 	"github.com/HikariKnight/ls-iommu/pkg/errorcheck"
+	"github.com/HikariKnight/quickpassthrough/internal/configs"
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -22,59 +25,113 @@ var (
 	docStyle   = lipgloss.NewStyle().Margin(2, 2)
 	titleStyle = lipgloss.NewStyle().
 			Background(lipgloss.Color("#5F5FD7")).
-			Foreground(lipgloss.Color("#FFFFFF"))
+			Foreground(lipgloss.Color("#FFFFFF")).
+			PaddingLeft(2).PaddingRight(2)
 	helpStyle = lipgloss.NewStyle().
 			Foreground(lipgloss.Color(241))
 	listStyle = lipgloss.NewStyle().
-			BorderStyle(lipgloss.RoundedBorder())
+			PaddingLeft(2)
+	choiceStyle         = lipgloss.NewStyle().PaddingLeft(4)
+	selectedChoiceStyle = lipgloss.NewStyle().
+				PaddingLeft(2).
+				Foreground(lipgloss.Color("170"))
+	dialogStyle = lipgloss.NewStyle().
+			PaddingLeft(2).
+			Width(78)
 )
 
+// Make a status type
 type status int
 
-const (
-	GPUS status = iota
-	GPU_GROUP
-	USB
-	USB_GROUP
-)
-
+// List item struct
 type item struct {
 	title, desc string
 }
 
+// Functions needed for item struct
 func (i item) Title() string       { return i.title }
 func (i item) Description() string { return i.desc }
 func (i item) FilterValue() string { return i.title }
 
-type model struct {
-	fetched []bool
-	lists   []list.Model
-	loaded  bool
-	focused status
-	width   int
-	height  int
+// Choice delegate (for our dialog boxes)
+type choiceDelegate struct{}
+
+func (d choiceDelegate) Height() int                               { return 1 }
+func (d choiceDelegate) Spacing() int                              { return 0 }
+func (d choiceDelegate) Update(msg tea.Msg, m *list.Model) tea.Cmd { return nil }
+func (d choiceDelegate) Render(w io.Writer, m list.Model, index int, listItem list.Item) {
+	i, ok := listItem.(item)
+	if !ok {
+		return
+	}
+
+	str := fmt.Sprintf("%s", i.title)
+
+	fn := choiceStyle.Render
+	if index == m.Index() {
+		fn = func(s ...string) string {
+			return selectedChoiceStyle.Render("| " + strings.Join(s, " "))
+		}
+	}
+
+	fmt.Fprint(w, fn(str))
 }
 
+// Main Model
+type model struct {
+	fetched    []bool
+	lists      []list.Model
+	gpu_group  string
+	vbios_path string
+	loaded     bool
+	focused    status
+	width      int
+	height     int
+}
+
+// Consts used to navigate the main model
+const (
+	GPUS status = iota
+	GPU_GROUP
+	VBIOS
+	USB
+	USB_GROUP
+)
+
 func (m *model) initLists(width, height int) {
-	defaultList := list.New([]list.Item{}, list.NewDefaultDelegate(), width, height/2)
+	defaultList := list.New([]list.Item{}, list.NewDefaultDelegate(), 0, 10)
+	choiceList := list.New([]list.Item{}, choiceDelegate{}, 0, 7)
 
 	// Disable features we wont need
 	defaultList.SetShowTitle(false)
 	defaultList.SetFilteringEnabled(false)
 	defaultList.SetSize(width, height)
+	choiceList.SetShowTitle(false)
+	choiceList.SetFilteringEnabled(false)
 
 	// Add height and width to our model so we can use it later
 	m.width = width
 	m.height = height
 
-	m.lists = []list.Model{defaultList, defaultList, defaultList, defaultList}
-	m.fetched = []bool{false, false, false, false}
+	m.lists = []list.Model{
+		defaultList,
+		defaultList,
+		choiceList,
+		defaultList,
+		defaultList,
+	}
+	m.fetched = []bool{
+		false,
+		false,
+		false,
+		false,
+		false,
+	}
 	m.focused = GPUS
 
 	// Init GPU list
 	//m.lists[GPUS].Title = "Select a GPU to check the IOMMU groups of"
-	items := GetIOMMU("-g", "-F", "name,device_id,optional_revision")
-	m.lists[GPUS].SetShowTitle(false)
+	items := StringList2ListItem(GetIOMMU("-g", "-F", "name,device_id,optional_revision"))
 	m.lists[GPUS].SetItems(items)
 	m.fetched[GPUS] = true
 
@@ -82,12 +139,20 @@ func (m *model) initLists(width, height int) {
 	m.lists[GPU_GROUP].SetItems(items)
 
 	// Init USB Controller list
-	items = GetIOMMU("-u", "-F", "name,device_id,optional_revision")
+	items = StringList2ListItem(GetIOMMU("-u", "-F", "name,device_id,optional_revision"))
 	m.lists[USB].SetItems(items)
 	m.fetched[USB] = true
 
 	m.lists[USB_GROUP].Title = ""
 	m.lists[USB_GROUP].SetItems(items)
+
+	items = []list.Item{
+		item{title: "OK"},
+	}
+
+	m.lists[VBIOS].SetItems(items)
+	//m.lists[TEST].SetSize(width, height)
+
 }
 
 func (m model) Init() tea.Cmd {
@@ -98,6 +163,8 @@ func (m model) Init() tea.Cmd {
 func (m *model) processSelection() {
 	switch m.focused {
 	case GPUS:
+		configs.InitConfigs()
+
 		// Gets the selected item
 		selectedItem := m.lists[m.focused].SelectedItem()
 
@@ -105,7 +172,10 @@ func (m *model) processSelection() {
 		iommu_group_regex := regexp.MustCompile(`(\d{1,3})`)
 		iommu_group := iommu_group_regex.FindString(selectedItem.(item).desc)
 
-		items := GetIOMMU("-gr", "-i", iommu_group, "-F", "name,device_id,optional_revision")
+		// Add the gpu group to our model
+		m.gpu_group = iommu_group
+
+		items := StringList2ListItem(GetIOMMU("-gr", "-i", m.gpu_group, "-F", "name,device_id,optional_revision"))
 		m.lists[GPU_GROUP].SetItems(items)
 
 		// Adjust height to correct for a bigger title
@@ -115,15 +185,10 @@ func (m *model) processSelection() {
 		m.focused++
 
 	case GPU_GROUP:
-		// Gets the selected item
-		/*selectedItem := m.lists[m.focused].SelectedItem()
-
-		// Gets the IOMMU group of the selected item
-		iommu_group_regex := regexp.MustCompile(`(\d{1,3})`)
-		iommu_group := iommu_group_regex.FindString(selectedItem.(item).desc)
-
-		items := GetIOMMU("-gr", "-i", iommu_group, "--id")*/
+		// Generate the VBIOS dumper script once the user has selected a GPU
+		GenerateVBIOSDumper(*m)
 		m.focused++
+
 	case USB:
 		// Gets the selected item
 		selectedItem := m.lists[m.focused].SelectedItem()
@@ -132,13 +197,20 @@ func (m *model) processSelection() {
 		iommu_group_regex := regexp.MustCompile(`(\d{1,3})`)
 		iommu_group := iommu_group_regex.FindString(selectedItem.(item).desc)
 
-		items := GetIOMMU("-ur", "-i", iommu_group, "-F", "name,device_id,optional_revision")
+		items := StringList2ListItem(GetIOMMU("-ur", "-i", iommu_group, "-F", "name,device_id,optional_revision"))
+
 		m.lists[USB_GROUP].SetItems(items)
 
 		// Adjust height to correct for a bigger title
 		m.lists[USB_GROUP].SetSize(m.width, m.height-1)
 
 		// Change focus to next index
+		m.focused++
+
+	case USB_GROUP:
+		m.focused++
+
+	case VBIOS:
 		m.focused++
 	}
 }
@@ -165,11 +237,11 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		if !m.loaded {
 			// Get the terminal frame size
-			h, v := docStyle.GetFrameSize()
+			//h, v := docStyle.GetFrameSize()
 
 			// Initialize the static lists and make sure the content
 			// does not extend past the screen
-			m.initLists(msg.Width-h, msg.Height-v)
+			m.initLists(msg.Width-2, msg.Height-2)
 
 			// Set model loaded to true
 			m.loaded = true
@@ -186,24 +258,58 @@ func (m model) View() string {
 		title := ""
 		switch m.focused {
 		case GPUS:
-			title = " Select a GPU to check the IOMMU groups of"
+			title = titleStyle.Render(
+				"Select a GPU to check the IOMMU groups of",
+			)
 
 		case GPU_GROUP:
-			title = fmt.Sprint(
-				" Press ENTER/RETURN to set up all these devices for passthrough.\n",
-				" This list should only contain items related to your GPU.",
+			title = titleStyle.Render(
+				fmt.Sprint(
+					"Press ENTER/RETURN to set up all these devices for passthrough.\n",
+					"This list should only contain items related to your GPU.",
+				),
 			)
 
 		case USB:
-			title = " [OPTIONAL]: Select a USB Controller to check the IOMMU groups of"
+			title = titleStyle.Render(
+				"[OPTIONAL]: Select a USB Controller to check the IOMMU groups of",
+			)
 
 		case USB_GROUP:
-			title = fmt.Sprint(
-				" Press ENTER/RETURN to set up all these devices for passthrough.\n",
-				" This list should only contain the USB controller you want to use.",
+			title = titleStyle.Render(
+				fmt.Sprint(
+					"Press ENTER/RETURN to set up all these devices for passthrough.\n",
+					"This list should only contain the USB controller you want to use.",
+				),
 			)
+
+		case VBIOS:
+			// Get the program directory
+			exe, _ := os.Executable()
+			scriptdir := filepath.Dir(exe)
+
+			// If we are using go run use the working directory instead
+			if strings.Contains(scriptdir, "/tmp/go-build") {
+				scriptdir, _ = os.Getwd()
+			}
+
+			text := dialogStyle.Render(
+				fmt.Sprint(
+					"Based on your GPU selection, a vbios extraction script has been generated for your convenience.\n",
+					"Passing a VBIOS rom to the card used for passthrough is required for some cards, but not all.\n",
+					"Some cards also requires you to patch your VBIOS romfile, check online if this is neccessary for your card!\n",
+					"The VBIOS will be read from:\n",
+					"%s\n\n",
+					"The script to extract the vbios has to be run as sudo and without a displaymanager running for proper dumping!\n",
+					"\n",
+					"You can run the script with:\n",
+					"%s/utils/dump_vbios.sh",
+				),
+			)
+			title = fmt.Sprintf(text, m.vbios_path, scriptdir)
 		}
-		return lipgloss.JoinVertical(lipgloss.Left, listStyle.SetString(fmt.Sprintf("%s\n", titleStyle.Render(title))).Render(m.lists[m.focused].View()))
+		//return listStyle.SetString(fmt.Sprintf("%s\n\n", title)).Render(m.lists[m.focused].View())
+		return lipgloss.JoinVertical(lipgloss.Left, fmt.Sprintf("%s\n%s\n", title, listStyle.Render(m.lists[m.focused].View())))
 	} else {
 		return "Loading..."
 	}
@@ -225,7 +331,7 @@ func App() {
 	errorcheck.ErrorCheck(err, "Failed to initialize UI")
 }
 
-func GetIOMMU(args ...string) []list.Item {
+func GetIOMMU(args ...string) []string {
 	var stdout, stderr bytes.Buffer
 
 	// Configure the ls-iommu command
@@ -240,18 +346,78 @@ func GetIOMMU(args ...string) []list.Item {
 	errorcheck.ErrorCheck(err, "IOMMU disabled in either UEFI/BIOS or in bootloader!")
 
 	// Read the output
-	items := []list.Item{}
+	var items []string
 	output, _ := io.ReadAll(&stdout)
 
 	// Parse the output line by line
 	scanner := bufio.NewScanner(strings.NewReader(string(output)))
 	for scanner.Scan() {
+		// Write the objects into the list
+		items = append(items, scanner.Text())
+	}
+
+	// Return our list of items
+	return items
+}
+
+func StringList2ListItem(stringList []string) []list.Item {
+	// Make the []list.Item struct
+	items := []list.Item{}
+
+	// Parse the output line by line
+	for _, v := range stringList {
 		// Get the current line and split by :
-		objects := strings.Split(scanner.Text(), ": ")
+		objects := strings.Split(v, ": ")
 		// Write the objects into the list
 		items = append(items, item{title: objects[1], desc: objects[0]})
 	}
 
 	// Return our list of items
 	return items
+}
+
+func GenerateVBIOSDumper(m model) {
+	// Get the vbios path
+	m.vbios_path = GetIOMMU("-g", "-i", m.gpu_group, "--rom")[0]
+
+	// Get the config directories
+	config := configs.GetConfigPaths()
+
+	// Get the program directory
+	exe, _ := os.Executable()
+	scriptdir := filepath.Dir(exe)
+
+	// If we are using go run use the working directory instead
+	if strings.Contains(scriptdir, "/tmp/go-build") {
+		scriptdir, _ = os.Getwd()
+	}
+
+	vbios_script_template := fmt.Sprint(
+		"#!/bin/bash\n",
+		"# THIS FILE IS AUTO GENERATED!\n",
+		"# IF YOU HAVE CHANGED GPU, PLEASE RE-RUN QUICKPASSTHROUGH!\n",
+		"echo 1 | sudo tee %s\n",
+		"sudo bash -c \"cat %s\" > %s/%s/vfio_card.rom\n",
+		"echo 0 | sudo tee %s\n",
+	)
+
+	vbios_script := fmt.Sprintf(
+		vbios_script_template,
+		m.vbios_path,
+		m.vbios_path,
+		scriptdir,
+		config.QUICKEMU,
+		m.vbios_path,
+	)
+
+	scriptfile, err := os.Create("utils/dump_vbios.sh")
+	errorcheck.ErrorCheck(err, "Cannot create file \"utils/dump_vbios.sh\"")
+	defer scriptfile.Close()
+
+	// Make the script executable
+	scriptfile.Chmod(0775)
+	errorcheck.ErrorCheck(err, "Could not change permissions of \"utils/dump_vbios.sh\"")
+
+	// Write the script
+	scriptfile.WriteString(vbios_script)
 }

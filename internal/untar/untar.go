@@ -6,13 +6,18 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+
+	"github.com/HikariKnight/ls-iommu/pkg/errorcheck"
 )
 
 // Source: https://medium.com/@skdomino/taring-untaring-files-in-go-6b07cf56bc07
 
 // Untar takes a destination path and a reader; a tar reader loops over the tarfile
 // creating the file structure at 'dst' along the way, and writing any files
-func Untar(dst string, r io.Reader) error {
+func Untar(dst string, fileName string) error {
+	r, err := os.Open(fileName)
+	errorcheck.ErrorCheck(err)
+	defer r.Close()
 
 	gzr, err := gzip.NewReader(r)
 	if err != nil {

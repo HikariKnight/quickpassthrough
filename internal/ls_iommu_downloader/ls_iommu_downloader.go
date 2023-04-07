@@ -1,12 +1,16 @@
 package ls_iommu_downloader
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/HikariKnight/ls-iommu/pkg/errorcheck"
@@ -119,8 +123,55 @@ func GetLsIOMMU() {
 		result.TagName,
 	)
 
-	// Create blank file
+	// Generate checksums.txt url
+	checkSumsUrl := fmt.Sprintf(
+		"https://github.com/HikariKnight/ls-iommu/releases/download/%s/checksums.txt",
+		result.TagName,
+	)
+
 	fileName := fmt.Sprintf("%s/ls-iommu_Linux_x86_64.tar.gz", path)
+
+	// Get the checksum data
+	checksums, err := http.Get(checkSumsUrl)
+	errorcheck.ErrorCheck(err)
+	defer checksums.Body.Close()
+	checksums_txt, err := io.ReadAll(checksums.Body)
+	errorcheck.ErrorCheck(err)
+
+	// Check if the tar.gz exists
+	_, err = os.Stat(fileName)
+
+	if errors.Is(err, os.ErrNotExist) {
+		downloadNewVersion(path, fileName, downloadUrl)
+		if checkSum(string(checksums_txt), fileName) {
+			err = untar.Untar(fmt.Sprintf("%s/", path), fileName)
+			errorcheck.ErrorCheck(err)
+		}
+	} else {
+		if !checkSum(string(checksums_txt), fileName) {
+			downloadNewVersion(path, fileName, downloadUrl)
+			err = untar.Untar(fmt.Sprintf("%s/", path), fileName)
+			errorcheck.ErrorCheck(err)
+		}
+	}
+}
+
+func checkSum(checksums string, fileName string) bool {
+	r, err := os.Open(fileName)
+	errorcheck.ErrorCheck(err)
+	defer r.Close()
+
+	hasher := sha256.New()
+	if _, err := io.Copy(hasher, r); err != nil {
+		log.Fatal(err)
+	}
+	value := hex.EncodeToString(hasher.Sum(nil))
+
+	return strings.Contains(checksums, value)
+}
+
+func downloadNewVersion(path, fileName, downloadUrl string) {
+	// Create a request
 	grabClient := grab.NewClient()
 	req, _ := grab.NewRequest(fileName, downloadUrl)
 
@@ -134,10 +185,4 @@ func GetLsIOMMU() {
 	}
 
 	fmt.Printf("Download saved to ./%v \n", download.Filename)
-
-	r, err := os.Open(fileName)
-	errorcheck.ErrorCheck(err)
-	err = untar.Untar(fmt.Sprintf("%s/", path), r)
-	errorcheck.ErrorCheck(err)
-
 }

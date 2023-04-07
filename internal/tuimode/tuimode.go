@@ -186,9 +186,7 @@ func (m model) View() string {
 		title := ""
 		switch m.focused {
 		case GPUS:
-			title = fmt.Sprintf(
-				" Select a GPU to check the IOMMU groups of",
-			)
+			title = " Select a GPU to check the IOMMU groups of"
 
 		case GPU_GROUP:
 			title = fmt.Sprint(
@@ -197,9 +195,7 @@ func (m model) View() string {
 			)
 
 		case USB:
-			title = fmt.Sprint(
-				" [OPTIONAL]: Select a USB Controller to check the IOMMU groups of",
-			)
+			title = " [OPTIONAL]: Select a USB Controller to check the IOMMU groups of"
 
 		case USB_GROUP:
 			title = fmt.Sprint(

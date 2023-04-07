@@ -26,6 +26,8 @@ var (
 			Foreground(lipgloss.Color("#FFFFFF"))
 	helpStyle = lipgloss.NewStyle().
 			Foreground(lipgloss.Color(241))
+	listStyle = lipgloss.NewStyle().
+			BorderStyle(lipgloss.DoubleBorder())
 )
 
 type status int
@@ -55,7 +57,7 @@ type model struct {
 }
 
 func (m *model) initLists(width, height int) {
-	defaultList := list.New([]list.Item{}, list.NewDefaultDelegate(), width, height)
+	defaultList := list.New([]list.Item{}, list.NewDefaultDelegate(), width, height/2)
 
 	// Disable features we wont need
 	defaultList.SetShowTitle(false)
@@ -152,7 +154,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "enter":
 			if m.loaded {
 				m.processSelection()
-				//return m, nil
 			}
 		case "ctrl+z", "backspace":
 			if m.focused > 0 {
@@ -209,7 +210,7 @@ func (m model) View() string {
 				titleStyle.Render("Press ENTER/RETURN to set up all these devices for passthrough."), titleStyle.Render("This list should only contain the USB controller you want to use."),
 			)
 		}
-		return lipgloss.JoinVertical(lipgloss.Left, title, m.lists[m.focused].View())
+		return lipgloss.JoinVertical(lipgloss.Left, title, listStyle.Render(m.lists[m.focused].View()))
 	} else {
 		return "Loading..."
 	}

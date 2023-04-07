@@ -22,7 +22,6 @@ import (
 )
 
 var (
-	docStyle   = lipgloss.NewStyle().Margin(2, 2)
 	titleStyle = lipgloss.NewStyle().
 			Background(lipgloss.Color("#5F5FD7")).
 			Foreground(lipgloss.Color("#FFFFFF")).
@@ -65,7 +64,7 @@ func (d choiceDelegate) Render(w io.Writer, m list.Model, index int, listItem li
 		return
 	}
 
-	str := fmt.Sprintf("%s", i.title)
+	str := i.title
 
 	fn := choiceStyle.Render
 	if index == m.Index() {
@@ -91,11 +90,14 @@ type model struct {
 
 // Consts used to navigate the main model
 const (
-	GPUS status = iota
+	INTRO status = iota
+	GPUS
 	GPU_GROUP
 	VBIOS
+	VIDEO
 	USB
 	USB_GROUP
+	DONE
 )
 
 func (m *model) initLists(width, height int) {
@@ -114,11 +116,14 @@ func (m *model) initLists(width, height int) {
 	m.height = height
 
 	m.lists = []list.Model{
-		defaultList,
-		defaultList,
 		choiceList,
 		defaultList,
 		defaultList,
+		choiceList,
+		choiceList,
+		defaultList,
+		defaultList,
+		choiceList,
 	}
 	m.fetched = []bool{
 		false,
@@ -126,12 +131,22 @@ func (m *model) initLists(width, height int) {
 		false,
 		false,
 		false,
+		false,
+		false,
+		false,
 	}
-	m.focused = GPUS
+	m.focused = INTRO
+
+	// Init INTRO choices
+	items := []list.Item{
+		item{title: "CONTINUE"},
+	}
+	m.lists[INTRO].SetHeight(5)
+	m.lists[INTRO].SetItems(items)
 
 	// Init GPU list
 	//m.lists[GPUS].Title = "Select a GPU to check the IOMMU groups of"
-	items := StringList2ListItem(GetIOMMU("-g", "-F", "name,device_id,optional_revision"))
+	items = StringList2ListItem(GetIOMMU("-g", "-F", "name,device_id,optional_revision"))
 	m.lists[GPUS].SetItems(items)
 	m.fetched[GPUS] = true
 
@@ -146,13 +161,24 @@ func (m *model) initLists(width, height int) {
 	m.lists[USB_GROUP].Title = ""
 	m.lists[USB_GROUP].SetItems(items)
 
+	// Init VBIOS choices
 	items = []list.Item{
 		item{title: "OK"},
 	}
-
 	m.lists[VBIOS].SetItems(items)
-	//m.lists[TEST].SetSize(width, height)
 
+	// Init VIDEO disable choises
+	items = []list.Item{
+		item{title: "YES"},
+		item{title: "NO"},
+	}
+	m.lists[VIDEO].SetItems(items)
+
+	// Init VIDEO disable choises
+	items = []list.Item{
+		item{title: "FINISH"},
+	}
+	m.lists[DONE].SetItems(items)
 }
 
 func (m model) Init() tea.Cmd {
@@ -212,6 +238,15 @@ func (m *model) processSelection() {
 
 	case VBIOS:
 		m.focused++
+
+	case VIDEO:
+		m.focused++
+
+	case INTRO:
+		m.focused++
+
+	case DONE:
+		os.Exit(0)
 	}
 }
 
@@ -257,6 +292,22 @@ func (m model) View() string {
 	if m.loaded {
 		title := ""
 		switch m.focused {
+		case INTRO:
+			title = dialogStyle.Render(
+				fmt.Sprint(
+					"Welcome to QuickPassthrough!\n",
+					"\n",
+					"This script is meant to make it easier to setup GPU passthrough for Qemu systems.\n",
+					"However due to the complexity of GPU passthrough, this script assumes you know how to do (or have done) the following.\n\n",
+					"* You have already enabled IOMMU, VT-d, SVM and/or AMD-v\n  inside your UEFI/BIOS advanced settings.\n",
+					"* Know how to edit your bootloader\n",
+					"* Have a bootloader timeout of at least 3 seconds to access the menu\n",
+					"* Enable & Configure kernel modules\n",
+					"* Have a backup/snapshot of your system in case the script causes your\n  system to be unbootable\n\n",
+					"By continuing you accept that I am not liable if your system\n",
+					"becomes unbootable, as you will be asked to verify the files generated",
+				),
+			)
 		case GPUS:
 			title = titleStyle.Render(
 				"Select a GPU to check the IOMMU groups of",
@@ -306,7 +357,32 @@ func (m model) View() string {
 					"%s/utils/dump_vbios.sh",
 				),
 			)
+
 			title = fmt.Sprintf(text, m.vbios_path, scriptdir)
+
+		case VIDEO:
+			title = dialogStyle.Render(
+				fmt.Sprint(
+					"Disabling video output in Linux for the card you want to use in a VM\n",
+					"will make it easier to successfully do the passthrough without issues.\n",
+					"\n",
+					"Do you want to force disable video output in linux on this card?\n",
+				),
+			)
+
+		case DONE:
+			title = dialogStyle.Render(
+				fmt.Sprint(
+					"The configuration files have been generated and are\n",
+					"located inside the \"config\" folder\n",
+					"\n",
+					"* The \"cmdline\" file contains kernel arguments that your bootloader needs\n",
+					"* The \"quickemu\" folder contains files that might be\n  useable for quickemu in the future\n",
+					"* The files inside the \"etc\" folder must be copied to your system.\n  NOTE: Verify that these files are correctly formated/edited!\n",
+					"\n",
+					"A script file named \"install.sh\" has been generated, run it to copy the files to your system and make a backup of your old files.",
+				),
+			)
 		}
 		//return listStyle.SetString(fmt.Sprintf("%s\n\n", title)).Render(m.lists[m.focused].View())
 		return lipgloss.JoinVertical(lipgloss.Left, fmt.Sprintf("%s\n%s\n", title, listStyle.Render(m.lists[m.focused].View())))

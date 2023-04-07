@@ -234,27 +234,30 @@ func App() {
 func GetIOMMU(args ...string) []list.Item {
 	var stdout, stderr bytes.Buffer
 
+	// Configure the ls-iommu command
 	cmd := exec.Command("utils/ls-iommu", args...)
 	cmd.Stderr = &stderr
 	cmd.Stdout = &stdout
 
+	// Execute the command
 	err := cmd.Run()
-	errorcheck.ErrorCheck(err)
 
+	// If ls-iommu returns an error then IOMMU is disabled
+	errorcheck.ErrorCheck(err, "IOMMU disabled in either UEFI/BIOS or in bootloader!")
+
+	// Read the output
 	items := []list.Item{}
 	output, _ := io.ReadAll(&stdout)
 
-	// If we get an error from ls-iommu then print the error and exit
-	// As the system might not have IOMMU enabled
-	if stderr.String() != "" {
-		log.Fatal(stderr.String())
-	}
-
+	// Parse the output line by line
 	scanner := bufio.NewScanner(strings.NewReader(string(output)))
 	for scanner.Scan() {
+		// Get the current line and split by :
 		objects := strings.Split(scanner.Text(), ": ")
+		// Write the objects into the list
 		items = append(items, item{title: objects[1], desc: objects[0]})
 	}
 
+	// Return our list of items
 	return items
 }

@@ -366,7 +366,7 @@ func (m model) View() string {
 					"Disabling video output in Linux for the card you want to use in a VM\n",
 					"will make it easier to successfully do the passthrough without issues.\n",
 					"\n",
-					"Do you want to force disable video output in linux on this card?\n",
+					"Do you want to force disable video output in linux on this card?",
 				),
 			)
 

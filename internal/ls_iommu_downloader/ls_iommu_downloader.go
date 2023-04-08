@@ -175,14 +175,21 @@ func downloadNewVersion(path, fileName, downloadUrl string) {
 	grabClient := grab.NewClient()
 	req, _ := grab.NewRequest(fileName, downloadUrl)
 
+	// Remove old archive
+	os.Remove(fileName)
+
 	// Download ls-iommu
 	download := grabClient.Do(req)
 
 	// check for errors
 	if err := download.Err(); err != nil {
 		fmt.Fprintf(os.Stderr, "Download failed: %v\n", err)
-		os.Exit(1)
+		if _, err := os.Stat("utils/ls-iommu"); errors.Is(err, os.ErrNotExist) {
+			log.Fatal("If the above error is 404, then we could not communicate with the GitHub API\n Please manually download and extract ls-iommu to: utils/\nYou can download it from: https://github.com/HikariKnight/ls-iommu/releases")
+		} else {
+			fmt.Println("Existing ls-iommu binary detected in \"utils/\", will use that instead as the GitHub API did not respond.")
+		}
+	} else {
+		fmt.Printf("Download saved to ./%v \n", download.Filename)
 	}
-
-	fmt.Printf("Download saved to ./%v \n", download.Filename)
 }

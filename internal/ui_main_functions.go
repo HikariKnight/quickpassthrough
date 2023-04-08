@@ -11,8 +11,6 @@ import (
 func (m *model) processSelection() {
 	switch m.focused {
 	case GPUS:
-		configs.InitConfigs()
-
 		// Gets the selected item
 		selectedItem := m.lists[m.focused].SelectedItem()
 
@@ -58,12 +56,17 @@ func (m *model) processSelection() {
 		m.focused++
 
 	case VBIOS:
+		// This is just an OK Dialog
 		m.focused++
 
 	case VIDEO:
+		// This is a YESNO Dialog
 		m.focused++
 
 	case INTRO:
+		// This is an OK Dialog
+		// Create the config folder and the files related to this system
+		configs.InitConfigs()
 		m.focused++
 
 	case DONE:

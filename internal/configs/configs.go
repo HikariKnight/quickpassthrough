@@ -7,6 +7,7 @@ import (
 	"regexp"
 
 	"github.com/HikariKnight/ls-iommu/pkg/errorcheck"
+	"github.com/klauspost/cpuid/v2"
 )
 
 type Path struct {
@@ -17,6 +18,12 @@ type Path struct {
 	QUICKEMU   string
 	DRACUT     string
 	MKINITCPIO string
+}
+
+type Config struct {
+	bootloader string
+	cpuvendor  string
+	path       *Path
 }
 
 func GetConfigPaths() *Path {
@@ -33,14 +40,30 @@ func GetConfigPaths() *Path {
 	return Paths
 }
 
+func GetConfig() *Config {
+	config := &Config{}
+	config.path = GetConfigPaths()
+
+	// Set default value for bootloader
+	config.bootloader = "unknown"
+
+	// Detect the bootloader we are using
+	getBootloader(config)
+
+	// Detect the cpu vendor
+	config.cpuvendor = cpuid.CPU.VendorID.String()
+
+	return config
+}
+
 func InitConfigs() {
-	config := GetConfigPaths()
+	config := GetConfig()
 
 	dirs := []string{
-		config.MODPROBE,
-		config.INITRAMFS,
-		config.DEFAULT,
-		config.DRACUT,
+		config.path.MODPROBE,
+		config.path.INITRAMFS,
+		config.path.DEFAULT,
+		config.path.DRACUT,
 	}
 
 	// Remove old config
@@ -63,9 +86,10 @@ func InitConfigs() {
 	}
 
 	files := []string{
-		config.ETCMODULES,
-		config.MKINITCPIO,
-		fmt.Sprintf("%s/modules", config.INITRAMFS),
+		config.path.ETCMODULES,
+		config.path.MKINITCPIO,
+		fmt.Sprintf("%s/modules", config.path.INITRAMFS),
+		fmt.Sprintf("%s/grub", config.path.DEFAULT),
 	}
 
 	for _, conffile := range files {

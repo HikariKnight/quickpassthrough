@@ -14,7 +14,7 @@ import (
 	"time"
 
 	"github.com/HikariKnight/ls-iommu/pkg/errorcheck"
-	"github.com/HikariKnight/quickpassthrough/internal/untar"
+	"github.com/HikariKnight/quickpassthrough/pkg/untar"
 	"github.com/cavaliergopher/grab/v3"
 )
 
@@ -92,7 +92,7 @@ type Response struct {
 	Body       string `json:"body"`
 }
 
-func GetLsIOMMU() {
+func CheckLsIOMMU() {
 	// Check the API for releases
 	resp, err := http.Get("https://api.github.com/repos/hikariknight/ls-iommu/releases/latest")
 	errorcheck.ErrorCheck(err)

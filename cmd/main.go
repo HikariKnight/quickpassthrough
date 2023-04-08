@@ -1,9 +1,9 @@
 package main
 
 import (
+	internal "github.com/HikariKnight/quickpassthrough/internal"
 	downloader "github.com/HikariKnight/quickpassthrough/internal/ls_iommu_downloader"
-	"github.com/HikariKnight/quickpassthrough/internal/tuimode"
-	"github.com/HikariKnight/quickpassthrough/pkg/params"
+	"github.com/HikariKnight/quickpassthrough/internal/params"
 )
 
 func main() {
@@ -11,7 +11,7 @@ func main() {
 	pArg := params.NewParams()
 
 	if !pArg.Flag["gui"] {
-		downloader.GetLsIOMMU()
-		tuimode.App()
+		downloader.CheckLsIOMMU()
+		internal.Tui()
 	}
 }

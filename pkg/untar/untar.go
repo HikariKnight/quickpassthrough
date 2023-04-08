@@ -3,6 +3,7 @@ package untar
 import (
 	"archive/tar"
 	"compress/gzip"
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -10,13 +11,13 @@ import (
 	"github.com/HikariKnight/ls-iommu/pkg/errorcheck"
 )
 
-// Source: https://medium.com/@skdomino/taring-untaring-files-in-go-6b07cf56bc07
+// Slightly modified from source: https://medium.com/@skdomino/taring-untaring-files-in-go-6b07cf56bc07
 
-// Untar takes a destination path and a reader; a tar reader loops over the tarfile
+// Untar takes a destination path and a path to a file; a tar reader loops over the tarfile
 // creating the file structure at 'dst' along the way, and writing any files
 func Untar(dst string, fileName string) error {
 	r, err := os.Open(fileName)
-	errorcheck.ErrorCheck(err)
+	errorcheck.ErrorCheck(err, fmt.Sprintf("Failed to open: %s", fileName))
 	defer r.Close()
 
 	gzr, err := gzip.NewReader(r)

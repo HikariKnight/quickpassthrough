@@ -295,8 +295,8 @@ func (m model) View() string {
 		case INTRO:
 			title = dialogStyle.Render(
 				fmt.Sprint(
-					"Welcome to QuickPassthrough!\n",
-					"\n",
+					titleStyle.Render("Welcome to QuickPassthrough!"),
+					"\n\n",
 					"This script is meant to make it easier to setup GPU passthrough for Qemu systems.\n",
 					"However due to the complexity of GPU passthrough, this script assumes you know how to do (or have done) the following.\n\n",
 					"* You have already enabled IOMMU, VT-d, SVM and/or AMD-v\n  inside your UEFI/BIOS advanced settings.\n",

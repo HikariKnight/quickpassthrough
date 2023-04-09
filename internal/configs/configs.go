@@ -59,6 +59,7 @@ func GetConfig() *Config {
 func InitConfigs() {
 	config := GetConfig()
 
+	// Add all directories we need into a stringlist
 	dirs := []string{
 		config.path.MODPROBE,
 		config.path.INITRAMFS,
@@ -85,6 +86,7 @@ func InitConfigs() {
 		}
 	}
 
+	// Add all files we need to a stringlist
 	files := []string{
 		config.path.ETCMODULES,
 		config.path.MKINITCPIO,
@@ -101,7 +103,16 @@ func InitConfigs() {
 			// Create the directories for our configs
 			file, err := os.Create(conffile)
 			errorcheck.ErrorCheck(err)
-			defer file.Close()
+			// Close the file so we can edit it
+			file.Close()
+		}
+
+		// If we now have a config that exists
+		if _, err := os.Stat(conffile); !errors.Is(err, os.ErrNotExist) {
+			header := readHeader(4, sysfile)
+			writeContent(header, conffile)
+			addModules(conffile)
+
 		}
 	}
 }

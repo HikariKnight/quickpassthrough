@@ -1,7 +1,6 @@
 package internal
 
 import (
-	"os"
 	"regexp"
 
 	"github.com/HikariKnight/quickpassthrough/internal/configs"
@@ -9,7 +8,7 @@ import (
 )
 
 // This function processes the enter event
-func (m *model) processSelection() {
+func (m *model) processSelection() bool {
 	switch m.focused {
 	case GPUS:
 		// Gets the selected item
@@ -65,24 +64,37 @@ func (m *model) processSelection() {
 		// Gets the selected item
 		selectedItem := m.lists[m.focused].SelectedItem()
 
+		// If user selected yes then
 		if selectedItem.(item).title == "YES" {
+			// Add disable VFIO video to the config
 			m.disableVFIOVideo()
 		}
+
+		// Configure modprobe
+		configs.Set_Modprobe()
+
+		// Go to the next view
 		m.focused++
 
 	case INTRO:
 		// This is an OK Dialog
 		// Create the config folder and the files related to this system
 		configs.InitConfigs()
+
+		// Go to the next view
 		m.focused++
 
 	case DONE:
-		os.Exit(0)
+		return true
 	}
+
+	return false
 }
 
 func (m *model) disableVFIOVideo() {
 	// Get the config
 	config := configs.GetConfig()
+
+	// Add to the kernel arguments that we want to disable VFIO video output on the host
 	fileio.AppendContent(" vfio_pci.disable_vga=1", config.Path.CMDLINE)
 }

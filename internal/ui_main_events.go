@@ -14,8 +14,10 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		case "enter":
 			if m.loaded {
-				// Process the selected item
-				m.processSelection()
+				// Process the selected item, if the return value is true then exit the application
+				if m.processSelection() {
+					return m, tea.Quit
+				}
 			}
 		case "ctrl+z", "backspace":
 			// Go backwards in the model

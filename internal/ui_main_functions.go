@@ -103,6 +103,11 @@ func (m *model) processSelection() bool {
 			configs.Set_Dracut()
 		}
 
+		// If we have a mkinitcpio.conf file
+		if fileio.FileExist(config.Path.MKINITCPIO) {
+			configs.Set_Mkinitcpio()
+		}
+
 		// Go to the next view
 		//m.focused++
 

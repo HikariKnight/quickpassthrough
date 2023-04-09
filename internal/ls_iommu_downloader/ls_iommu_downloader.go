@@ -4,7 +4,6 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -14,6 +13,7 @@ import (
 	"time"
 
 	"github.com/HikariKnight/ls-iommu/pkg/errorcheck"
+	"github.com/HikariKnight/quickpassthrough/pkg/fileio"
 	"github.com/HikariKnight/quickpassthrough/pkg/untar"
 	"github.com/cavaliergopher/grab/v3"
 )
@@ -111,7 +111,7 @@ func CheckLsIOMMU() {
 
 	// Make the directory for ls-iommu if it does not exist
 	path := "utils"
-	if _, err := os.Stat(path); errors.Is(err, os.ErrNotExist) {
+	if !fileio.FileExist(path) {
 		err := os.Mkdir(path, os.ModePerm)
 		errorcheck.ErrorCheck(err)
 	}
@@ -139,9 +139,7 @@ func CheckLsIOMMU() {
 	errorcheck.ErrorCheck(err)
 
 	// Check if the tar.gz exists
-	_, err = os.Stat(fileName)
-
-	if errors.Is(err, os.ErrNotExist) {
+	if !fileio.FileExist(fileName) {
 		downloadNewVersion(path, fileName, downloadUrl)
 		if checkSum(string(checksums_txt), fileName) {
 			err = untar.Untar(fmt.Sprintf("%s/", path), fileName)
@@ -184,7 +182,7 @@ func downloadNewVersion(path, fileName, downloadUrl string) {
 	// check for errors
 	if err := download.Err(); err != nil {
 		fmt.Fprintf(os.Stderr, "Download failed: %v\n", err)
-		if _, err := os.Stat("utils/ls-iommu"); errors.Is(err, os.ErrNotExist) {
+		if !fileio.FileExist("utils/ls-iommu") {
 			log.Fatal("If the above error is 404, then we could not communicate with the GitHub API\n Please manually download and extract ls-iommu to: utils/\nYou can download it from: https://github.com/HikariKnight/ls-iommu/releases")
 		} else {
 			fmt.Println("Existing ls-iommu binary detected in \"utils/\", will use that instead as the GitHub API did not respond.")

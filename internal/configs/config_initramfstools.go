@@ -81,7 +81,7 @@ func initramfs_addModules(conffile string) {
 	}
 
 	// Write the footer
-	fileio.AppendContent("#############################\n", conffile)
+	fileio.AppendContent("#############################", conffile)
 
 	// Scan the system file line by line
 	scanner := bufio.NewScanner(sysfile)

@@ -13,7 +13,7 @@ import (
 )
 
 // Special function to read the header of a file (reads the first N lines)
-func readHeader(lines int, fileName string) string {
+func initramfs_readHeader(lines int, fileName string) string {
 	// Open the file
 	f, err := os.Open(fileName)
 	errorcheck.ErrorCheck(err, fmt.Sprintf("Error opening %s", fileName))
@@ -39,7 +39,7 @@ func readHeader(lines int, fileName string) string {
 
 // Reads the system file and copies over the content while inserting the vfio modules
 // Takes the config file as argument
-func addModules(conffile string) {
+func initramfs_addModules(conffile string) {
 	// Make a regex to get the system path instead of the config path
 	syspath_re := regexp.MustCompile(`^config`)
 

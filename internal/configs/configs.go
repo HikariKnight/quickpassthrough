@@ -110,10 +110,22 @@ func InitConfigs() {
 
 		// If we now have a config that exists
 		if _, err := os.Stat(conffile); !errors.Is(err, os.ErrNotExist) {
-			header := readHeader(4, sysfile)
-			fileio.AppendContent(header, conffile)
-			// TODO: Generalize this to a meta function
-			addModules(conffile)
+			switch conffile {
+			case config.path.ETCMODULES:
+				// Read the header
+				header := initramfs_readHeader(4, sysfile)
+				fileio.AppendContent(header, conffile)
+
+				// Add the modules to the config file
+				initramfs_addModules(conffile)
+			case config.path.INITRAMFS:
+				// Read the header
+				header := initramfs_readHeader(11, sysfile)
+				fileio.AppendContent(header, conffile)
+
+				// Add the modules to the config file
+				initramfs_addModules(conffile)
+			}
 
 		}
 	}

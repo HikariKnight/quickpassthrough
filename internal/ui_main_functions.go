@@ -4,7 +4,6 @@ import (
 	"regexp"
 
 	"github.com/HikariKnight/quickpassthrough/internal/configs"
-	"github.com/HikariKnight/quickpassthrough/pkg/fileio"
 )
 
 // This function processes the enter event
@@ -69,7 +68,7 @@ func (m *model) processSelection() bool {
 		// If user selected yes then
 		if selectedItem.(item).title == "YES" {
 			// Add disable VFIO video to the config
-			m.disableVFIOVideo()
+			configs.DisableVFIOVideo()
 		}
 
 		// Get the device ids for the selected gpu using ls-iommu
@@ -96,12 +95,4 @@ func (m *model) processSelection() bool {
 
 	// Return false as we are not done
 	return false
-}
-
-func (m *model) disableVFIOVideo() {
-	// Get the config
-	config := configs.GetConfig()
-
-	// Add to the kernel arguments that we want to disable VFIO video output on the host
-	fileio.AppendContent(" vfio_pci.disable_vga=1", config.Path.CMDLINE)
 }

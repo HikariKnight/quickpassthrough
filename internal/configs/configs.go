@@ -112,6 +112,7 @@ func InitConfigs() {
 		if _, err := os.Stat(conffile); !errors.Is(err, os.ErrNotExist) {
 			header := readHeader(4, sysfile)
 			fileio.AppendContent(header, conffile)
+			// TODO: Generalize this to a meta function
 			addModules(conffile)
 
 		}

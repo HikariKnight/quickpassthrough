@@ -2,6 +2,7 @@ package fileio
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"os"
 
@@ -48,4 +49,20 @@ func ReadFile(fileName string) string {
 	// Return all the lines as one string
 	return string(content)
 
+}
+
+func FileExist(fileName string) bool {
+	var exist bool
+
+	// Check if the file exists
+	if _, err := os.Stat(fileName); !errors.Is(err, os.ErrNotExist) {
+		// Set the value to true
+		exist = true
+	} else {
+		// Set the value to false
+		exist = false
+	}
+
+	// Return if the file exists
+	return exist
 }

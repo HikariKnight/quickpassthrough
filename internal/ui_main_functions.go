@@ -85,9 +85,11 @@ func (m *model) processSelection() bool {
 		m.focused++
 
 	case DONE:
+		// Return true so that the application will exit nicely
 		return true
 	}
 
+	// Return false as we are not done
 	return false
 }
 

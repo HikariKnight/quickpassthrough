@@ -29,7 +29,7 @@ type Config struct {
 
 func GetConfigPaths() *Path {
 	Paths := &Path{
-		CMDLINE:    "config/cmdline",
+		CMDLINE:    "config/kernel_args",
 		MODPROBE:   "config/etc/modprobe.d",
 		INITRAMFS:  "config/etc/initramfs-tools",
 		ETCMODULES: "config/etc/modules",

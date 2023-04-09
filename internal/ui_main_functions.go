@@ -4,6 +4,7 @@ import (
 	"regexp"
 
 	"github.com/HikariKnight/quickpassthrough/internal/configs"
+	"github.com/HikariKnight/quickpassthrough/pkg/fileio"
 )
 
 // This function processes the enter event
@@ -68,14 +69,29 @@ func (m *model) processSelection() bool {
 		// If user selected yes then
 		if selectedItem.(item).title == "YES" {
 			// Add disable VFIO video to the config
-			configs.DisableVFIOVideo()
+			configs.DisableVFIOVideo(1)
+		} else {
+			// Add disable VFIO video to the config
+			configs.DisableVFIOVideo(0)
 		}
 
-		// Get the device ids for the selected gpu using ls-iommu
-		gpu_IDs := getIOMMU("-gr", "-i", m.gpu_group, "--id")
+		// Get our config struct
+		config := configs.GetConfig()
 
-		// Configure modprobe
-		configs.Set_Modprobe(gpu_IDs)
+		// If we have files for modprobe
+		if fileio.FileExist(config.Path.MODPROBE) {
+			// Get the device ids for the selected gpu using ls-iommu
+			gpu_IDs := getIOMMU("-gr", "-i", m.gpu_group, "--id")
+
+			// Configure modprobe
+			configs.Set_Modprobe(gpu_IDs)
+		}
+
+		// If we have a folder for dracut
+		if fileio.FileExist(config.Path.DRACUT) {
+			// Configure dracut
+			configs.Set_Dracut()
+		}
 
 		// Go to the next view
 		//m.focused++

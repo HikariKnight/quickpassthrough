@@ -1,11 +1,20 @@
 package configs
 
-import "github.com/HikariKnight/quickpassthrough/pkg/fileio"
+import (
+	"fmt"
 
-func DisableVFIOVideo() {
+	"github.com/HikariKnight/quickpassthrough/pkg/fileio"
+)
+
+func DisableVFIOVideo(i int) {
 	// Get the config
 	config := GetConfig()
 
 	// Add to the kernel arguments that we want to disable VFIO video output on the host
-	fileio.AppendContent(" vfio_pci.disable_vga=1", config.Path.CMDLINE)
+	fileio.AppendContent(
+		fmt.Sprintf(
+			" vfio_pci.disable_vga=%v", i,
+		),
+		config.Path.CMDLINE,
+	)
 }

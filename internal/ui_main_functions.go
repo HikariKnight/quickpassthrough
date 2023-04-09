@@ -33,6 +33,8 @@ func (m *model) processSelection() bool {
 	case GPU_GROUP:
 		// Generate the VBIOS dumper script once the user has selected a GPU
 		generateVBIOSDumper(*m)
+
+		// Change focus to the next view
 		m.focused++
 
 	case USB:
@@ -70,8 +72,11 @@ func (m *model) processSelection() bool {
 			m.disableVFIOVideo()
 		}
 
+		// Get the device ids for the selected gpu using ls-iommu
+		gpu_IDs := getIOMMU("-gr", "-i", m.gpu_group, "--id")
+
 		// Configure modprobe
-		configs.Set_Modprobe()
+		configs.Set_Modprobe(gpu_IDs)
 
 		// Go to the next view
 		m.focused++

@@ -12,6 +12,7 @@ import (
 )
 
 type Path struct {
+	CMDLINE    string
 	MODPROBE   string
 	INITRAMFS  string
 	ETCMODULES string
@@ -29,6 +30,7 @@ type Config struct {
 
 func GetConfigPaths() *Path {
 	Paths := &Path{
+		CMDLINE:    "config/cmdline",
 		MODPROBE:   "config/etc/modprobe.d",
 		INITRAMFS:  "config/etc/initramfs-tools",
 		ETCMODULES: "config/etc/modules",
@@ -52,7 +54,7 @@ func GetConfig() *Config {
 	getBootloader(config)
 
 	// Detect the cpu vendor
-	config.cpuvendor = cpuid.CPU.VendorID.String()
+	config.cpuvendor = cpuid.CPU.VendorString
 
 	return config
 }
@@ -70,6 +72,12 @@ func InitConfigs() {
 
 	// Remove old config
 	os.RemoveAll("config")
+
+	// Make the config folder
+	os.Mkdir("config", os.ModePerm)
+
+	// Generate the kernel arguments
+	set_Cmdline()
 
 	// Make a regex to get the system path instead of the config path
 	syspath_re := regexp.MustCompile(`^config`)
@@ -126,7 +134,6 @@ func InitConfigs() {
 				// Add the modules to the config file
 				initramfs_addModules(conffile)
 			}
-
 		}
 	}
 }

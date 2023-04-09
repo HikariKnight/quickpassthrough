@@ -2,6 +2,8 @@ package configs
 
 import (
 	"github.com/HikariKnight/quickpassthrough/pkg/command"
+	"github.com/HikariKnight/quickpassthrough/pkg/fileio"
+	"github.com/klauspost/cpuid/v2"
 )
 
 func getBootloader(config *Config) {
@@ -25,4 +27,16 @@ func getBootloader(config *Config) {
 	if err == nil {
 		config.bootloader = "kernelstub"
 	}
+}
+
+func set_Cmdline() {
+	// Get the system info
+	cpuinfo := cpuid.CPU
+
+	// Get the configs
+	config := GetConfig()
+
+	// Write test file
+	fileio.AppendContent(cpuinfo.VendorString, config.path.CMDLINE)
+	fileio.AppendContent(cpuinfo.VendorString, config.path.CMDLINE)
 }

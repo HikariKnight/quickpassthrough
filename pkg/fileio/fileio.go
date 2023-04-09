@@ -12,7 +12,7 @@ import (
 
 func AppendContent(content string, fileName string) {
 	// Open the file
-	f, err := os.OpenFile(fileName, os.O_APPEND|os.O_WRONLY, os.ModePerm)
+	f, err := os.OpenFile(fileName, os.O_CREATE|os.O_APPEND|os.O_WRONLY, os.ModePerm)
 	errorcheck.ErrorCheck(err, fmt.Sprintf("Error opening \"%s\" for writing", fileName))
 	defer f.Close()
 

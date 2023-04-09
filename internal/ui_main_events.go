@@ -21,9 +21,12 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		case "ctrl+z", "backspace":
 			// Go backwards in the model
-			if m.focused > 0 {
+			if m.focused > 0 && m.focused != DONE {
 				m.focused--
 				return m, nil
+			} else if m.focused == DONE {
+				// Since we have no QuickEmu support, skip the usb controller configuration
+				m.focused = VIDEO
 			} else {
 				// If we are at the beginning, just exit
 				return m, tea.Quit

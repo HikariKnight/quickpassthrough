@@ -78,7 +78,10 @@ func (m *model) processSelection() bool {
 		configs.Set_Modprobe(gpu_IDs)
 
 		// Go to the next view
-		m.focused++
+		//m.focused++
+
+		// Because we have no QuickEmu support yet, just skip USB Controller configuration
+		m.focused = DONE
 
 	case INTRO:
 		// This is an OK Dialog

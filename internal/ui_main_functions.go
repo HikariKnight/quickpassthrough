@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"os"
 	"regexp"
 
 	"github.com/HikariKnight/quickpassthrough/internal/configs"
@@ -66,6 +67,21 @@ func (m *model) processSelection() bool {
 		// Gets the selected item
 		selectedItem := m.lists[m.focused].SelectedItem()
 
+		// Get our config struct
+		config := configs.GetConfig()
+
+		// Get the device ids for the selected gpu using ls-iommu
+		gpu_IDs := getIOMMU("-gr", "-i", m.gpu_group, "--id")
+
+		// If the kernel_args file already exists
+		if fileio.FileExist(config.Path.CMDLINE) {
+			// Delete it as we will have to make a new one anyway
+			os.Remove(config.Path.CMDLINE)
+		}
+
+		// Write initial kernel_arg file
+		configs.Set_Cmdline(gpu_IDs)
+
 		// If user selected yes then
 		if selectedItem.(item).title == "YES" {
 			// Add disable VFIO video to the config
@@ -75,14 +91,8 @@ func (m *model) processSelection() bool {
 			configs.DisableVFIOVideo(0)
 		}
 
-		// Get our config struct
-		config := configs.GetConfig()
-
 		// If we have files for modprobe
 		if fileio.FileExist(config.Path.MODPROBE) {
-			// Get the device ids for the selected gpu using ls-iommu
-			gpu_IDs := getIOMMU("-gr", "-i", m.gpu_group, "--id")
-
 			// Configure modprobe
 			configs.Set_Modprobe(gpu_IDs)
 		}

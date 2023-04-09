@@ -9,7 +9,6 @@ import (
 
 	"github.com/HikariKnight/ls-iommu/pkg/errorcheck"
 	"github.com/HikariKnight/quickpassthrough/pkg/fileio"
-	"github.com/HikariKnight/quickpassthrough/pkg/uname"
 )
 
 // Special function to read the header of a file (reads the first N lines)
@@ -64,24 +63,14 @@ func initramfs_addModules(conffile string) {
 	fileio.AppendContent(
 		fmt.Sprint(
 			"# Added by quickpassthrough #\n",
-			"vfio\n",
-			"vfio_iommu_type1\n",
-			"vfio_pci\n",
+			fmt.Sprintf(
+				"%s\n",
+				strings.Join(vfio_modules(), "\n"),
+			),
+			"#############################\n",
 		),
 		conffile,
 	)
-
-	// If we are on a kernel older than 6.2
-	sysinfo := uname.New()
-	kernel_re := regexp.MustCompile(`^(6\.1|6\.0|[1-5]\.)`)
-	if kernel_re.MatchString(sysinfo.Kernel) {
-		// Include the vfio_virqfd module
-		// NOTE: this driver was merged into the vfio module in 6.2
-		fileio.AppendContent("vfio_virqfd\n", conffile)
-	}
-
-	// Write the footer
-	fileio.AppendContent("#############################", conffile)
 
 	// Scan the system file line by line
 	scanner := bufio.NewScanner(sysfile)

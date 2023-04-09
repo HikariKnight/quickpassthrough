@@ -2,6 +2,7 @@ package configs
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/HikariKnight/quickpassthrough/pkg/fileio"
@@ -19,6 +20,15 @@ func Set_Modprobe(gpu_IDs []string) {
 
 	if strings.Contains(kernel_args, "vfio_pci.disable_vga=1") {
 		vfio_pci_options = append(vfio_pci_options, "disable_vga=1")
+	}
+
+	// Put our config file path into a string
+	conffile := fmt.Sprintf("%s/vfio.conf", config.Path.MODPROBE)
+
+	// If the file exists
+	if fileio.FileExist(conffile) {
+		// Delete the old file
+		os.Remove(conffile)
 	}
 
 	// Write the vfio.conf file to our modprobe config
@@ -39,9 +49,6 @@ func Set_Modprobe(gpu_IDs []string) {
 			"softdep amdgpu pre: vfio vfio_pci\n",
 			"softdep radeon pre: vfio vfio_pci\n",
 		),
-		fmt.Sprintf(
-			"%s/vfio.conf",
-			config.Path.MODPROBE,
-		),
+		conffile,
 	)
 }

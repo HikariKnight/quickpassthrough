@@ -7,6 +7,7 @@ import (
 
 	"github.com/HikariKnight/ls-iommu/pkg/errorcheck"
 	"github.com/HikariKnight/quickpassthrough/pkg/fileio"
+	"github.com/HikariKnight/quickpassthrough/pkg/uname"
 	"github.com/klauspost/cpuid/v2"
 )
 
@@ -129,7 +130,25 @@ func InitConfigs() {
 			}
 		}
 	}
+}
 
-	// Generate the kernel arguments
-	set_Cmdline()
+func vfio_modules() []string {
+	// Make the list of modules
+	modules := []string{
+		"vfio_pci",
+		"vfio",
+		"vfio_iommu_type1",
+	}
+
+	// If we are on a kernel older than 6.2
+	sysinfo := uname.New()
+	kernel_re := regexp.MustCompile(`^(6\.1|6\.0|[1-5]\.)`)
+	if kernel_re.MatchString(sysinfo.Kernel) {
+		// Include the vfio_virqfd module
+		// NOTE: this driver was merged into the vfio module in 6.2
+		modules = append(modules, "vfio_virqfd")
+	}
+
+	// Return the modules
+	return modules
 }

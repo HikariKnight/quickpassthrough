@@ -1,6 +1,9 @@
 package configs
 
 import (
+	"fmt"
+	"strings"
+
 	"github.com/HikariKnight/quickpassthrough/pkg/command"
 	"github.com/HikariKnight/quickpassthrough/pkg/fileio"
 	"github.com/klauspost/cpuid/v2"
@@ -34,7 +37,7 @@ func getBootloader(config *Config) {
 // This function adds the default kernel arguments we want to the config/cmdline file
 // This gives us a file we can read all the kernel arguments this system needs
 // in case of an unknown bootloader
-func set_Cmdline() {
+func Set_Cmdline(gpu_IDs []string) {
 	// Get the system info
 	cpuinfo := cpuid.CPU
 
@@ -51,6 +54,9 @@ func set_Cmdline() {
 	case "GenuineIntel":
 		fileio.AppendContent(" intel_iommu=on", config.Path.CMDLINE)
 	}
+
+	// Add the GPU ids for vfio to the kernel arguments
+	fileio.AppendContent(fmt.Sprintf(" vfio_pci.ids=%s", strings.Join(gpu_IDs, ",")), config.Path.CMDLINE)
 
 	// If the config folder for dracut exists in our configs
 	if fileio.FileExist(config.Path.DRACUT) {

@@ -8,9 +8,11 @@ import (
 	"strings"
 
 	"github.com/HikariKnight/ls-iommu/pkg/errorcheck"
+	"github.com/HikariKnight/quickpassthrough/pkg/fileio"
 	"github.com/HikariKnight/quickpassthrough/pkg/uname"
 )
 
+// Special function to read the header of a file (reads the first N lines)
 func readHeader(lines int, fileName string) string {
 	// Open the file
 	f, err := os.Open(fileName)
@@ -35,12 +37,14 @@ func readHeader(lines int, fileName string) string {
 	return fmt.Sprintf("%s\n", strings.Join(header, "\n"))
 }
 
+// Reads the system file and copies over the content while inserting the vfio modules
+// Takes the config file as argument
 func addModules(conffile string) {
 	// Make a regex to get the system path instead of the config path
 	syspath_re := regexp.MustCompile(`^config`)
 
 	// Make a regex to skip specific modules and comments
-	skipmodules_re := regexp.MustCompile(`(^#|vendor-reset)`)
+	skipmodules_re := regexp.MustCompile(`(^#|vendor-reset|vfio|vfio_pci|vfio_iommu_type1|vfio_virqfd)`)
 
 	// Get the syspath
 	syspath := syspath_re.ReplaceAllString(conffile, "")
@@ -50,34 +54,42 @@ func addModules(conffile string) {
 	errorcheck.ErrorCheck(err, fmt.Sprintf("Error opening file for reading %s", syspath))
 	defer sysfile.Close()
 
-	// Open config file for writing
-	out, err := os.OpenFile(conffile, os.O_APPEND|os.O_WRONLY, os.ModePerm)
-	errorcheck.ErrorCheck(err, fmt.Sprintf("Error opening file for writing %s", conffile))
-	defer out.Close()
+	// Check if user has vendor-reset installed/enabled and make sure that is first
+	content := fileio.ReadFile(syspath)
+	if strings.Contains(content, "vendor-reset") {
+		fileio.AppendContent("vendor-reset\n", conffile)
+	}
 
-	// Make a list of modules
-	//var modules []string
+	// Write the vfio modules
+	fileio.AppendContent(
+		fmt.Sprint(
+			"# Added by quickpassthrough #\n",
+			"vfio\n",
+			"vfio_iommu_type1\n",
+			"vfio_pci\n",
+		),
+		conffile,
+	)
 
-	// Scan the file line by line
+	// If we are on a kernel older than 6.2
+	sysinfo := uname.New()
+	kernel_re := regexp.MustCompile(`^(6\.1|6\.0|[1-5]\.)`)
+	if kernel_re.MatchString(sysinfo.Kernel) {
+		// Include the vfio_virqfd module
+		// NOTE: this driver was merged into the vfio module in 6.2
+		fileio.AppendContent("vfio_virqfd\n", conffile)
+	}
+
+	// Write the footer
+	fileio.AppendContent("#############################\n", conffile)
+
+	// Scan the system file line by line
 	scanner := bufio.NewScanner(sysfile)
 	for scanner.Scan() {
-		if scanner.Text() == "vendor-reset" {
-			out.WriteString(scanner.Text())
-		} else if !skipmodules_re.MatchString(scanner.Text()) {
-			writeContent(fmt.Sprintf("%s\n", scanner.Text()), conffile)
-			sysinfo := uname.New()
-			writeContent(fmt.Sprintf("%s\n%s\n%s\n%s\n", sysinfo.Nodename, sysinfo.Sysname, sysinfo.Domainname, sysinfo.Machine), conffile)
+		// If this is not a line we skip then
+		if !skipmodules_re.MatchString(scanner.Text()) {
+			// Add the module to our config
+			fileio.AppendContent(fmt.Sprintf("%s\n", scanner.Text()), conffile)
 		}
 	}
-}
-
-func writeContent(content string, fileName string) {
-	// Open the file
-	f, err := os.OpenFile(fileName, os.O_APPEND|os.O_WRONLY, os.ModePerm)
-	errorcheck.ErrorCheck(err, fmt.Sprintf("Error opening %s", fileName))
-	defer f.Close()
-
-	// Make a new scanner
-	_, err = f.WriteString(content)
-	errorcheck.ErrorCheck(err, fmt.Sprintf("Error writing to %s", fileName))
 }

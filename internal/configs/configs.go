@@ -7,6 +7,7 @@ import (
 	"regexp"
 
 	"github.com/HikariKnight/ls-iommu/pkg/errorcheck"
+	"github.com/HikariKnight/quickpassthrough/pkg/fileio"
 	"github.com/klauspost/cpuid/v2"
 )
 
@@ -110,7 +111,7 @@ func InitConfigs() {
 		// If we now have a config that exists
 		if _, err := os.Stat(conffile); !errors.Is(err, os.ErrNotExist) {
 			header := readHeader(4, sysfile)
-			writeContent(header, conffile)
+			fileio.AppendContent(header, conffile)
 			addModules(conffile)
 
 		}

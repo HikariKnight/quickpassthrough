@@ -1,7 +1,6 @@
 package configs
 
 import (
-	"errors"
 	"fmt"
 	"os"
 	"regexp"
@@ -85,7 +84,7 @@ func InitConfigs() {
 		syspath := syspath_re.ReplaceAllString(confpath, "")
 
 		// If the path exists
-		if _, err := os.Stat(syspath); !errors.Is(err, os.ErrNotExist) {
+		if fileio.FileExist(syspath) {
 			// Create the directories for our configs
 			err := os.MkdirAll(confpath, os.ModePerm)
 			errorcheck.ErrorCheck(err)
@@ -105,7 +104,7 @@ func InitConfigs() {
 		sysfile := syspath_re.ReplaceAllString(conffile, "")
 
 		// If the file exists
-		if _, err := os.Stat(sysfile); !errors.Is(err, os.ErrNotExist) {
+		if fileio.FileExist(sysfile) {
 			// Create the directories for our configs
 			file, err := os.Create(conffile)
 			errorcheck.ErrorCheck(err)
@@ -114,7 +113,7 @@ func InitConfigs() {
 		}
 
 		// If we now have a config that exists
-		if _, err := os.Stat(conffile); !errors.Is(err, os.ErrNotExist) {
+		if fileio.FileExist(conffile) {
 			switch conffile {
 			case config.path.ETCMODULES:
 				// Read the header

@@ -76,9 +76,6 @@ func InitConfigs() {
 	// Make the config folder
 	os.Mkdir("config", os.ModePerm)
 
-	// Generate the kernel arguments
-	set_Cmdline()
-
 	// Make a regex to get the system path instead of the config path
 	syspath_re := regexp.MustCompile(`^config`)
 
@@ -136,4 +133,7 @@ func InitConfigs() {
 			}
 		}
 	}
+
+	// Generate the kernel arguments
+	set_Cmdline()
 }

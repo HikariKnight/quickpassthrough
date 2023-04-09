@@ -6,6 +6,8 @@ import (
 	"github.com/klauspost/cpuid/v2"
 )
 
+// This function just adds what bootloader the system has to our config.bootloader value
+// Preference is given to kernelstub because it is WAY easier to safely edit compared to grub2
 func getBootloader(config *Config) {
 	// Check what bootloader handler we are using
 	// Check for grub-mkconfig
@@ -29,6 +31,9 @@ func getBootloader(config *Config) {
 	}
 }
 
+// This function adds the default kernel arguments we want to the config/cmdline file
+// This gives us a file we can read all the kernel arguments this system needs
+// in case of an unknown bootloader
 func set_Cmdline() {
 	// Get the system info
 	cpuinfo := cpuid.CPU
@@ -36,7 +41,20 @@ func set_Cmdline() {
 	// Get the configs
 	config := GetConfig()
 
-	// Write test file
-	fileio.AppendContent(cpuinfo.VendorString, config.path.CMDLINE)
-	fileio.AppendContent(cpuinfo.VendorString, config.path.CMDLINE)
+	// Write the file containing our kernel arguments to feed the bootloader
+	fileio.AppendContent("iommu=pt", config.path.CMDLINE)
+
+	// Write the argument based on which cpu the user got
+	switch cpuinfo.VendorString {
+	case "AuthenticAMD":
+		fileio.AppendContent(" amd_iommu=on", config.path.CMDLINE)
+	case "GenuineIntel":
+		fileio.AppendContent(" intel_iommu=on", config.path.CMDLINE)
+	}
+
+	// If the config folder for dracut exists in our configs
+	if fileio.FileExist(config.path.DRACUT) {
+		// Add an extra kernel argument needed for dracut users
+		fileio.AppendContent(" rd.driver.pre=vfio_pci", config.path.CMDLINE)
+	}
 }

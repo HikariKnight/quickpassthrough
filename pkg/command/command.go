@@ -2,8 +2,12 @@ package command
 
 import (
 	"bytes"
+	"encoding/base64"
 	"io"
 	"os/exec"
+	"time"
+
+	"github.com/HikariKnight/ls-iommu/pkg/errorcheck"
 )
 
 func Run(binary string, args ...string) ([]string, error) {
@@ -21,10 +25,40 @@ func Run(binary string, args ...string) ([]string, error) {
 	output, _ := io.ReadAll(&stdout)
 	outerr, _ := io.ReadAll(&stderr)
 
+	// Get the output
 	outputs := []string{}
 	outputs = append(outputs, string(output))
 	outputs = append(outputs, string(outerr))
 
 	// Return our list of items
 	return outputs, err
+}
+
+// This functions runs the command "sudo -Sk -- echo", this forces sudo
+// to re-authenticate and lets us enter the password to STDIN
+// giving us the ability to run sudo commands
+func Elevate(password string) {
+	// Do a simple sudo command to just authenticate with sudo
+	cmd := exec.Command("sudo", "-Sk", "--", "echo")
+
+	// Wait for 500ms, if the password is correct, sudo will return immediately
+	cmd.WaitDelay = 500 * time.Millisecond
+
+	// Open STDIN
+	stdin, err := cmd.StdinPipe()
+	errorcheck.ErrorCheck(err, "Failed to get sudo STDIN")
+
+	// Start the authentication
+	cmd.Start()
+
+	// Get the passed password
+	pw, _ := base64.StdEncoding.DecodeString(password)
+	_, err = stdin.Write([]byte(string(pw) + "\n"))
+	errorcheck.ErrorCheck(err, "Failed at typing to STDIN")
+	// Clear the password
+	pw = nil
+	stdin.Close()
+
+	err = cmd.Wait()
+	errorcheck.ErrorCheck(err)
 }

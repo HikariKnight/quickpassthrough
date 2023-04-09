@@ -5,6 +5,7 @@ import (
 	"regexp"
 
 	"github.com/HikariKnight/quickpassthrough/internal/configs"
+	"github.com/HikariKnight/quickpassthrough/pkg/fileio"
 )
 
 // This function processes the enter event
@@ -61,6 +62,12 @@ func (m *model) processSelection() {
 
 	case VIDEO:
 		// This is a YESNO Dialog
+		// Gets the selected item
+		selectedItem := m.lists[m.focused].SelectedItem()
+
+		if selectedItem.(item).title == "YES" {
+			m.disableVFIOVideo()
+		}
 		m.focused++
 
 	case INTRO:
@@ -72,4 +79,10 @@ func (m *model) processSelection() {
 	case DONE:
 		os.Exit(0)
 	}
+}
+
+func (m *model) disableVFIOVideo() {
+	// Get the config
+	config := configs.GetConfig()
+	fileio.AppendContent(" vfio_pci.disable_vga=1", config.Path.CMDLINE)
 }

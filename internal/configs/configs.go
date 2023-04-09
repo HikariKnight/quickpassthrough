@@ -122,7 +122,7 @@ func InitConfigs() {
 
 				// Add the modules to the config file
 				initramfs_addModules(conffile)
-			case config.path.INITRAMFS:
+			case fmt.Sprintf("%s/modules", config.path.INITRAMFS):
 				// Read the header
 				header := initramfs_readHeader(11, sysfile)
 				fileio.AppendContent(header, conffile)

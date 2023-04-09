@@ -14,20 +14,20 @@ func getBootloader(config *Config) {
 	_, err := command.Run("which", "grub-mkconfig")
 	if err == nil {
 		// Mark bootloader as grub2
-		config.bootloader = "grub2"
+		config.Bootloader = "grub2"
 	}
 
 	// Check for grubby (used by fedora)
 	_, err = command.Run("which", "grubby")
 	if err == nil {
 		// Mark it as unknown as i do not support it yet
-		config.bootloader = "unknown"
+		config.Bootloader = "unknown"
 	}
 
 	// Check for kernelstub (used by pop os)
 	_, err = command.Run("which", "kernelstub")
 	if err == nil {
-		config.bootloader = "kernelstub"
+		config.Bootloader = "kernelstub"
 	}
 }
 
@@ -42,19 +42,19 @@ func set_Cmdline() {
 	config := GetConfig()
 
 	// Write the file containing our kernel arguments to feed the bootloader
-	fileio.AppendContent("iommu=pt", config.path.CMDLINE)
+	fileio.AppendContent("iommu=pt", config.Path.CMDLINE)
 
 	// Write the argument based on which cpu the user got
 	switch cpuinfo.VendorString {
 	case "AuthenticAMD":
-		fileio.AppendContent(" amd_iommu=on", config.path.CMDLINE)
+		fileio.AppendContent(" amd_iommu=on", config.Path.CMDLINE)
 	case "GenuineIntel":
-		fileio.AppendContent(" intel_iommu=on", config.path.CMDLINE)
+		fileio.AppendContent(" intel_iommu=on", config.Path.CMDLINE)
 	}
 
 	// If the config folder for dracut exists in our configs
-	if fileio.FileExist(config.path.DRACUT) {
+	if fileio.FileExist(config.Path.DRACUT) {
 		// Add an extra kernel argument needed for dracut users
-		fileio.AppendContent(" rd.driver.pre=vfio_pci", config.path.CMDLINE)
+		fileio.AppendContent(" rd.driver.pre=vfio_pci", config.Path.CMDLINE)
 	}
 }

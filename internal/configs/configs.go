@@ -22,9 +22,9 @@ type Path struct {
 }
 
 type Config struct {
-	bootloader string
-	cpuvendor  string
-	path       *Path
+	Bootloader string
+	Cpuvendor  string
+	Path       *Path
 }
 
 func GetConfigPaths() *Path {
@@ -43,17 +43,14 @@ func GetConfigPaths() *Path {
 }
 
 func GetConfig() *Config {
-	config := &Config{}
-	config.path = GetConfigPaths()
-
-	// Set default value for bootloader
-	config.bootloader = "unknown"
+	config := &Config{
+		Bootloader: "unknown",
+		Cpuvendor:  cpuid.CPU.VendorString,
+		Path:       GetConfigPaths(),
+	}
 
 	// Detect the bootloader we are using
 	getBootloader(config)
-
-	// Detect the cpu vendor
-	config.cpuvendor = cpuid.CPU.VendorString
 
 	return config
 }
@@ -63,10 +60,10 @@ func InitConfigs() {
 
 	// Add all directories we need into a stringlist
 	dirs := []string{
-		config.path.MODPROBE,
-		config.path.INITRAMFS,
-		config.path.DEFAULT,
-		config.path.DRACUT,
+		config.Path.MODPROBE,
+		config.Path.INITRAMFS,
+		config.Path.DEFAULT,
+		config.Path.DRACUT,
 	}
 
 	// Remove old config
@@ -93,10 +90,10 @@ func InitConfigs() {
 
 	// Add all files we need to a stringlist
 	files := []string{
-		config.path.ETCMODULES,
-		config.path.MKINITCPIO,
-		fmt.Sprintf("%s/modules", config.path.INITRAMFS),
-		fmt.Sprintf("%s/grub", config.path.DEFAULT),
+		config.Path.ETCMODULES,
+		config.Path.MKINITCPIO,
+		fmt.Sprintf("%s/modules", config.Path.INITRAMFS),
+		fmt.Sprintf("%s/grub", config.Path.DEFAULT),
 	}
 
 	for _, conffile := range files {
@@ -115,14 +112,14 @@ func InitConfigs() {
 		// If we now have a config that exists
 		if fileio.FileExist(conffile) {
 			switch conffile {
-			case config.path.ETCMODULES:
+			case config.Path.ETCMODULES:
 				// Read the header
 				header := initramfs_readHeader(4, sysfile)
 				fileio.AppendContent(header, conffile)
 
 				// Add the modules to the config file
 				initramfs_addModules(conffile)
-			case fmt.Sprintf("%s/modules", config.path.INITRAMFS):
+			case fmt.Sprintf("%s/modules", config.Path.INITRAMFS):
 				// Read the header
 				header := initramfs_readHeader(11, sysfile)
 				fileio.AppendContent(header, conffile)

@@ -6,31 +6,53 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
-		// Setup keybindings
-		switch msg.String() {
-		case "ctrl+c", "q":
-			// Exit when user presses Q or CTRL+C
-			return m, tea.Quit
 
-		case "enter":
-			if m.width != 0 {
-				// Process the selected item, if the return value is true then exit the application
-				if m.processSelection() {
+		// If we are not done
+		if m.focused != DONE {
+			// Setup keybindings
+			switch msg.String() {
+			case "ctrl+c", "q":
+				// Exit when user presses Q or CTRL+C
+				return m, tea.Quit
+
+			case "enter":
+				if m.width != 0 {
+					// Process the selected item, if the return value is true then exit the application
+					if m.processSelection() {
+						return m, tea.Quit
+					}
+				}
+			case "ctrl+z", "backspace":
+				// Go backwards in the model
+				if m.focused > 0 && m.focused != DONE {
+					m.focused--
+					return m, nil
+				} else if m.focused == DONE {
+					// Since we have no QuickEmu support, skip the usb controller configuration
+					m.focused = VIDEO
+				} else {
+					// If we are at the beginning, just exit
 					return m, tea.Quit
 				}
 			}
-		case "ctrl+z", "backspace":
-			// Go backwards in the model
-			if m.focused > 0 && m.focused != DONE {
-				m.focused--
-				return m, nil
-			} else if m.focused == DONE {
-				// Since we have no QuickEmu support, skip the usb controller configuration
-				m.focused = VIDEO
-			} else {
-				// If we are at the beginning, just exit
+		} else {
+			// If we are done then handle keybindings a bit differently
+			// Setup keybindings for authDialog
+			switch msg.String() {
+			case "ctrl+c":
+				// Exit when user presses CTRL+C
 				return m, tea.Quit
+
+			case "enter":
+				if m.width != 0 {
+					// Process the selected item, if the return value is true then exit the application
+					if m.processSelection() {
+						return m, tea.Quit
+					}
+				}
 			}
+			m.authDialog, cmd = m.authDialog.Update(msg)
+			return m, cmd
 		}
 	case tea.WindowSizeMsg:
 		if m.width == 0 {
@@ -52,12 +74,14 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					// Update the styles with the correct width
 					dialogStyle = dialogStyle.Width(m.width)
 					listStyle = listStyle.Width(m.width)
-					titleStyle = titleStyle.Width(m.width - 2)
+					titleStyle = titleStyle.Width(m.width - 4)
 					choiceStyle = choiceStyle.Width(m.width)
 				}
 			}
 		}
 	}
+
+	// Run another update loop
 	m.lists[m.focused], cmd = m.lists[m.focused].Update(msg)
 	return m, cmd
 }

@@ -12,6 +12,7 @@ import (
 func (m model) View() string {
 	if m.width != 0 {
 		title := ""
+		view := "Empty View :("
 		switch m.focused {
 		case INTRO:
 			title = dialogStyle.Render(
@@ -31,10 +32,15 @@ func (m model) View() string {
 					"becomes unbootable, as you will be asked to verify the files generated",
 				),
 			)
+
+			view = listStyle.Render(m.lists[m.focused].View())
+
 		case GPUS:
 			title = titleStyle.MarginLeft(2).Render(
 				"Select a GPU to check the IOMMU groups of",
 			)
+
+			view = listStyle.Render(m.lists[m.focused].View())
 
 		case GPU_GROUP:
 			title = titleStyle.Render(
@@ -44,10 +50,14 @@ func (m model) View() string {
 				),
 			)
 
+			view = listStyle.Render(m.lists[m.focused].View())
+
 		case USB:
 			title = titleStyle.Render(
 				"[OPTIONAL]: Select a USB Controller to check the IOMMU groups of",
 			)
+
+			view = listStyle.Render(m.lists[m.focused].View())
 
 		case USB_GROUP:
 			title = titleStyle.Render(
@@ -56,6 +66,8 @@ func (m model) View() string {
 					"This list should only contain the USB controller you want to use.",
 				),
 			)
+
+			view = listStyle.Render(m.lists[m.focused].View())
 
 		case VBIOS:
 			// Get the program directory
@@ -89,6 +101,8 @@ func (m model) View() string {
 
 			title = fmt.Sprintf(text, m.vbios_path, scriptdir)
 
+			view = listStyle.Render(m.lists[m.focused].View())
+
 		case VIDEO:
 			title = dialogStyle.Render(
 				fmt.Sprint(
@@ -99,13 +113,15 @@ func (m model) View() string {
 				),
 			)
 
+			view = listStyle.Render(m.lists[m.focused].View())
+
 		case DONE:
 			title = dialogStyle.Render(
 				fmt.Sprint(
 					"The configuration files have been generated and are\n",
 					"located inside the \"config\" folder\n",
 					"\n",
-					"* The \"cmdline\" file contains kernel arguments that your bootloader needs\n",
+					"* The \"kernel_args\" file contains kernel arguments that your bootloader needs\n",
 					"* The \"quickemu\" folder contains files that might be\n  useable for quickemu in the future\n",
 					"* The files inside the \"etc\" folder must be copied to your system.\n",
 					"  NOTE: Verify that these files are correctly formated/edited!\n",
@@ -114,9 +130,11 @@ func (m model) View() string {
 					"run it to copy the files to your system and make a backup of your old files.",
 				),
 			)
+
+			view = m.authDialog.View()
 		}
 		//return listStyle.SetString(fmt.Sprintf("%s\n\n", title)).Render(m.lists[m.focused].View())
-		return lipgloss.JoinVertical(lipgloss.Left, fmt.Sprintf("%s\n%s\n", title, listStyle.Render(m.lists[m.focused].View())))
+		return lipgloss.JoinVertical(lipgloss.Left, fmt.Sprintf("%s\n%s\n", title, view))
 	} else {
 		return "Loading..."
 	}

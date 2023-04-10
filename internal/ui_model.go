@@ -1,7 +1,12 @@
 package internal
 
 import (
+	"fmt"
+	"os/user"
+
+	"github.com/HikariKnight/ls-iommu/pkg/errorcheck"
 	"github.com/charmbracelet/bubbles/list"
+	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
@@ -29,6 +34,7 @@ type model struct {
 	offsety    []int
 	width      int
 	height     int
+	authDialog textinput.Model
 }
 
 // Consts used to navigate the main model
@@ -44,8 +50,21 @@ const (
 )
 
 func NewModel() *model {
+	// Get the username
+	user, err := user.Current()
+	errorcheck.ErrorCheck(err, "Error getting username")
+	username := user.Username
+
+	// Create the auth input and focus it
+	authInput := textinput.New()
+	authInput.EchoMode = textinput.EchoPassword
+	authInput.Prompt = fmt.Sprintf("\n[sudo] password for %s: ", username)
+	authInput.Focus()
+
 	// Create a blank model and return it
-	return &model{}
+	return &model{
+		authDialog: authInput,
+	}
 }
 
 func (m model) Init() tea.Cmd {
@@ -89,7 +108,7 @@ func (m *model) initLists(width, height int) {
 	// Update the styles with the correct width
 	dialogStyle = dialogStyle.Width(m.width)
 	listStyle = listStyle.Width(m.width)
-	titleStyle = titleStyle.Width(m.width - 2)
+	titleStyle = titleStyle.Width(m.width - 4)
 	choiceStyle = choiceStyle.Width(m.width)
 
 	// Make m.fetched and set all values to FALSE

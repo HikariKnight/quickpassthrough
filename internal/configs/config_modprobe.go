@@ -60,4 +60,7 @@ func Set_Modprobe(gpu_IDs []string) {
 		content,
 		conffile,
 	)
+
+	// Make a backup of dracutConf if there is one there
+	backupFile(strings.Replace(conffile, "config", "", 1))
 }

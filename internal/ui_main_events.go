@@ -27,9 +27,6 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				if m.focused > 0 && m.focused != DONE {
 					m.focused--
 					return m, nil
-				} else if m.focused == DONE {
-					// Since we have no QuickEmu support, skip the usb controller configuration
-					m.focused = VIDEO
 				} else {
 					// If we are at the beginning, just exit
 					return m, tea.Quit
@@ -39,6 +36,10 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			// If we are done then handle keybindings a bit differently
 			// Setup keybindings for authDialog
 			switch msg.String() {
+			case "ctrl+z":
+				// Since we have no QuickEmu support, skip the usb controller configuration
+				m.focused = VIDEO
+
 			case "ctrl+c":
 				// Exit when user presses CTRL+C
 				return m, tea.Quit

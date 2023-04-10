@@ -95,6 +95,9 @@ func InitConfigs() {
 				confpath,
 			)
 
+			// Make a backup directory
+			makeBackupDir(syspath)
+
 			// Create the directories for our configs
 			err := os.MkdirAll(confpath, os.ModePerm)
 			errorcheck.ErrorCheck(err)
@@ -128,6 +131,9 @@ func InitConfigs() {
 			errorcheck.ErrorCheck(err)
 			// Close the file so we can edit it
 			file.Close()
+
+			// Backup the sysfile if we do not have a backup
+			backupFile(sysfile)
 		}
 
 		// If we now have a config that exists
@@ -178,4 +184,37 @@ func vfio_modules() []string {
 
 	// Return the modules
 	return modules
+}
+
+func backupFile(source string) {
+	// Make a destination path
+	dest := fmt.Sprintf("backup%s", source)
+
+	// If the file exists in the config but not on the system it is a file we make
+	if fileio.FileExist(fmt.Sprintf("config%s", source)) && !fileio.FileExist(source) {
+		// Create the blank file so that a copy of the backup folder to /etc
+		file, err := os.Create(dest)
+		errorcheck.ErrorCheck(err, "Error creating file %s", dest)
+		file.Close()
+	} else if !fileio.FileExist(dest) {
+		// If a backup of the file does not exist
+		// Write to the logger
+		logger.Printf("No first time backup of %s detected.\nCreating a backup at %s", source, dest)
+
+		// Copy the file
+		fileio.FileCopy(source, dest)
+	}
+
+}
+
+func makeBackupDir(dest string) {
+	// If a backup directory does not exist
+	if !fileio.FileExist("backup/") {
+		// Write to the logger
+		logger.Printf("Backup directory does not exist!\nCreating backup directory for first run backup")
+	}
+
+	// Make the empty directories
+	err := os.MkdirAll(fmt.Sprintf("backup/%s", dest), os.ModePerm)
+	errorcheck.ErrorCheck(err, "Error making backup/ folder")
 }

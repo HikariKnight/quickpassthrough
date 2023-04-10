@@ -125,9 +125,14 @@ func (m model) View() string {
 					"* The \"quickemu\" folder contains files that might be\n  useable for quickemu in the future\n",
 					"* The files inside the \"etc\" folder must be copied to your system.\n",
 					"  NOTE: Verify that these files are correctly formated/edited!\n",
+					"* Once all files have been copied, you need to update your bootloader and rebuild\n",
+					"  your initramfs using the tools to do so by your system.\n",
 					"\n",
-					"A script file named \"install.sh\" has been generated,\n",
-					"run it to copy the files to your system and make a backup of your old files.",
+					"This program can do this for you, however the program will have to\n",
+					"type your password to sudo using STDIN, to avoid using STDIN press CTRL+C\n",
+					"and copy the files, update your bootloader and rebuild your initramfs manually.\n",
+					"If you want to go back and change something, press CTRL+Z\n",
+					"\nNOTE: A backup of the original files from the first run can be found in the backup folder",
 				),
 			)
 

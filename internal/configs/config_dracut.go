@@ -29,4 +29,7 @@ func Set_Dracut() {
 
 	// Add to our kernel arguments file that vfio_pci should load early (dracut does this using kernel arguments)
 	fileio.AppendContent(" rd.driver.pre=vfio_pci", config.Path.CMDLINE)
+
+	// Make a backup of dracutConf if there is one there
+	backupFile(strings.Replace(dracutConf, "config", "", 1))
 }

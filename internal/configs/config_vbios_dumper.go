@@ -31,7 +31,7 @@ func GenerateVBIOSDumper(vbios_path string) {
 		"echo 1 | sudo tee %s\n",
 		"echo\n",
 		"echo Attempting to dump VBIOS\n",
-		"sudo bash -c \"cat %s\" > %s/%s/vfio_card.rom || echo \"Failed to dump the VBIOS, in most cases a reboot can fix this.\nOr you have to bind the gpu to the vfio-pci driver, reboot the machine and try dumping again\"\n",
+		"sudo bash -c \"cat %s\" > %s/%s/vfio_card.rom || echo \"\nFailed to dump the VBIOS, in most cases a reboot can fix this.\nOr you have to bind the gpu to the vfio-pci driver, reboot the machine and try dumping again.\nIf that still fails, you might find your VBIOS at: https://www.techpowerup.com/vgabios/\n\"\n",
 		"file \"%s/%s/vfio_card.rom\"\n",
 		"echo\n",
 		"echo Attempting to disable reading from rom \\(cleanup\\)\n",

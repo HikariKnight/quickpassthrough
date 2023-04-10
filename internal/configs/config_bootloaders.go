@@ -57,10 +57,11 @@ func Set_Cmdline(gpu_IDs []string) {
 
 	// Add the GPU ids for vfio to the kernel arguments
 	fileio.AppendContent(fmt.Sprintf(" vfio_pci.ids=%s", strings.Join(gpu_IDs, ",")), config.Path.CMDLINE)
+}
 
-	// If the config folder for dracut exists in our configs
-	if fileio.FileExist(config.Path.DRACUT) {
-		// Add an extra kernel argument needed for dracut users
-		fileio.AppendContent(" rd.driver.pre=vfio_pci", config.Path.CMDLINE)
-	}
+// TODO: write functions to configure kernelstub and grub
+// TODO2: look into grubby
+// TODO3: if unknown bootloader, tell user what to add a kernel arguments
+func Set_KernelStub() {
+
 }

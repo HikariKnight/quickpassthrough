@@ -10,11 +10,14 @@ import (
 	"strings"
 
 	"github.com/HikariKnight/ls-iommu/pkg/errorcheck"
+	"github.com/HikariKnight/quickpassthrough/internal/logger"
 	"github.com/charmbracelet/bubbles/list"
 )
 
 func getIOMMU(args ...string) []string {
 	var stdout, stderr bytes.Buffer
+	// Write to logger
+	logger.Printf("Executing: utils/ls-iommu %s", strings.Join(args, " "))
 
 	// Configure the ls-iommu command
 	cmd := exec.Command("utils/ls-iommu", args...)
@@ -30,6 +33,9 @@ func getIOMMU(args ...string) []string {
 	// Read the output
 	var items []string
 	output, _ := io.ReadAll(&stdout)
+
+	// Write to logger
+	logger.Printf("ls-iommu query returned\n%s", string(output))
 
 	// Parse the output line by line
 	scanner := bufio.NewScanner(strings.NewReader(string(output)))

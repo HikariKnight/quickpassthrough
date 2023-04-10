@@ -85,7 +85,12 @@ func InitConfigs() {
 		// If the path exists
 		if fileio.FileExist(syspath) {
 			// Write to log
-			logger.Printf("%s found on the system\nCreating %s", syspath, confpath)
+			logger.Printf(
+				"%s found on the system\n"+
+					"Creating %s",
+				syspath,
+				confpath,
+			)
 
 			// Create the directories for our configs
 			err := os.MkdirAll(confpath, os.ModePerm)
@@ -108,7 +113,12 @@ func InitConfigs() {
 		// If the file exists
 		if fileio.FileExist(sysfile) {
 			// Write to log
-			logger.Printf("%s found on the system\nCreating %s", sysfile, conffile)
+			logger.Printf(
+				"%s found on the system\n"+
+					"Creating %s",
+				sysfile,
+				conffile,
+			)
 
 			// Create the directories for our configs
 			file, err := os.Create(conffile)
@@ -119,6 +129,9 @@ func InitConfigs() {
 
 		// If we now have a config that exists
 		if fileio.FileExist(conffile) {
+			// Write to logger
+			logger.Printf("Getting the header (if it is there) from %s", conffile)
+
 			switch conffile {
 			case config.Path.ETCMODULES:
 				// Read the header
@@ -151,6 +164,9 @@ func vfio_modules() []string {
 	sysinfo := uname.New()
 	kernel_re := regexp.MustCompile(`^(6\.1|6\.0|[1-5]\.)`)
 	if kernel_re.MatchString(sysinfo.Kernel) {
+		// Write to the debug log
+		logger.Printf("Linux kernel version %s detected!\nIncluding vfio_virqfd module")
+
 		// Include the vfio_virqfd module
 		// NOTE: this driver was merged into the vfio module in 6.2
 		modules = append(modules, "vfio_virqfd")

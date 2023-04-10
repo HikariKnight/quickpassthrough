@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/HikariKnight/ls-iommu/pkg/errorcheck"
+	"github.com/HikariKnight/quickpassthrough/internal/logger"
 )
 
 func GenerateVBIOSDumper(vbios_path string) {
@@ -50,6 +51,7 @@ func GenerateVBIOSDumper(vbios_path string) {
 		vbios_path,
 	)
 
+	// Make the script file
 	scriptfile, err := os.Create("utils/dump_vbios.sh")
 	errorcheck.ErrorCheck(err, "Cannot create file \"utils/dump_vbios.sh\"")
 	defer scriptfile.Close()
@@ -57,6 +59,9 @@ func GenerateVBIOSDumper(vbios_path string) {
 	// Make the script executable
 	scriptfile.Chmod(0775)
 	errorcheck.ErrorCheck(err, "Could not change permissions of \"utils/dump_vbios.sh\"")
+
+	// Write to logger
+	logger.Printf("Writing utils/dump_vbios.sh")
 
 	// Write the script
 	scriptfile.WriteString(vbios_script)

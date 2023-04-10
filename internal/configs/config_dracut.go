@@ -5,6 +5,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/HikariKnight/quickpassthrough/internal/logger"
 	"github.com/HikariKnight/quickpassthrough/pkg/fileio"
 )
 
@@ -18,6 +19,9 @@ func Set_Dracut() {
 	if fileio.FileExist(dracutConf) {
 		os.Remove(dracutConf)
 	}
+
+	// Write to logger
+	logger.Printf("Writing to %s:\nadd_drivers+=\" %s \"", dracutConf, strings.Join(vfio_modules(), " "))
 
 	// Write the dracut config file
 	fileio.AppendContent(fmt.Sprintf("add_drivers+=\" %s \"\n", strings.Join(vfio_modules(), " ")), dracutConf)

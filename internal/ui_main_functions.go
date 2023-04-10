@@ -32,8 +32,11 @@ func (m *model) processSelection() bool {
 		m.focused++
 
 	case GPU_GROUP:
+		// Get the vbios path
+		m.vbios_path = getIOMMU("-g", "-i", m.gpu_group, "--rom")[0]
+
 		// Generate the VBIOS dumper script once the user has selected a GPU
-		generateVBIOSDumper(*m)
+		configs.GenerateVBIOSDumper(m.vbios_path)
 
 		// Change focus to the next view
 		m.focused++

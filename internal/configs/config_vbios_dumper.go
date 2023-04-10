@@ -1,4 +1,4 @@
-package internal
+package configs
 
 import (
 	"fmt"
@@ -7,15 +7,11 @@ import (
 	"strings"
 
 	"github.com/HikariKnight/ls-iommu/pkg/errorcheck"
-	"github.com/HikariKnight/quickpassthrough/internal/configs"
 )
 
-func generateVBIOSDumper(m model) {
-	// Get the vbios path
-	m.vbios_path = getIOMMU("-g", "-i", m.gpu_group, "--rom")[0]
-
+func GenerateVBIOSDumper(vbios_path string) {
 	// Get the config directories
-	config := configs.GetConfigPaths()
+	config := GetConfig()
 
 	// Get the program directory
 	exe, _ := os.Executable()
@@ -37,11 +33,11 @@ func generateVBIOSDumper(m model) {
 
 	vbios_script := fmt.Sprintf(
 		vbios_script_template,
-		m.vbios_path,
-		m.vbios_path,
+		vbios_path,
+		vbios_path,
 		scriptdir,
-		config.QUICKEMU,
-		m.vbios_path,
+		config.Path.QUICKEMU,
+		vbios_path,
 	)
 
 	scriptfile, err := os.Create("utils/dump_vbios.sh")

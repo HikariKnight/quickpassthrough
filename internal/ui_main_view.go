@@ -73,11 +73,17 @@ func (m model) View() string {
 					"Passing a VBIOS rom to the card used for passthrough is required for some cards, but not all.\n",
 					"Some cards also requires you to patch your VBIOS romfile, check online if this is neccessary for your card!\n",
 					"The VBIOS will be read from:\n",
-					"%s\n\n",
+					fmt.Sprintf(
+						"%s\n\n",
+						m.vbios_path,
+					),
 					"The script to extract the vbios has to be run as sudo and without a displaymanager running for proper dumping!\n",
 					"\n",
 					"You can run the script with:\n",
-					"%s/utils/dump_vbios.sh",
+					fmt.Sprintf(
+						"%s/utils/dump_vbios.sh",
+						scriptdir,
+					),
 				),
 			)
 

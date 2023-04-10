@@ -29,6 +29,7 @@ type Config struct {
 	Path       *Path
 }
 
+// Gets the path to all the config files
 func GetConfigPaths() *Path {
 	Paths := &Path{
 		CMDLINE:    "config/kernel_args",
@@ -44,6 +45,7 @@ func GetConfigPaths() *Path {
 	return Paths
 }
 
+// Gets all the configs and returns the struct
 func GetConfig() *Config {
 	config := &Config{
 		Bootloader: "unknown",
@@ -57,6 +59,7 @@ func GetConfig() *Config {
 	return config
 }
 
+// Constructs the empty config files and folders based on what exists on the system
 func InitConfigs() {
 	config := GetConfig()
 
@@ -152,6 +155,7 @@ func InitConfigs() {
 	}
 }
 
+// Returns a list of modules used for vfio based on the systems kernel version
 func vfio_modules() []string {
 	// Make the list of modules
 	modules := []string{

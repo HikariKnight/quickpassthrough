@@ -9,6 +9,7 @@ import (
 	"github.com/HikariKnight/quickpassthrough/pkg/fileio"
 )
 
+// This function generates a modprobe file for /etc/modprobe.d/
 func Set_Modprobe(gpu_IDs []string) {
 	// Get the config
 	config := GetConfig()

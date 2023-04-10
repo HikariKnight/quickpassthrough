@@ -10,6 +10,8 @@ import (
 	"github.com/HikariKnight/quickpassthrough/internal/logger"
 )
 
+// Generates a script file named dump_vbios.sh and places it inside the utils folder.
+// This script has to be run without a display manager or display server running
 func GenerateVBIOSDumper(vbios_path string) {
 	// Get the config directories
 	config := GetConfig()

@@ -10,6 +10,7 @@ import (
 	"github.com/HikariKnight/quickpassthrough/pkg/fileio"
 )
 
+// This function copies the content of /etc/mkinitcpio.conf to the config folder and does an inline replace/insert on the MODULES=() line
 func Set_Mkinitcpio() {
 	// Get the config struct
 	config := GetConfig()

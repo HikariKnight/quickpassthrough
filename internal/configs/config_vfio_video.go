@@ -7,6 +7,8 @@ import (
 	"github.com/HikariKnight/quickpassthrough/pkg/fileio"
 )
 
+// This function adds the disable vfio video output on host option to the config
+// The function will use the given int as the value for the option
 func DisableVFIOVideo(i int) {
 	// Get the config
 	config := GetConfig()

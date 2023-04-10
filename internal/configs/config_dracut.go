@@ -9,6 +9,7 @@ import (
 	"github.com/HikariKnight/quickpassthrough/pkg/fileio"
 )
 
+// This function writes a dracut configuration file for /etc/dracut.conf.d/
 func Set_Dracut() {
 	config := GetConfig()
 

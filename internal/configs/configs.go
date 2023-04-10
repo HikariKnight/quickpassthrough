@@ -6,6 +6,7 @@ import (
 	"regexp"
 
 	"github.com/HikariKnight/ls-iommu/pkg/errorcheck"
+	"github.com/HikariKnight/quickpassthrough/internal/logger"
 	"github.com/HikariKnight/quickpassthrough/pkg/fileio"
 	"github.com/HikariKnight/quickpassthrough/pkg/uname"
 	"github.com/klauspost/cpuid/v2"
@@ -83,6 +84,9 @@ func InitConfigs() {
 
 		// If the path exists
 		if fileio.FileExist(syspath) {
+			// Write to log
+			logger.Printf("%s found on the system\nCreating %s", syspath, confpath)
+
 			// Create the directories for our configs
 			err := os.MkdirAll(confpath, os.ModePerm)
 			errorcheck.ErrorCheck(err)
@@ -103,6 +107,9 @@ func InitConfigs() {
 
 		// If the file exists
 		if fileio.FileExist(sysfile) {
+			// Write to log
+			logger.Printf("%s found on the system\nCreating %s", sysfile, conffile)
+
 			// Create the directories for our configs
 			file, err := os.Create(conffile)
 			errorcheck.ErrorCheck(err)

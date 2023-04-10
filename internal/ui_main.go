@@ -4,17 +4,25 @@ package internal
 // from the Bubbles component library.
 
 import (
+	"os"
+
 	"github.com/HikariKnight/ls-iommu/pkg/errorcheck"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
 // This is where we build everything
 func Tui() {
+	// Log all errors to a new logfile
+	os.Remove("debug.log")
+	logfile, err := tea.LogToFile("debug.log", "")
+	errorcheck.ErrorCheck(err, "Error creating log file")
+	defer logfile.Close()
+
 	// Make a blank model to keep our state in
 	m := NewModel()
 
 	// Start the program with the model
 	p := tea.NewProgram(m, tea.WithAltScreen())
-	_, err := p.Run()
+	_, err = p.Run()
 	errorcheck.ErrorCheck(err, "Failed to initialize UI")
 }

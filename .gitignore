@@ -6,3 +6,4 @@ bin/
 dist/
 main
 quickpassthrough
+debug.log

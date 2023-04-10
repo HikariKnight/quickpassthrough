@@ -13,7 +13,7 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, tea.Quit
 
 		case "enter":
-			if m.loaded {
+			if m.width != 0 {
 				// Process the selected item, if the return value is true then exit the application
 				if m.processSelection() {
 					return m, tea.Quit
@@ -33,13 +33,11 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		}
 	case tea.WindowSizeMsg:
-		if !m.loaded {
+		if m.width == 0 {
 			// Initialize the static lists and make sure the content
 			// does not extend past the screen
 			m.initLists(msg.Width, msg.Height)
 
-			// Set model loaded to true
-			m.loaded = true
 		} else {
 			// Else we are loaded and will update the sizing on the fly
 			m.height = msg.Height

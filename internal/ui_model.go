@@ -24,7 +24,6 @@ type model struct {
 	lists      []list.Model
 	gpu_group  string
 	vbios_path string
-	loaded     bool
 	focused    status
 	offsetx    []int
 	offsety    []int

@@ -10,7 +10,7 @@ import (
 )
 
 func (m model) View() string {
-	if m.loaded {
+	if m.width != 0 {
 		title := ""
 		switch m.focused {
 		case INTRO:

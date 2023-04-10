@@ -15,7 +15,7 @@ import (
 func getBootloader(config *Config) {
 	// Check what bootloader handler we are using
 	// Check for grub-mkconfig
-	_, err := command.Run("which", "grub-mkconfig")
+	_, err := command.Run("which", "grub2-mkconfig")
 	if err == nil {
 		// Mark bootloader as grub2
 		config.Bootloader = "grub2"
@@ -25,7 +25,7 @@ func getBootloader(config *Config) {
 	_, err = command.Run("which", "grubby")
 	if err == nil {
 		// Mark it as unknown as i do not support it yet
-		config.Bootloader = "unknown"
+		config.Bootloader = "grubby"
 	}
 
 	// Check for kernelstub (used by pop os)
@@ -60,9 +60,10 @@ func Set_Cmdline(gpu_IDs []string) {
 	fileio.AppendContent(fmt.Sprintf(" vfio_pci.ids=%s", strings.Join(gpu_IDs, ",")), config.Path.CMDLINE)
 }
 
-// TODO: write functions to configure kernelstub and grub
-// TODO2: look into grubby
+// TODO: write functions to configure grub
 // TODO3: if unknown bootloader, tell user what to add a kernel arguments
+
+// Configures systemd-boot using kernelstub
 func Set_KernelStub() {
 	// Get the config
 	config := GetConfig()
@@ -75,4 +76,19 @@ func Set_KernelStub() {
 
 	// Run the command
 	command.Run("sudo", "kernelstub", "-a", kernel_args)
+}
+
+// Configures grub2 or systemd-boot using grubby
+func Set_Grubby() {
+	// Get the config
+	config := GetConfig()
+
+	// Get the kernel args
+	kernel_args := fileio.ReadFile(config.Path.CMDLINE)
+
+	// Write to logger
+	logger.Printf("Running command:\nsudo grubby --update-kernel=ALL --args=\"%s\"", kernel_args)
+
+	// Run the command
+	command.Run("sudo", "grubby", "--update-kernel=ALL", fmt.Sprintf("--args=%s", kernel_args))
 }

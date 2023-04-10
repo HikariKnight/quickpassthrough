@@ -163,6 +163,14 @@ func (m *model) install(auth string) {
 
 		// Configure kernelstub
 		configs.Set_KernelStub()
+
+	} else if config.Bootloader == "grubby" {
+		// Write to logger
+		logger.Printf("Configuring bootloader using grubby")
+
+		// Configure kernelstub
+		configs.Set_Grubby()
+
 	} else if config.Bootloader == "unknown" {
 		kernel_args := fileio.ReadFile(config.Path.CMDLINE)
 		fmt.Printf("Unsupported bootloader, please add the below line to your bootloaders kernel arguments\n%s", kernel_args)

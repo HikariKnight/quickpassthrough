@@ -1,10 +1,13 @@
 package internal
 
 import (
+	"fmt"
 	"os"
 	"regexp"
 
 	"github.com/HikariKnight/quickpassthrough/internal/configs"
+	"github.com/HikariKnight/quickpassthrough/internal/logger"
+	"github.com/HikariKnight/quickpassthrough/pkg/command"
 	"github.com/HikariKnight/quickpassthrough/pkg/fileio"
 )
 
@@ -115,7 +118,8 @@ func (m *model) processSelection() bool {
 		//m.focused++
 
 		// Because we have no QuickEmu support yet, just skip USB Controller configuration
-		m.focused = DONE
+		m.focused = INSTALL
+		return true
 
 	case INTRO:
 		// This is an OK Dialog
@@ -132,4 +136,35 @@ func (m *model) processSelection() bool {
 
 	// Return false as we are not done
 	return false
+}
+
+// This function starts the install process
+// It takes 1 auth string as variable
+func (m *model) install(auth string) {
+	// Get the config
+	config := configs.GetConfig()
+
+	// Write to logger
+	logger.Printf("Getting authentication token by elevating with sudo once")
+
+	// Elevate to sudo
+	command.Elevate(auth)
+
+	// Write to logger
+	logger.Printf("Attempting to free hash from memory")
+
+	// Blank out the variable
+	auth = ""
+
+	// Based on the bootloader, setup the configuration
+	if config.Bootloader == "kernelstub" {
+		// Write to logger
+		logger.Printf("Configuring systemd-boot using kernelstub")
+
+		// Configure kernelstub
+		configs.Set_KernelStub()
+	} else if config.Bootloader == "unknown" {
+		kernel_args := fileio.ReadFile(config.Path.CMDLINE)
+		fmt.Printf("Unsupported bootloader, please add the below line to your bootloaders kernel arguments\n%s", kernel_args)
+	}
 }

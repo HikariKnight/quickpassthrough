@@ -115,7 +115,7 @@ func (m model) View() string {
 
 			view = listStyle.Render(m.lists[m.focused].View())
 
-		case DONE:
+		case INSTALL:
 			title = dialogStyle.Render(
 				fmt.Sprint(
 					"The configuration files have been generated and are\n",

@@ -1,6 +1,10 @@
 package internal
 
-import tea "github.com/charmbracelet/bubbletea"
+import (
+	"encoding/base64"
+
+	tea "github.com/charmbracelet/bubbletea"
+)
 
 func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
@@ -8,7 +12,7 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 
 		// If we are not done
-		if m.focused != DONE {
+		if m.focused != INSTALL {
 			// Setup keybindings
 			switch msg.String() {
 			case "ctrl+c", "q":
@@ -19,7 +23,7 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				if m.width != 0 {
 					// Process the selected item, if the return value is true then exit the application
 					if m.processSelection() {
-						return m, tea.Quit
+						return m, tea.ExitAltScreen
 					}
 				}
 			case "ctrl+z", "backspace":
@@ -45,13 +49,20 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, tea.Quit
 
 			case "enter":
-				if m.width != 0 {
-					// Process the selected item, if the return value is true then exit the application
-					if m.processSelection() {
-						return m, tea.Quit
-					}
-				}
+				// Start installation and send the password to the command
+				m.install(
+					base64.StdEncoding.EncodeToString(
+						[]byte(
+							m.authDialog.Value(),
+						),
+					),
+				)
+
+				// Blank the password field
+				m.authDialog.SetValue("")
 			}
+
+			// Issue an UI update
 			m.authDialog, cmd = m.authDialog.Update(msg)
 			return m, cmd
 		}

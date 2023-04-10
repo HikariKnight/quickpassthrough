@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/HikariKnight/quickpassthrough/internal/logger"
 	"github.com/HikariKnight/quickpassthrough/pkg/command"
 	"github.com/HikariKnight/quickpassthrough/pkg/fileio"
 	"github.com/klauspost/cpuid/v2"
@@ -63,5 +64,15 @@ func Set_Cmdline(gpu_IDs []string) {
 // TODO2: look into grubby
 // TODO3: if unknown bootloader, tell user what to add a kernel arguments
 func Set_KernelStub() {
+	// Get the config
+	config := GetConfig()
 
+	// Get the kernel args
+	kernel_args := fileio.ReadFile(config.Path.CMDLINE)
+
+	// Write to logger
+	logger.Printf("Running command:\nsudo kernelstub -a \"%s\"", kernel_args)
+
+	// Run the command
+	command.Run("sudo", "kernelstub", "-a", kernel_args)
 }

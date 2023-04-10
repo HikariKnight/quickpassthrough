@@ -46,6 +46,8 @@ const (
 	VIDEO
 	USB
 	USB_GROUP
+	INSTALL
+	UNKNOWN_BOOTLOADER
 	DONE
 )
 
@@ -95,14 +97,16 @@ func (m *model) initLists(width, height int) {
 		defaultList,
 		defaultList,
 		choiceList,
+		choiceList,
+		choiceList,
 	}
 
 	// Configure offsets for sizing
 	m.offsetx = []int{
-		0, 0, 0, 0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	}
 	m.offsety = []int{
-		18, 2, 3, 13, 5, 2, 3, 12,
+		18, 2, 3, 13, 5, 2, 3, 12, 0, 0,
 	}
 
 	// Update the styles with the correct width
@@ -169,4 +173,11 @@ func (m *model) initLists(width, height int) {
 	}
 	m.lists[DONE].SetItems(items)
 	m.lists[DONE].SetSize(m.width-m.offsetx[DONE], m.height-m.offsety[DONE])
+
+	// Init DONE choises
+	items = []list.Item{
+		item{title: "FINISH"},
+	}
+	m.lists[UNKNOWN_BOOTLOADER].SetItems(items)
+	m.lists[UNKNOWN_BOOTLOADER].SetSize(m.width-m.offsetx[UNKNOWN_BOOTLOADER], m.height-m.offsety[UNKNOWN_BOOTLOADER])
 }

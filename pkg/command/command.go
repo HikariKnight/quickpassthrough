@@ -39,7 +39,7 @@ func Run(binary string, args ...string) ([]string, error) {
 // giving us the ability to run sudo commands
 func Elevate(password string) {
 	// Do a simple sudo command to just authenticate with sudo
-	cmd := exec.Command("sudo", "-Sk", "--", "echo")
+	cmd := exec.Command("sudo", "-S", "--", "echo")
 
 	// Wait for 500ms, if the password is correct, sudo will return immediately
 	cmd.WaitDelay = 1000 * time.Millisecond

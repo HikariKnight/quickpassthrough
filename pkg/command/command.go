@@ -57,6 +57,8 @@ func Elevate(password string) {
 	errorcheck.ErrorCheck(err, "\nFailed at typing to STDIN")
 	// Clear the password
 	pw = nil
+	password = ""
+
 	stdin.Close()
 
 	// Wait for the sudo prompt (If the correct password was given, it will not stay behind)

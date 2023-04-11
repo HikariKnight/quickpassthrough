@@ -23,8 +23,10 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			case "enter":
 				if m.width != 0 {
-					// Process the selected item, if the return value is true then exit the application
-					m.processSelection()
+					// Process the selected item, if the return value is true then exit alt screen
+					if !m.processSelection() {
+						return m, tea.ExitAltScreen
+					}
 				}
 			case "ctrl+z", "backspace":
 				// Go backwards in the model
@@ -70,13 +72,13 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.authDialog.SetValue("")
 
 					// Start installation and send the password to the command
-					m.install()
+					m.installOutput = m.install()
 
 					// Move to the DONE dialog
 					m.focused++
 
 					// Exit the alt screen as the output on the done dialog needs to be scrollable
-					return m, tea.ExitAltScreen
+					//return m, tea.ExitAltScreen
 
 				} else {
 					// Quit the application if we are on a different view

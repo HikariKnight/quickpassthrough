@@ -12,7 +12,7 @@ import (
 func (m model) View() string {
 	if m.width != 0 {
 		title := ""
-		view := "Empty View :("
+		view := ""
 		switch m.focused {
 		case INTRO:
 			title = dialogStyle.Render(
@@ -137,6 +137,10 @@ func (m model) View() string {
 			)
 
 			view = m.authDialog.View()
+
+		case DONE:
+			title = titleStyle.Render("Applying configurations!")
+			view = dialogStyle.Render(strings.Join(m.installOutput, "\n"))
 		}
 		//return listStyle.SetString(fmt.Sprintf("%s\n\n", title)).Render(m.lists[m.focused].View())
 		return lipgloss.JoinVertical(lipgloss.Left, fmt.Sprintf("%s\n%s\n", title, view))

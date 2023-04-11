@@ -17,8 +17,15 @@ import (
 // Preference is given to kernelstub because it is WAY easier to safely edit compared to grub2
 func getBootloader(config *Config) {
 	// Check what bootloader handler we are using
-	// Check for grub-mkconfig
+	// Check for grub2-mkconfig
 	_, err := command.Run("which", "grub2-mkconfig")
+	if err == nil {
+		// Mark bootloader as grub2
+		config.Bootloader = "grub2"
+	}
+
+	// Check for grub2-mkconfig
+	_, err = command.Run("which", "grub-mkconfig")
 	if err == nil {
 		// Mark bootloader as grub2
 		config.Bootloader = "grub2"
@@ -64,7 +71,7 @@ func Set_Cmdline(gpu_IDs []string) {
 }
 
 // Configures systemd-boot using kernelstub
-func Set_KernelStub() {
+func Set_KernelStub() string {
 	// Get the config
 	config := GetConfig()
 
@@ -77,10 +84,13 @@ func Set_KernelStub() {
 	// Run the command
 	_, err := command.Run("sudo", "kernelstub", "-a", kernel_args)
 	errorcheck.ErrorCheck(err, "Error, kernelstub command returned exit code 1")
+
+	// Return what we did
+	return fmt.Sprintf("sudo kernelstub -a \"%s\"", kernel_args)
 }
 
 // Configures grub2 and/or systemd-boot using grubby
-func Set_Grubby() {
+func Set_Grubby() string {
 	// Get the config
 	config := GetConfig()
 
@@ -93,9 +103,12 @@ func Set_Grubby() {
 	// Run the command
 	_, err := command.Run("sudo", "grubby", "--update-kernel=ALL", fmt.Sprintf("--args=%s", kernel_args))
 	errorcheck.ErrorCheck(err, "Error, grubby command returned exit code 1")
+
+	// Return what we did
+	return fmt.Sprintf("sudo grubby --update-kernel=ALL --args=\"%s\"", kernel_args)
 }
 
-func Set_Grub2() {
+func Configure_Grub2() {
 	// Get the config struct
 	config := GetConfig()
 
@@ -183,4 +196,50 @@ func clean_Grub2_Args(old_kernel_args []string) []string {
 
 	// Return cleaned up arguments
 	return clean_kernel_args
+}
+
+// This function copies our config to /etc/default/grub and updates grub
+func Set_Grub2() ([]string, error) {
+	// Get the config
+	config := GetConfig()
+
+	// Get the conf file
+	conffile := fmt.Sprintf("%s/grub", config.Path.DEFAULT)
+
+	// Write to logger
+	logger.Printf("Executing command:\nsudo cp -v \"%s\" /etc/default/grub", conffile)
+
+	// Since we should be elevated with our sudo token we will copy with cp
+	// (using built in functions will not work as we are running as the normal user)
+	output, err := command.Run("sudo", "cp", "-v", conffile, "/etc/default/grub")
+	errorcheck.ErrorCheck(err, fmt.Sprintf("Failed to copy %s to /etc/default/grub", conffile))
+
+	// Write output to logger
+	logger.Printf(strings.Join(output, "\n"))
+
+	// Set a variable for the mkconfig command
+	mkconfig := "grub-mkconfig"
+	// Check for grub-mkconfig
+	_, err = command.Run("which", "grub-mkconfig")
+	if err == nil {
+		// Set binary as grub-mkconfig
+		mkconfig = "grub-mkconfig"
+	} else {
+		mkconfig = "grub2-mkconfig"
+	}
+
+	// Update grub.cfg
+	if fileio.FileExist("/boot/grub/grub.cfg") {
+		output = append(output, fmt.Sprintf("sudo %s -o /boot/grub/grub.cfg", mkconfig))
+		mklog, err := command.Run("sudo", mkconfig, "-o", "/boot/grub/grub.cfg")
+		logger.Printf(strings.Join(mklog, "\n"))
+		errorcheck.ErrorCheck(err, "Failed to update /boot/grub/grub.cfg")
+	} else {
+		output = append(output, fmt.Sprintf("sudo %s -o /boot/grub/grub.cfg\nSee debug.log for more detailed output", mkconfig))
+		mklog, err := command.Run("sudo", mkconfig, "-o", "/boot/grub2/grub.cfg")
+		logger.Printf(strings.Join(mklog, "\n"))
+		errorcheck.ErrorCheck(err, "Failed to update /boot/grub/grub.cfg")
+	}
+
+	return output, err
 }

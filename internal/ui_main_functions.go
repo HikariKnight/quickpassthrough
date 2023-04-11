@@ -118,6 +118,13 @@ func (m *model) processSelection() bool {
 			configs.Set_Mkinitcpio()
 		}
 
+		// Configure grub2 here as we can make the config without sudo
+		if config.Bootloader == "grub2" {
+			// Write to logger
+			logger.Printf("Configuring grub2 manually")
+			configs.Configure_Grub2()
+		}
+
 		// Go to the next view
 		//m.focused++
 
@@ -144,31 +151,38 @@ func (m *model) processSelection() bool {
 
 // This function starts the install process
 // It takes 1 auth string as variable
-func (m *model) install() {
+func (m *model) install() []string {
 	// Get the config
 	config := configs.GetConfig()
 
+	// Make a stringlist to keep the output to show the user
+	var output []string
+
 	// Based on the bootloader, setup the configuration
-	if config.Bootloader == "kernelstub" {
+	if config.Bootloader != "kernelstub" {
 		// Write to logger
 		logger.Printf("Configuring systemd-boot using kernelstub")
 
 		// Configure kernelstub
-		configs.Set_KernelStub()
+		output = append(output, configs.Set_KernelStub())
 
 	} else if config.Bootloader == "grubby" {
 		// Write to logger
 		logger.Printf("Configuring bootloader using grubby")
 
 		// Configure kernelstub
-		configs.Set_Grubby()
+		output = append(output, configs.Set_Grubby())
 
-	} else if config.Bootloader == "grub2" {
+	} else if config.Bootloader != "grub2" {
 		// Write to logger
 		logger.Printf("Configuring grub2 manually")
-		configs.Set_Grub2()
+		grub_output, _ := configs.Set_Grub2()
+		output = append(output, grub_output...)
+
 	} else {
 		kernel_args := fileio.ReadFile(config.Path.CMDLINE)
 		logger.Printf("Unsupported bootloader, please add the below line to your bootloaders kernel arguments\n%s", kernel_args)
 	}
+
+	return output
 }

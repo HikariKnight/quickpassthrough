@@ -25,17 +25,18 @@ func (i item) FilterValue() string { return i.title }
 
 // Main Model
 type model struct {
-	fetched    []bool
-	lists      []list.Model
-	gpu_group  string
-	gpu_IDs    []string
-	vbios_path string
-	focused    status
-	offsetx    []int
-	offsety    []int
-	width      int
-	height     int
-	authDialog textinput.Model
+	fetched       []bool
+	lists         []list.Model
+	gpu_group     string
+	gpu_IDs       []string
+	vbios_path    string
+	focused       status
+	offsetx       []int
+	offsety       []int
+	width         int
+	height        int
+	authDialog    textinput.Model
+	installOutput []string
 }
 
 // Consts used to navigate the main model

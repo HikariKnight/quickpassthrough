@@ -8,7 +8,6 @@ import (
 	"github.com/HikariKnight/ls-iommu/pkg/errorcheck"
 	"github.com/HikariKnight/quickpassthrough/internal/configs"
 	"github.com/HikariKnight/quickpassthrough/internal/logger"
-	"github.com/HikariKnight/quickpassthrough/pkg/command"
 	"github.com/HikariKnight/quickpassthrough/pkg/fileio"
 )
 
@@ -145,21 +144,9 @@ func (m *model) processSelection() bool {
 
 // This function starts the install process
 // It takes 1 auth string as variable
-func (m *model) install(auth string) {
+func (m *model) install() {
 	// Get the config
 	config := configs.GetConfig()
-
-	// Write to logger
-	logger.Printf("Getting authentication token by elevating with sudo once")
-
-	// Elevate to sudo
-	command.Elevate(auth)
-
-	// Write to logger
-	logger.Printf("Attempting to free hash from memory")
-
-	// Blank out the variable
-	auth = ""
 
 	// Based on the bootloader, setup the configuration
 	if config.Bootloader == "kernelstub" {

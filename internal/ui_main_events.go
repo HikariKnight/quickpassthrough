@@ -3,6 +3,8 @@ package internal
 import (
 	"encoding/base64"
 
+	"github.com/HikariKnight/quickpassthrough/internal/logger"
+	"github.com/HikariKnight/quickpassthrough/pkg/command"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
@@ -12,7 +14,7 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 
 		// If we are not done
-		if m.focused != INSTALL {
+		if m.focused != INSTALL && m.focused != DONE {
 			// Setup keybindings
 			switch msg.String() {
 			case "ctrl+c", "q":
@@ -22,9 +24,7 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case "enter":
 				if m.width != 0 {
 					// Process the selected item, if the return value is true then exit the application
-					if m.processSelection() {
-						return m, tea.ExitAltScreen
-					}
+					m.processSelection()
 				}
 			case "ctrl+z", "backspace":
 				// Go backwards in the model
@@ -49,17 +49,39 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, tea.Quit
 
 			case "enter":
-				// Start installation and send the password to the command
-				m.install(
-					base64.StdEncoding.EncodeToString(
-						[]byte(
-							m.authDialog.Value(),
-						),
-					),
-				)
+				// If we are on the INSTALL dialog
+				if m.focused == INSTALL {
+					// Write to logger
+					logger.Printf("Getting authentication token by elevating with sudo once")
 
-				// Blank the password field
-				m.authDialog.SetValue("")
+					// Elevate with sudo
+					command.Elevate(
+						base64.StdEncoding.EncodeToString(
+							[]byte(
+								m.authDialog.Value(),
+							),
+						),
+					)
+
+					// Write to logger
+					logger.Printf("Attempting to free hash from memory")
+
+					// Blank the password field
+					m.authDialog.SetValue("")
+
+					// Start installation and send the password to the command
+					m.install()
+
+					// Move to the DONE dialog
+					m.focused++
+
+					// Exit the alt screen as the output on the done dialog needs to be scrollable
+					return m, tea.ExitAltScreen
+
+				} else {
+					// Quit the application if we are on a different view
+					return m, tea.Quit
+				}
 			}
 
 			// Issue an UI update

@@ -42,11 +42,11 @@ func Elevate(password string) {
 	cmd := exec.Command("sudo", "-Sk", "--", "echo")
 
 	// Wait for 500ms, if the password is correct, sudo will return immediately
-	cmd.WaitDelay = 500 * time.Millisecond
+	cmd.WaitDelay = 1000 * time.Millisecond
 
 	// Open STDIN
 	stdin, err := cmd.StdinPipe()
-	errorcheck.ErrorCheck(err, "Failed to get sudo STDIN")
+	errorcheck.ErrorCheck(err, "\nFailed to get sudo STDIN")
 
 	// Start the authentication
 	cmd.Start()
@@ -54,11 +54,12 @@ func Elevate(password string) {
 	// Get the passed password
 	pw, _ := base64.StdEncoding.DecodeString(password)
 	_, err = stdin.Write([]byte(string(pw) + "\n"))
-	errorcheck.ErrorCheck(err, "Failed at typing to STDIN")
+	errorcheck.ErrorCheck(err, "\nFailed at typing to STDIN")
 	// Clear the password
 	pw = nil
 	stdin.Close()
 
+	// Wait for the sudo prompt (If the correct password was given, it will not stay behind)
 	err = cmd.Wait()
-	errorcheck.ErrorCheck(err)
+	errorcheck.ErrorCheck(err, "\nError, password given was wrong")
 }

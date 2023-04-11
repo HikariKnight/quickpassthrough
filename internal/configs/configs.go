@@ -7,6 +7,7 @@ import (
 
 	"github.com/HikariKnight/ls-iommu/pkg/errorcheck"
 	"github.com/HikariKnight/quickpassthrough/internal/logger"
+	"github.com/HikariKnight/quickpassthrough/pkg/command"
 	"github.com/HikariKnight/quickpassthrough/pkg/fileio"
 	"github.com/HikariKnight/quickpassthrough/pkg/uname"
 	"github.com/klauspost/cpuid/v2"
@@ -217,4 +218,21 @@ func makeBackupDir(dest string) {
 	// Make the empty directories
 	err := os.MkdirAll(fmt.Sprintf("backup/%s", dest), os.ModePerm)
 	errorcheck.ErrorCheck(err, "Error making backup/ folder")
+}
+
+// Copy a file to the system, make sure you have run command.Elevate() recently
+func CopyToSystem(conffile, sysfile string) string {
+	// Since we should be elevated with our sudo token we will copy with cp
+	// (using built in functions will not work as we are running as the normal user)
+	output, _ := command.Run("sudo", "cp", "-v", conffile, sysfile)
+
+	// Clean the output
+	clean_re := regexp.MustCompile(`\n`)
+	clean_output := clean_re.ReplaceAllString(output[0], "")
+
+	// Write output to logger
+	logger.Printf(clean_output)
+
+	// Return the output
+	return fmt.Sprintf("Copying: %s", clean_output)
 }

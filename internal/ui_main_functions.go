@@ -4,11 +4,14 @@ import (
 	"fmt"
 	"os"
 	"regexp"
+	"strings"
 
 	"github.com/HikariKnight/ls-iommu/pkg/errorcheck"
 	"github.com/HikariKnight/quickpassthrough/internal/configs"
 	"github.com/HikariKnight/quickpassthrough/internal/logger"
+	"github.com/HikariKnight/quickpassthrough/pkg/command"
 	"github.com/HikariKnight/quickpassthrough/pkg/fileio"
+	"github.com/HikariKnight/quickpassthrough/pkg/uname"
 )
 
 // This function processes the enter event
@@ -151,7 +154,7 @@ func (m *model) processSelection() bool {
 
 // This function starts the install process
 // It takes 1 auth string as variable
-func (m *model) install() []string {
+func (m *model) install() {
 	// Get the config
 	config := configs.GetConfig()
 
@@ -159,7 +162,7 @@ func (m *model) install() []string {
 	var output []string
 
 	// Based on the bootloader, setup the configuration
-	if config.Bootloader != "kernelstub" {
+	if config.Bootloader == "kernelstub" {
 		// Write to logger
 		logger.Printf("Configuring systemd-boot using kernelstub")
 
@@ -173,7 +176,7 @@ func (m *model) install() []string {
 		// Configure kernelstub
 		output = append(output, configs.Set_Grubby())
 
-	} else if config.Bootloader != "grub2" {
+	} else if config.Bootloader == "grub2" {
 		// Write to logger
 		logger.Printf("Configuring grub2 manually")
 		grub_output, _ := configs.Set_Grub2()
@@ -184,5 +187,71 @@ func (m *model) install() []string {
 		logger.Printf("Unsupported bootloader, please add the below line to your bootloaders kernel arguments\n%s", kernel_args)
 	}
 
-	return output
+	// A lot of linux systems support modprobe along with their own module system
+	// So copy the modprobe files if we have them
+	modprobeFile := fmt.Sprintf("%s/vfio.conf", config.Path.MODPROBE)
+	if fileio.FileExist(modprobeFile) {
+		// Copy initramfs-tools module to system
+		output = append(output, configs.CopyToSystem(modprobeFile, "/etc/modprobe.d/vfio.conf"))
+	}
+
+	// Copy the config files for the system we have
+	initramfsFile := fmt.Sprintf("%s/modules", config.Path.INITRAMFS)
+	dracutFile := fmt.Sprintf("%s/vfio.conf", config.Path.DRACUT)
+	if fileio.FileExist(initramfsFile) {
+		// Copy initramfs-tools module to system
+		output = append(output, configs.CopyToSystem(initramfsFile, "/etc/initramfs-tools/modules"))
+
+		// Copy the modules file to /etc/modules
+		output = append(output, configs.CopyToSystem(config.Path.ETCMODULES, "/etc/modules"))
+
+		// Write to logger
+		logger.Printf("Executing: sudo update-initramfs -u")
+
+		// Update initramfs
+		output = append(output, "Executed: sudo update-initramfs -u\nSee debug.log for detailed output")
+		cmd_out, cmd_err, _ := command.RunErr("sudo", "update-initramfs", "-u")
+
+		cmd_out = append(cmd_out, cmd_err...)
+
+		// Write to logger
+		logger.Printf(strings.Join(cmd_out, "\n"))
+	} else if fileio.FileExist(dracutFile) {
+		// Copy dracut config to /etc/dracut.conf.d/vfio
+		output = append(output, configs.CopyToSystem(dracutFile, "/etc/dracut.conf.d/vfio"))
+
+		// Get systeminfo
+		sysinfo := uname.New()
+
+		// Write to logger
+		logger.Printf("Executing: sudo dracut -f -v --kver %s", sysinfo.Release)
+
+		// Update initramfs
+		output = append(output, fmt.Sprintf("Executed: sudo dracut -f -v --kver %s\nSee debug.log for detailed output", sysinfo.Release))
+		cmd_out, cmd_err, _ := command.RunErr("sudo", "dracut", "-f", "-v", "--kver", sysinfo.Release)
+
+		cmd_out = append(cmd_out, cmd_err...)
+
+		// Write to logger
+		logger.Printf(strings.Join(cmd_out, "\n"))
+	} else if fileio.FileExist(config.Path.MKINITCPIO) {
+		// Copy dracut config to /etc/dracut.conf.d/vfio
+		output = append(output, configs.CopyToSystem(config.Path.MKINITCPIO, "/etc/mkinitcpio.conf"))
+
+		// Write to logger
+		logger.Printf("Executing: sudo mkinitcpio -P")
+
+		// Update initramfs
+		output = append(output, "Executed: sudo mkinitcpio -P\nSee debug.log for detailed output")
+		cmd_out, cmd_err, _ := command.RunErr("sudo", "mkinitcpio", "-P")
+
+		cmd_out = append(cmd_out, cmd_err...)
+
+		// Write to logger
+		logger.Printf(strings.Join(cmd_out, "\n"))
+	}
+
+	m.installOutput = output
+	m.focused++
+
 }

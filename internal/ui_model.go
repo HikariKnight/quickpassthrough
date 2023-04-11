@@ -49,6 +49,7 @@ const (
 	USB
 	USB_GROUP
 	INSTALL
+	WORKING
 	DONE
 )
 
@@ -99,14 +100,15 @@ func (m *model) initLists(width, height int) {
 		defaultList,
 		choiceList,
 		choiceList,
+		choiceList,
 	}
 
 	// Configure offsets for sizing
 	m.offsetx = []int{
-		0, 0, 0, 0, 0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	}
 	m.offsety = []int{
-		18, 2, 3, 13, 5, 2, 3, 12, 0,
+		18, 2, 3, 13, 5, 2, 3, 12, 0, 0,
 	}
 
 	// Update the styles with the correct width
@@ -166,6 +168,13 @@ func (m *model) initLists(width, height int) {
 	}
 	m.lists[VIDEO].SetItems(items)
 	m.lists[VIDEO].SetSize(m.width-m.offsetx[VIDEO], m.height-m.offsety[VIDEO])
+
+	// Init DONE choises
+	items = []list.Item{
+		item{title: "WAITING"},
+	}
+	m.lists[WORKING].SetItems(items)
+	m.lists[WORKING].SetSize(m.width-m.offsetx[WORKING], m.height-m.offsety[WORKING])
 
 	// Init DONE choises
 	items = []list.Item{

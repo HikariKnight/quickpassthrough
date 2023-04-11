@@ -86,7 +86,7 @@ func Set_KernelStub() string {
 	errorcheck.ErrorCheck(err, "Error, kernelstub command returned exit code 1")
 
 	// Return what we did
-	return fmt.Sprintf("sudo kernelstub -a \"%s\"", kernel_args)
+	return fmt.Sprintf("Executed: sudo kernelstub -a \"%s\"", kernel_args)
 }
 
 // Configures grub2 and/or systemd-boot using grubby
@@ -105,7 +105,7 @@ func Set_Grubby() string {
 	errorcheck.ErrorCheck(err, "Error, grubby command returned exit code 1")
 
 	// Return what we did
-	return fmt.Sprintf("sudo grubby --update-kernel=ALL --args=\"%s\"", kernel_args)
+	return fmt.Sprintf("Executed: sudo grubby --update-kernel=ALL --args=\"%s\"", kernel_args)
 }
 
 func Configure_Grub2() {
@@ -206,21 +206,23 @@ func Set_Grub2() ([]string, error) {
 	// Get the conf file
 	conffile := fmt.Sprintf("%s/grub", config.Path.DEFAULT)
 
+	// Get the sysfile
+	sysfile_re := regexp.MustCompile(`^config`)
+	sysfile := sysfile_re.ReplaceAllString(conffile, "")
+
 	// Write to logger
-	logger.Printf("Executing command:\nsudo cp -v \"%s\" /etc/default/grub", conffile)
+	logger.Printf("Executing command:\nsudo cp -v \"%s\" %s", conffile, sysfile)
 
-	// Since we should be elevated with our sudo token we will copy with cp
-	// (using built in functions will not work as we are running as the normal user)
-	output, err := command.Run("sudo", "cp", "-v", conffile, "/etc/default/grub")
-	errorcheck.ErrorCheck(err, fmt.Sprintf("Failed to copy %s to /etc/default/grub", conffile))
+	// Make our output slice
+	var output []string
 
-	// Write output to logger
-	logger.Printf(strings.Join(output, "\n"))
+	// Copy files to system
+	output = append(output, CopyToSystem(conffile, sysfile))
 
 	// Set a variable for the mkconfig command
 	mkconfig := "grub-mkconfig"
 	// Check for grub-mkconfig
-	_, err = command.Run("which", "grub-mkconfig")
+	_, err := command.Run("which", "grub-mkconfig")
 	if err == nil {
 		// Set binary as grub-mkconfig
 		mkconfig = "grub-mkconfig"
@@ -230,12 +232,12 @@ func Set_Grub2() ([]string, error) {
 
 	// Update grub.cfg
 	if fileio.FileExist("/boot/grub/grub.cfg") {
-		output = append(output, fmt.Sprintf("sudo %s -o /boot/grub/grub.cfg", mkconfig))
+		output = append(output, fmt.Sprintf("Executed: sudo %s -o /boot/grub/grub.cfg\nSee debug.log for more detailed output", mkconfig))
 		mklog, err := command.Run("sudo", mkconfig, "-o", "/boot/grub/grub.cfg")
 		logger.Printf(strings.Join(mklog, "\n"))
 		errorcheck.ErrorCheck(err, "Failed to update /boot/grub/grub.cfg")
 	} else {
-		output = append(output, fmt.Sprintf("sudo %s -o /boot/grub/grub.cfg\nSee debug.log for more detailed output", mkconfig))
+		output = append(output, fmt.Sprintf("Executed: sudo %s -o /boot/grub/grub.cfg\nSee debug.log for more detailed output", mkconfig))
 		mklog, err := command.Run("sudo", mkconfig, "-o", "/boot/grub2/grub.cfg")
 		logger.Printf(strings.Join(mklog, "\n"))
 		errorcheck.ErrorCheck(err, "Failed to update /boot/grub/grub.cfg")

@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
 
@@ -20,7 +21,7 @@ func (m model) View() string {
 					titleStyle.MarginLeft(0).Render("Welcome to QuickPassthrough!"),
 					"\n\n",
 					"This script is meant to make it easier to setup GPU passthrough for\n",
-					"Qemu based systems.\n",
+					"Qemu based systems. WITH 2 GPUS ON THE HOST SYSTEM\n",
 					"However due to the complexity of GPU passthrough\n",
 					"This script assumes you know how to do (or have done) the following.\n\n",
 					"* You have already enabled IOMMU, VT-d, SVM and/or AMD-v\n  inside your UEFI/BIOS advanced settings.\n",
@@ -138,9 +139,16 @@ func (m model) View() string {
 
 			view = m.authDialog.View()
 
+		case WORKING:
+			title = titleStyle.Render("Applying configurations!")
+			view = ""
+
+			m.authDialog.Update(tea.KeyEnter)
+			tea.Batch()
+
 		case DONE:
 			title = titleStyle.Render("Applying configurations!")
-			view = dialogStyle.Render(strings.Join(m.installOutput, "\n"))
+			view = dialogStyle.Render(fmt.Sprintf("%s\n\nPress Enter to Exit.", strings.Join(m.installOutput, "\n")))
 		}
 		//return listStyle.SetString(fmt.Sprintf("%s\n\n", title)).Render(m.lists[m.focused].View())
 		return lipgloss.JoinVertical(lipgloss.Left, fmt.Sprintf("%s\n%s\n", title, view))

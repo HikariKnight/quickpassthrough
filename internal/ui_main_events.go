@@ -2,6 +2,7 @@ package internal
 
 import (
 	"encoding/base64"
+	"fmt"
 
 	"github.com/HikariKnight/quickpassthrough/internal/logger"
 	"github.com/HikariKnight/quickpassthrough/pkg/command"
@@ -52,7 +53,7 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			case "enter":
 				// If we are on the INSTALL dialog
-				if m.focused == INSTALL {
+				if m.focused == INSTALL && m.authDialog.Value() != "" {
 					// Write to logger
 					logger.Printf("Getting authentication token by elevating with sudo once")
 
@@ -71,14 +72,16 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					// Blank the password field
 					m.authDialog.SetValue("")
 
+					fmt.Println("Working... Application frozen until done, check debug.log for progress")
+
 					// Start installation and send the password to the command
-					m.installOutput = m.install()
+					m.install()
 
 					// Move to the DONE dialog
-					m.focused++
+					m.focused = DONE
 
 					// Exit the alt screen as the output on the done dialog needs to be scrollable
-					//return m, tea.ExitAltScreen
+					return m, tea.ClearScreen
 
 				} else {
 					// Quit the application if we are on a different view

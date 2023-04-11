@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/HikariKnight/ls-iommu/pkg/errorcheck"
 	"github.com/HikariKnight/quickpassthrough/internal/logger"
 	"github.com/HikariKnight/quickpassthrough/pkg/command"
 	"github.com/HikariKnight/quickpassthrough/pkg/fileio"
@@ -75,7 +76,8 @@ func Set_KernelStub() {
 	logger.Printf("Running command:\nsudo kernelstub -a \"%s\"", kernel_args)
 
 	// Run the command
-	command.Run("sudo", "kernelstub", "-a", kernel_args)
+	_, err := command.Run("sudo", "kernelstub", "-a", kernel_args)
+	errorcheck.ErrorCheck(err, "Error, kernelstub command returned exit code 1")
 }
 
 // Configures grub2 and/or systemd-boot using grubby
@@ -90,7 +92,8 @@ func Set_Grubby() {
 	logger.Printf("Running command:\nsudo grubby --update-kernel=ALL --args=\"%s\"", kernel_args)
 
 	// Run the command
-	command.Run("sudo", "grubby", "--update-kernel=ALL", fmt.Sprintf("--args=%s", kernel_args))
+	_, err := command.Run("sudo", "grubby", "--update-kernel=ALL", fmt.Sprintf("--args=%s", kernel_args))
+	errorcheck.ErrorCheck(err, "Error, grubby command returned exit code 1")
 }
 
 func Set_Grub2() {

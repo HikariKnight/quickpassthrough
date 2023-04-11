@@ -2,6 +2,8 @@ package configs
 
 import (
 	"fmt"
+	"os"
+	"regexp"
 	"strings"
 
 	"github.com/HikariKnight/ls-iommu/pkg/errorcheck"
@@ -61,9 +63,6 @@ func Set_Cmdline(gpu_IDs []string) {
 	fileio.AppendContent(fmt.Sprintf(" vfio_pci.ids=%s", strings.Join(gpu_IDs, ",")), config.Path.CMDLINE)
 }
 
-// TODO: write function to configure grub
-// TODO3: if unknown bootloader, tell user what to add a kernel arguments
-
 // Configures systemd-boot using kernelstub
 func Set_KernelStub() {
 	// Get the config
@@ -97,5 +96,91 @@ func Set_Grubby() {
 }
 
 func Set_Grub2() {
+	// Get the config struct
+	config := GetConfig()
 
+	// Make the config file path
+	conffile := fmt.Sprintf("%s/grub", config.Path.DEFAULT)
+
+	// Make sure we start from scratch by deleting any old file
+	if fileio.FileExist(conffile) {
+		os.Remove(conffile)
+	}
+
+	// Make a regex to get the system path instead of the config path
+	syspath_re := regexp.MustCompile(`^config`)
+	sysfile := syspath_re.ReplaceAllString(conffile, "")
+
+	// Make a regex to find the LINUX lines
+	cmdline_default_re := regexp.MustCompile(`^GRUB_CMDLINE_LINUX_DEFAULT=\"(.+)\"$`)
+	currentargs_re := regexp.MustCompile(`^GRUB_CMDLINE_LINUX(_DEFAULT|)=\"(.?|.+)\"$`)
+
+	// Make a bool so we know if we edited the default line if both are in the template
+	default_edited := false
+
+	// Read the mkinitcpio file
+	grub_content := fileio.ReadLines(sysfile)
+
+	// Write to logger
+	logger.Printf("Read %s:\n%s", sysfile, strings.Join(grub_content, "\n"))
+
+	for _, line := range grub_content {
+		if currentargs_re.MatchString(line) {
+			// Get the current modules
+			old_kernel_args := strings.Split(currentargs_re.ReplaceAllString(line, "${2}"), " ")
+
+			// Clean up the old arguments by removing vfio related kernel arguments
+			new_kernel_args := clean_Grub2_Args(old_kernel_args)
+
+			// Get the kernel args from our config
+			kernel_args := fileio.ReadFile(config.Path.CMDLINE)
+
+			// Add our kernel args to the list
+			new_kernel_args = append(new_kernel_args, kernel_args)
+
+			// If we are at the line starting with MODULES=
+			if cmdline_default_re.MatchString(line) {
+				// Write to logger
+				logger.Printf("Replacing line in %s:\n%s\nWith:\nGRUB_CMDLINE_LINUX_DEFAULT=\"%s\"\n", conffile, line, strings.Join(new_kernel_args, " "))
+
+				// Write the modules line we generated
+				fileio.AppendContent(fmt.Sprintf("GRUB_CMDLINE_LINUX_DEFAULT=\"%s\"\n", strings.Join(new_kernel_args, " ")), conffile)
+
+				// Mark the default line as edited so we can skip the non default line
+				default_edited = true
+			} else {
+				// If we have not edited the GRUB_CMDLINE_LINUX_DEFAULT line
+				if !default_edited {
+					// Write to logger
+					logger.Printf("Replacing line in %s:\n%s\nWith:\nGRUB_CMDLINE_LINUX=\"%s\"\n", conffile, line, strings.Join(new_kernel_args, " "))
+
+					// Write the modules line we generated
+					fileio.AppendContent(fmt.Sprintf("GRUB_CMDLINE_LINUX=\"%s\"\n", strings.Join(new_kernel_args, " ")), conffile)
+				}
+			}
+		} else {
+			// Write the line to the file since it does not match our regex
+			fileio.AppendContent(fmt.Sprintf("%s\n", line), conffile)
+		}
+	}
+}
+
+func clean_Grub2_Args(old_kernel_args []string) []string {
+	// Make a regex to get the VFIO related kernel arguments removed, if they already existed
+	vfio_args_re := regexp.MustCompile(`(amd|intel)_iommu=(on|1)|iommu=(pt|on)|vfio_pci.ids=.+|vfio_pci.disable_vga=\d{1}`)
+
+	// Make a stringlist to keep our new arguments
+	var clean_kernel_args []string
+
+	// Loop through current kernel_args and add anything that isnt vfio or vendor-reset related
+	for _, v := range old_kernel_args {
+		// If what we find is not a vfio module or vendor-reset module
+		if !vfio_args_re.MatchString(v) {
+			// Add module to module list
+			clean_kernel_args = append(clean_kernel_args, v)
+		}
+	}
+
+	// Return cleaned up arguments
+	return clean_kernel_args
 }

@@ -60,7 +60,7 @@ func Set_Cmdline(gpu_IDs []string) {
 	fileio.AppendContent(fmt.Sprintf(" vfio_pci.ids=%s", strings.Join(gpu_IDs, ",")), config.Path.CMDLINE)
 }
 
-// TODO: write functions to configure grub
+// TODO: write function to configure grub
 // TODO3: if unknown bootloader, tell user what to add a kernel arguments
 
 // Configures systemd-boot using kernelstub
@@ -78,7 +78,7 @@ func Set_KernelStub() {
 	command.Run("sudo", "kernelstub", "-a", kernel_args)
 }
 
-// Configures grub2 or systemd-boot using grubby
+// Configures grub2 and/or systemd-boot using grubby
 func Set_Grubby() {
 	// Get the config
 	config := GetConfig()
@@ -91,4 +91,8 @@ func Set_Grubby() {
 
 	// Run the command
 	command.Run("sudo", "grubby", "--update-kernel=ALL", fmt.Sprintf("--args=%s", kernel_args))
+}
+
+func Set_Grub2() {
+
 }

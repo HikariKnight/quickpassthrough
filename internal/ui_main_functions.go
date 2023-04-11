@@ -5,6 +5,7 @@ import (
 	"os"
 	"regexp"
 
+	"github.com/HikariKnight/ls-iommu/pkg/errorcheck"
 	"github.com/HikariKnight/quickpassthrough/internal/configs"
 	"github.com/HikariKnight/quickpassthrough/internal/logger"
 	"github.com/HikariKnight/quickpassthrough/pkg/command"
@@ -35,11 +36,27 @@ func (m *model) processSelection() bool {
 		m.focused++
 
 	case GPU_GROUP:
+		// Get the config
+		config := configs.GetConfig()
+
 		// Get the vbios path
 		m.vbios_path = getIOMMU("-g", "-i", m.gpu_group, "--rom")[0]
 
 		// Generate the VBIOS dumper script once the user has selected a GPU
 		configs.GenerateVBIOSDumper(m.vbios_path)
+
+		// Get the device ids for the selected gpu using ls-iommu
+		m.gpu_IDs = getIOMMU("-gr", "-i", m.gpu_group, "--id")
+
+		// If the kernel_args file already exists
+		if fileio.FileExist(config.Path.CMDLINE) {
+			// Delete it as we will have to make a new one anyway
+			err := os.Remove(config.Path.CMDLINE)
+			errorcheck.ErrorCheck(err, fmt.Sprintf("Could not remove %s", config.Path.CMDLINE))
+		}
+
+		// Write initial kernel_arg file
+		configs.Set_Cmdline(m.gpu_IDs)
 
 		// Change focus to the next view
 		m.focused++
@@ -76,18 +93,6 @@ func (m *model) processSelection() bool {
 		// Get our config struct
 		config := configs.GetConfig()
 
-		// Get the device ids for the selected gpu using ls-iommu
-		gpu_IDs := getIOMMU("-gr", "-i", m.gpu_group, "--id")
-
-		// If the kernel_args file already exists
-		if fileio.FileExist(config.Path.CMDLINE) {
-			// Delete it as we will have to make a new one anyway
-			os.Remove(config.Path.CMDLINE)
-		}
-
-		// Write initial kernel_arg file
-		configs.Set_Cmdline(gpu_IDs)
-
 		// If user selected yes then
 		if selectedItem.(item).title == "YES" {
 			// Add disable VFIO video to the config
@@ -100,7 +105,7 @@ func (m *model) processSelection() bool {
 		// If we have files for modprobe
 		if fileio.FileExist(config.Path.MODPROBE) {
 			// Configure modprobe
-			configs.Set_Modprobe(gpu_IDs)
+			configs.Set_Modprobe(m.gpu_IDs)
 		}
 
 		// If we have a folder for dracut
@@ -171,7 +176,10 @@ func (m *model) install(auth string) {
 		// Configure kernelstub
 		configs.Set_Grubby()
 
-	} else if config.Bootloader == "unknown" {
+	} else if config.Bootloader == "grub2" {
+		// Write to logger
+		logger.Printf("Configuring grub2 manually")
+	} else {
 		kernel_args := fileio.ReadFile(config.Path.CMDLINE)
 		fmt.Printf("Unsupported bootloader, please add the below line to your bootloaders kernel arguments\n%s", kernel_args)
 	}

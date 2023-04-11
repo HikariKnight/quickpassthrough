@@ -28,6 +28,7 @@ type model struct {
 	fetched    []bool
 	lists      []list.Model
 	gpu_group  string
+	gpu_IDs    []string
 	vbios_path string
 	focused    status
 	offsetx    []int

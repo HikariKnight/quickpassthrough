@@ -179,8 +179,9 @@ func (m *model) install(auth string) {
 	} else if config.Bootloader == "grub2" {
 		// Write to logger
 		logger.Printf("Configuring grub2 manually")
+		configs.Set_Grub2()
 	} else {
 		kernel_args := fileio.ReadFile(config.Path.CMDLINE)
-		fmt.Printf("Unsupported bootloader, please add the below line to your bootloaders kernel arguments\n%s", kernel_args)
+		logger.Printf("Unsupported bootloader, please add the below line to your bootloaders kernel arguments\n%s", kernel_args)
 	}
 }

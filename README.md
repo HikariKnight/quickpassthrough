@@ -8,7 +8,7 @@ You can use it by simply downloading the latest release and run it inside a term
 git clone https://github.com/HikariKnight/quickpassthrough.git
 cd quickpassthrough
 go mod download
-go build -o quickpassthrough cmd/main.go
+CGO_ENABLED=0 go build -o quickpassthrough cmd/main.go
 ```
 
 ## Features

@@ -23,15 +23,38 @@ func Run(binary string, args ...string) ([]string, error) {
 
 	// Read the output
 	output, _ := io.ReadAll(&stdout)
-	outerr, _ := io.ReadAll(&stderr)
 
 	// Get the output
 	outputs := []string{}
 	outputs = append(outputs, string(output))
-	outputs = append(outputs, string(outerr))
 
 	// Return our list of items
 	return outputs, err
+}
+
+// This function is just like command.Run() but also returns STDERR
+func RunErr(binary string, args ...string) ([]string, []string, error) {
+	var stdout, stderr bytes.Buffer
+
+	// Configure the ls-iommu c--ommand
+	cmd := exec.Command(binary, args...)
+	cmd.Stderr = &stderr
+	cmd.Stdout = &stdout
+
+	// Execute the command
+	err := cmd.Run()
+
+	// Read the output
+	output, _ := io.ReadAll(&stdout)
+	outerr, _ := io.ReadAll(&stderr)
+
+	// Get the output
+	var outputs, outerrs []string
+	outputs = append(outputs, string(output))
+	outerrs = append(outerrs, string(outerr))
+
+	// Return our list of items
+	return outputs, outerrs, err
 }
 
 // This functions runs the command "sudo -Sk -- echo", this forces sudo

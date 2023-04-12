@@ -72,7 +72,7 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					// Blank the password field
 					m.authDialog.SetValue("")
 
-					fmt.Println("Working... Application frozen until done, check debug.log for progress")
+					fmt.Println(titleStyle.Render("Working... Application frozen until done, check debug.log for progress"))
 
 					// Start installation and send the password to the command
 					m.install()

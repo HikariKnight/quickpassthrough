@@ -6,6 +6,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/HikariKnight/quickpassthrough/internal/configs"
+	"github.com/HikariKnight/quickpassthrough/pkg/fileio"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
@@ -147,8 +149,16 @@ func (m model) View() string {
 			tea.Batch()
 
 		case DONE:
-			title = titleStyle.Render("Applying configurations!")
+			title = titleStyle.Render("Applied configurations!")
+
 			view = dialogStyle.Render(fmt.Sprintf("%s\n\nPress Enter to Exit.", strings.Join(m.installOutput, "\n")))
+
+			// If the bootloader is unknown/unsupported
+			config := configs.GetConfig()
+			if config.Bootloader == "unknown" {
+				// Change the view to reflect that
+				view = dialogStyle.Render(fmt.Sprintf("%s\n\nI do not have a good way to reliably edit your bootloader!\nPlease add: %s\nTo your bootloaders kernel arguments.\nPress Enter to Exit.", strings.Join(m.installOutput, "\n"), fileio.ReadFile(config.Path.CMDLINE)))
+			}
 		}
 		//return listStyle.SetString(fmt.Sprintf("%s\n\n", title)).Render(m.lists[m.focused].View())
 		return lipgloss.JoinVertical(lipgloss.Left, fmt.Sprintf("%s\n%s\n", title, view))

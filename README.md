@@ -12,12 +12,20 @@ go mod download
 CGO_ENABLED=0 go build -o quickpassthrough cmd/main.go
 ```
 
+## How do I undo the changes?
+There is a "backup/" folder generated on the first run that will have a copy of all your files (and their paths) from before we edited anything.
+Copy the files back to your system (blank files inside .d/ folders will be used to "undo" any new config files we wrote) and rebuild your initramfs then remove the kernel arguments listed in config/kernel_args from your bootloader (if your system use kernelstub, grubby or you had to manually add them).
+
+## How do I just disable vfio for 1 boot?
+Remove the vfio kernel arguments from your bootloader by pressing E on the boot menu. The kernel arguments added to the bootloader can be found in the config/kernel_args file
+NOTE: You can also just remove them from your bootloader permanently and update your bootloader if you want to keep the config files on your system.
+
 ## What this project does NOT do
 * Setup or configure your Virtual Machine (that is your job)
 * Optimize your Virtual Machine for Passthrough (again this is your job)
 * Optimize your host machine for Passthrough or Virtualization (out of this projects scope)
 * Setup and configure GPU Passthrough on systems with 1 graphic card (iGPU counts as 1 Graphic Card by itself, so iGPU with another GPU will work)
-* Does not configure passthrough of 3D controllers, as it will not work (this is most gaming laptops so do not even think about it). If you try run this on a laptop with a 3D controller, the "2nd GPU" will not show up.<br>
+* Does not configure passthrough of 3D controllers, as it will not work (this is most gaming laptops so do not even think about it). If you try run this on a laptop with a 3D controller, the "2nd GPU" will not show up.
 NOTE: This project is aimed at desktops
   
 ## Features

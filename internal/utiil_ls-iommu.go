@@ -12,6 +12,7 @@ import (
 	"github.com/HikariKnight/ls-iommu/pkg/errorcheck"
 	"github.com/HikariKnight/quickpassthrough/internal/logger"
 	"github.com/charmbracelet/bubbles/list"
+	"github.com/klauspost/cpuid/v2"
 )
 
 func getIOMMU(args ...string) []string {
@@ -27,8 +28,26 @@ func getIOMMU(args ...string) []string {
 	// Execute the command
 	err := cmd.Run()
 
+	// Generate the correct iommu string for the system
+	var iommu_args string
+	cpuinfo := cpuid.CPU
+	// Write the argument based on which cpu the user got
+	switch cpuinfo.VendorString {
+	case "AuthenticAMD":
+		iommu_args = "iommu=pt amd_iommu=on"
+	case "GenuineIntel":
+		iommu_args = "iommu=pt intel_iommu=on"
+	}
+
 	// If ls-iommu returns an error then IOMMU is disabled
-	errorcheck.ErrorCheck(err, "IOMMU disabled in either UEFI/BIOS or in bootloader!")
+	errorcheck.ErrorCheck(err,
+		fmt.Sprintf(
+			"IOMMU disabled in either UEFI/BIOS or in bootloader!\n"+
+				"For your bootloader, make sure you have added the kernel arguments:\n"+
+				"%s",
+			iommu_args,
+		),
+	)
 
 	// Read the output
 	var items []string

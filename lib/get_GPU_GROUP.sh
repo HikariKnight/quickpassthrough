@@ -16,7 +16,11 @@ Optionally it may also include:
 * GPU USB Type-C UCSI Controller
 * PCI Bridge (if they are in their own IOMMU groups)
 
-"
+NOTE: If the audio controller is missing, it might be in a separate IOMMU group, please run
+\"%s/utils/ls-iommu\" -i %s -rr -F \"pciaddr,subclass_name:,name,device_id,optional_revision\"
+and add the PCI address and deviceID to the config manually (this is not done automatically because the -rr flag is unreliable if the system has 2 cards from the same vendor)
+
+" "$SCRIPTDIR" "$1"
     echo "#------------------------------------------#"
     "$SCRIPTDIR/utils/ls-iommu" -i "$1" -r -F subclass_name:,name,device_id,optional_revision # | cut -d " " -f 1-5,6- | perl -pe "s/\[[0-9a-f]{4}\]: //"
     echo "#------------------------------------------#"

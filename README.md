@@ -12,6 +12,9 @@ go mod download
 CGO_ENABLED=0 go build -o quickpassthrough cmd/main.go
 ```
 
+## Does this work on immutable systems?
+Currently no, there might be support for ostree (fedora silverblue, kinoite, etc) at a later time.
+
 ## How do I undo the changes?
 There is a "backup/" folder generated on the first run that will have a copy of all your files (and their paths) from before we edited anything.
 Copy the files back to your system (blank files inside .d/ folders will be used to "undo" any new config files we wrote) and rebuild your initramfs then remove the kernel arguments listed in config/kernel_args from your bootloader (if your system use kernelstub, grubby or you had to manually add them).

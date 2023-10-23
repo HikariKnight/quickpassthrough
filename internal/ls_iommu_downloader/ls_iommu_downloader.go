@@ -118,8 +118,7 @@ func CheckLsIOMMU() {
 
 	// Generate the download url
 	downloadUrl := fmt.Sprintf(
-		"https://github.com/HikariKnight/ls-iommu/releases/download/%s/ls-iommu_%s_Linux_x86_64.tar.gz",
-		result.TagName,
+		"https://github.com/HikariKnight/ls-iommu/releases/download/%s/ls-iommu_Linux_x86_64.tar.gz",
 		result.TagName,
 	)
 

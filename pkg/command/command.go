@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/base64"
 	"io"
+	"os"
 	"os/exec"
 	"time"
 
@@ -87,4 +88,11 @@ func Elevate(password string) {
 	// Wait for the sudo prompt (If the correct password was given, it will not stay behind)
 	err = cmd.Wait()
 	errorcheck.ErrorCheck(err, "\nError, password given was wrong")
+}
+
+// Function to just clear the terminal
+func Clear() {
+	c := exec.Command("clear")
+	c.Stdout = os.Stdout
+	c.Run()
 }

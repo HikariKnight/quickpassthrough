@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/HikariKnight/ls-iommu/pkg/errorcheck"
+	"github.com/HikariKnight/quickpassthrough/internal/pages"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
@@ -18,11 +19,13 @@ func Tui() {
 	errorcheck.ErrorCheck(err, "Error creating log file")
 	defer logfile.Close()
 
+	pages.Welcome()
+
 	// Make a blank model to keep our state in
-	m := NewModel()
+	/*m := NewModel()
 
 	// Start the program with the model
 	p := tea.NewProgram(m, tea.WithAltScreen())
 	_, err = p.Run()
-	errorcheck.ErrorCheck(err, "Failed to initialize UI")
+	errorcheck.ErrorCheck(err, "Failed to initialize UI")*/
 }

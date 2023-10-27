@@ -72,6 +72,10 @@ func viewUSB(id string, ext ...int) {
 
 	// Parse the choice
 	switch choice {
+	case "":
+		// If ESC is pressed
+		fmt.Println("")
+		os.Exit(0)
 	case "n":
 		// Go back to selecting a gpu
 		selectUSB()

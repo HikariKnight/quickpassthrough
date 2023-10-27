@@ -1,6 +1,9 @@
 package pages
 
 import (
+	"fmt"
+	"os"
+
 	"github.com/HikariKnight/quickpassthrough/pkg/command"
 	"github.com/HikariKnight/quickpassthrough/pkg/menu"
 	"github.com/gookit/color"
@@ -15,8 +18,8 @@ func Welcome() {
 	color.Bold.Println("Welcome to Quickpassthrough!")
 
 	// Write welcome message
-	color.Println(
-		" This script is meant to make it easier to setup GPU passthrough for\n",
+	color.Print(
+		"This script is meant to make it easier to setup GPU passthrough for\n",
 		"Qemu based systems. WITH DIFFERENT 2 GPUS ON THE HOST SYSTEM\n",
 		"However due to the complexity of GPU passthrough\n",
 		"This script assumes you know how to do (or have done) the following.\n\n",
@@ -26,7 +29,7 @@ func Welcome() {
 		"* Enable & Configure kernel modules\n",
 		"* Have a backup/snapshot of your system in case the script causes your\n  system to be unbootable\n\n",
 		"By continuing you accept that I am not liable if your system\n",
-		"becomes unbootable, as you will be asked to verify the files generated\n",
+		"becomes unbootable, as you will be asked to verify the files generated\n\n",
 	)
 
 	// Make user accept responsibility
@@ -35,5 +38,8 @@ func Welcome() {
 	// If yes, go to next page
 	if choice == "y" {
 		SelectGPU()
+	} else {
+		fmt.Println("")
+		os.Exit(0)
 	}
 }

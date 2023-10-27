@@ -10,30 +10,31 @@ import (
 	"github.com/gookit/color"
 )
 
-func SelectGPU() {
+func selectUSB() {
 	// Clear the screen
 	command.Clear()
 
 	// Get the users GPUs
-	gpus := lsiommu.GetIOMMU("-g", "-F", "vendor:,prod_name,optional_revision:,device_id")
+	usbs := lsiommu.GetIOMMU("-u", "-F", "vendor:,prod_name,optional_revision:,device_id")
 
 	// Generate a list of choices based on the GPUs and get the users selection
-	choice := menu.GenIOMMUMenu("Select a GPU to view the IOMMU groups of", gpus)
+	choice := menu.GenIOMMUMenu("Select a USB to view the IOMMU groups of", usbs, 1)
 
 	// Parse the choice
 	switch choice {
 	case "back":
-		Welcome()
+		SelectGPU()
 	case "":
 		// If ESC is pressed
 		fmt.Println("")
 		os.Exit(0)
 	default:
-		viewGPU(choice)
+		// View the selected GPU
+		viewUSB(choice)
 	}
 }
 
-func viewGPU(id string, ext ...int) {
+func viewUSB(id string, ext ...int) {
 	// Clear the screen
 	command.Clear()
 
@@ -45,13 +46,13 @@ func viewGPU(id string, ext ...int) {
 		mode = "-rr"
 	}
 
-	// Get the IOMMU listings for GPUs
-	group := lsiommu.GetIOMMU("-g", mode, "-i", id, "-F", "vendor:,prod_name,optional_revision:,device_id")
+	// Get the IOMMU listings for USB controllers
+	group := lsiommu.GetIOMMU("-u", mode, "-i", id, "-F", "vendor:,prod_name,optional_revision:,device_id")
 
 	// Write a title
-	color.Bold.Println("This list should only show devices related to your GPU")
+	color.Bold.Println("This list should only show the USB controller")
 
-	// Print all the gpus
+	// Print all the usb controllers
 	for _, v := range group {
 		fmt.Println(v)
 	}
@@ -62,25 +63,20 @@ func viewGPU(id string, ext ...int) {
 	// Make an empty string
 	var choice string
 
-	// Change choices depending on if we have done an extended search or not
-	if len(ext) > 0 {
-		choice = menu.YesNo("Use this GPU (any extra devices listed may or may not be linked to it) for passthrough?")
+	// Ask if we shall use the devices for passthrough
+	if len(ext) == 0 {
+		choice = menu.YesNo("Use all listed devices for passthrough?")
 	} else {
-		choice = menu.YesNoEXT("Use this GPU (and related devices) for passthrough?")
+		choice = menu.YesNoEXT("Use all listed devices for passthrough?")
 	}
 
 	// Parse the choice
 	switch choice {
-	case "ext":
-		// Run an extended relative search
-		viewGPU(id, 1)
-
 	case "n":
 		// Go back to selecting a gpu
-		SelectGPU()
+		selectUSB()
 
 	case "y":
 		// Go to the select a usb controller
-		selectUSB()
 	}
 }

@@ -86,6 +86,7 @@ func viewGPU(id string, ext ...int) {
 
 	case "y":
 		// Go to the select a usb controller
-		selectUSB()
+		//selectUSB()
+		genVBIOS_dumper(id)
 	}
 }

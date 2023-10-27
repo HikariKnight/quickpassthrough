@@ -21,7 +21,7 @@ func YesNoEXT(msg string) string {
 	menu := gocliselect.NewMenu(msg)
 	menu.AddItem("Yes", "y")
 	menu.AddItem("No", "n")
-	menu.AddItem("ADVANCED: View with extended related search by vendor ID, results will be inaccurate", "ext")
+	menu.AddItem("ADVANCED: View with extended related search by vendor ID, devices listed might not be related", "ext")
 
 	// Display the menu
 	choice := menu.Display()

@@ -17,7 +17,7 @@ import (
 func GetIOMMU(args ...string) []string {
 	var stdout, stderr bytes.Buffer
 	// Write to logger
-	logger.Printf("Executing: utils/ls-iommu %s", strings.Join(args, " "))
+	logger.Printf("Executing: utils/ls-iommu %s\n", strings.Join(args, " "))
 
 	// Configure the ls-iommu command
 	cmd := exec.Command("utils/ls-iommu", args...)

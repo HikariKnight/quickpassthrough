@@ -7,7 +7,7 @@ import (
 	"github.com/nexidian/gocliselect"
 )
 
-func GenIOMMUMenu(msg string, choices []string) string {
+func GenIOMMUMenu(msg string, choices []string, none_option ...int) string {
 	// Make a regex to get the iommu group
 	iommu_group_regex := regexp.MustCompile(`(\d{1,3})`)
 
@@ -21,6 +21,12 @@ func GenIOMMUMenu(msg string, choices []string) string {
 
 		// Add the choice with shortened vendor name and the iommu group as the return value
 		menu.AddItem(choice, iommuGroup)
+	}
+
+	// If none_option is higher than 0
+	if len(none_option) > 0 {
+		// Add a skip option
+		menu.AddItem(color.Bold.Sprint("Skip/None"), "skip")
 	}
 
 	// Add a go back option

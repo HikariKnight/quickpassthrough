@@ -57,7 +57,7 @@ func GetIOMMU(args ...string) []string {
 	logger.Printf("ls-iommu query returned\n%s", string(output))
 
 	// Make regex to shorten vendor names
-	shortenVendor := regexp.MustCompile(` Corporation:|Advanced Micro Devices, Inc\. \[(AMD)\/ATI\]:`)
+	shortenVendor := regexp.MustCompile(` Corporation:| Technology Inc.:| Electronics Co Ltd:|Advanced Micro Devices, Inc\. \[(AMD)(|\/ATI)\]:`)
 
 	// Parse the output line by line
 	scanner := bufio.NewScanner(strings.NewReader(string(output)))

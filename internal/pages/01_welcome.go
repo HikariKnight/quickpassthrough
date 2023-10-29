@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/HikariKnight/quickpassthrough/internal/configs"
 	"github.com/HikariKnight/quickpassthrough/pkg/command"
 	"github.com/HikariKnight/quickpassthrough/pkg/menu"
 	"github.com/gookit/color"
@@ -37,6 +38,7 @@ func Welcome() {
 
 	// If yes, go to next page
 	if choice == "y" {
+		configs.InitConfigs()
 		SelectGPU()
 	} else {
 		fmt.Println("")

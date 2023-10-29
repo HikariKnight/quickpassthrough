@@ -42,6 +42,7 @@ func genVBIOS_dumper(id string) {
 
 	// If OK is pressed
 	if choice == "next" {
+		disableVideo()
 		selectUSB()
 	} else {
 		fmt.Println("")

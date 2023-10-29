@@ -91,7 +91,7 @@ func InitConfigs() {
 			// Write to log
 			logger.Printf(
 				"%s found on the system\n"+
-					"Creating %s",
+					"Creating %s\n",
 				syspath,
 				confpath,
 			)
@@ -122,7 +122,7 @@ func InitConfigs() {
 			// Write to log
 			logger.Printf(
 				"%s found on the system\n"+
-					"Creating %s",
+					"Creating %s\n",
 				sysfile,
 				conffile,
 			)
@@ -139,11 +139,11 @@ func InitConfigs() {
 
 		// If we now have a config that exists
 		if fileio.FileExist(conffile) {
-			// Write to logger
-			logger.Printf("Getting the header (if it is there) from %s", conffile)
-
 			switch conffile {
 			case config.Path.ETCMODULES:
+				// Write to logger
+				logger.Printf("Getting the header (if it is there) from %s\n", conffile)
+
 				// Read the header
 				header := initramfs_readHeader(4, sysfile)
 				fileio.AppendContent(header, conffile)
@@ -151,6 +151,9 @@ func InitConfigs() {
 				// Add the modules to the config file
 				initramfs_addModules(conffile)
 			case fmt.Sprintf("%s/modules", config.Path.INITRAMFS):
+				// Write to logger
+				logger.Printf("Getting the header (if it is there) from %s\n", conffile)
+
 				// Read the header
 				header := initramfs_readHeader(11, sysfile)
 				fileio.AppendContent(header, conffile)
@@ -176,7 +179,7 @@ func vfio_modules() []string {
 	kernel_re := regexp.MustCompile(`^(6\.1|6\.0|[1-5]\.)`)
 	if kernel_re.MatchString(sysinfo.Kernel) {
 		// Write to the debug log
-		logger.Printf("Linux kernel version %s detected!\nIncluding vfio_virqfd module")
+		logger.Printf("Linux kernel version %s detected!\nIncluding vfio_virqfd module\n")
 
 		// Include the vfio_virqfd module
 		// NOTE: this driver was merged into the vfio module in 6.2
@@ -195,12 +198,12 @@ func backupFile(source string) {
 	if fileio.FileExist(fmt.Sprintf("config%s", source)) && !fileio.FileExist(source) {
 		// Create the blank file so that a copy of the backup folder to /etc
 		file, err := os.Create(dest)
-		errorcheck.ErrorCheck(err, "Error creating file %s", dest)
+		errorcheck.ErrorCheck(err, "Error creating file %s\n", dest)
 		file.Close()
 	} else if !fileio.FileExist(dest) {
 		// If a backup of the file does not exist
 		// Write to the logger
-		logger.Printf("No first time backup of %s detected.\nCreating a backup at %s", source, dest)
+		logger.Printf("No first time backup of %s detected.\nCreating a backup at %s\n", source, dest)
 
 		// Copy the file
 		fileio.FileCopy(source, dest)

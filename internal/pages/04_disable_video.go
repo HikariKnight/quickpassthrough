@@ -2,13 +2,14 @@ package pages
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/HikariKnight/quickpassthrough/internal/configs"
 	"github.com/HikariKnight/quickpassthrough/pkg/command"
 	"github.com/HikariKnight/quickpassthrough/pkg/menu"
 )
 
-func disableVideo() {
+func disableVideo(config *configs.Config) {
 	// Clear the screen
 	command.Clear()
 
@@ -22,14 +23,25 @@ func disableVideo() {
 	)
 
 	// Make the yesno menu
-	choice := menu.YesNo("Do you want to force disable video output in linux on this card?")
+	choice := menu.YesNoBack("Do you want to force disable video output in linux on this card?")
 
-	if choice == "Yes" {
+	switch choice {
+	case "y":
 		// Add disable VFIO video to the config
 		configs.DisableVFIOVideo(1)
-	} else {
+		selectUSB(config)
+
+	case "n":
 		// Do not disable VFIO Video
 		configs.DisableVFIOVideo(0)
-	}
+		selectUSB(config)
 
+	case "back":
+		genVBIOS_dumper(config)
+
+	case "":
+		// If ESC is pressed
+		fmt.Println("")
+		os.Exit(0)
+	}
 }

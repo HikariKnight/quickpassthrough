@@ -39,7 +39,8 @@ func Welcome() {
 	// If yes, go to next page
 	if choice == "y" {
 		configs.InitConfigs()
-		SelectGPU()
+		config := configs.GetConfig()
+		SelectGPU(config)
 	} else {
 		fmt.Println("")
 		os.Exit(0)

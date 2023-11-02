@@ -4,13 +4,14 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/HikariKnight/quickpassthrough/internal/configs"
 	lsiommu "github.com/HikariKnight/quickpassthrough/internal/lsiommu"
 	"github.com/HikariKnight/quickpassthrough/pkg/command"
 	"github.com/HikariKnight/quickpassthrough/pkg/menu"
 	"github.com/gookit/color"
 )
 
-func selectUSB() {
+func selectUSB(config *configs.Config) {
 	// Clear the screen
 	command.Clear()
 
@@ -23,18 +24,20 @@ func selectUSB() {
 	// Parse the choice
 	switch choice {
 	case "back":
-		SelectGPU()
+		disableVideo(config)
+
 	case "":
 		// If ESC is pressed
 		fmt.Println("")
 		os.Exit(0)
+
 	default:
 		// View the selected GPU
-		viewUSB(choice)
+		viewUSB(choice, config)
 	}
 }
 
-func viewUSB(id string, ext ...int) {
+func viewUSB(id string, config *configs.Config, ext ...int) {
 	// Clear the screen
 	command.Clear()
 
@@ -76,9 +79,10 @@ func viewUSB(id string, ext ...int) {
 		// If ESC is pressed
 		fmt.Println("")
 		os.Exit(0)
+
 	case "n":
 		// Go back to selecting a gpu
-		selectUSB()
+		selectUSB(config)
 
 	case "y":
 		// Go to the select a usb controller

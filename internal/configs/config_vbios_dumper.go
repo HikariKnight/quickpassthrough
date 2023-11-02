@@ -63,7 +63,7 @@ func GenerateVBIOSDumper(vbios_path string) {
 	errorcheck.ErrorCheck(err, "Could not change permissions of \"utils/dump_vbios.sh\"")
 
 	// Write to logger
-	logger.Printf("Writing utils/dump_vbios.sh")
+	logger.Printf("Writing utils/dump_vbios.sh\n")
 
 	// Write the script
 	scriptfile.WriteString(vbios_script)

@@ -28,6 +28,8 @@ type Config struct {
 	Bootloader string
 	Cpuvendor  string
 	Path       *Path
+	Gpu_Group  string
+	Gpu_IDs    []string
 }
 
 // Gets the path to all the config files
@@ -52,6 +54,8 @@ func GetConfig() *Config {
 		Bootloader: "unknown",
 		Cpuvendor:  cpuid.CPU.VendorString,
 		Path:       GetConfigPaths(),
+		Gpu_Group:  "",
+		Gpu_IDs:    []string{},
 	}
 
 	// Detect the bootloader we are using

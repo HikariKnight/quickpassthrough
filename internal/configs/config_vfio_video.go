@@ -17,7 +17,7 @@ func DisableVFIOVideo(i int) {
 	config := GetConfig()
 
 	// Write to logger
-	logger.Printf("Adding vfio_pci.disable_vga=%v to %s", i, config.Path.CMDLINE)
+	logger.Printf("Adding vfio_pci.disable_vga=%v to %s\n", i, config.Path.CMDLINE)
 
 	// Get the current kernel arguments we have generated
 	kernel_args := fileio.ReadFile(config.Path.CMDLINE)

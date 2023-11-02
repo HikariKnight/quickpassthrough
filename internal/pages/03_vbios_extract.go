@@ -6,11 +6,13 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/HikariKnight/quickpassthrough/internal/configs"
+	lsiommu "github.com/HikariKnight/quickpassthrough/internal/lsiommu"
 	"github.com/HikariKnight/quickpassthrough/pkg/command"
 	"github.com/HikariKnight/quickpassthrough/pkg/menu"
 )
 
-func genVBIOS_dumper(id string) {
+func genVBIOS_dumper(config *configs.Config) {
 	// Clear the scren
 	command.Clear()
 
@@ -23,8 +25,9 @@ func genVBIOS_dumper(id string) {
 		scriptdir, _ = os.Getwd()
 	}
 
-	// Get the vbios path
-	//vbios_path := lsiommu.GetIOMMU("-g", "-i", id, "--rom")[0]
+	// Get the vbios path and generate the vbios dumping script
+	vbios_path := lsiommu.GetIOMMU("-g", "-i", config.Gpu_Group, "--rom")[0]
+	configs.GenerateVBIOSDumper(vbios_path)
 
 	// Tell users about the VBIOS dumper script
 	fmt.Print(
@@ -38,13 +41,17 @@ func genVBIOS_dumper(id string) {
 	)
 
 	// Get the OK press
-	choice := menu.Ok("Make sure you run the script with the display-manager stopped using ssh or tty!")
+	choice := menu.OkBack("Make sure you run the script with the display-manager stopped using ssh or tty!")
 
-	// If OK is pressed
-	if choice == "next" {
-		disableVideo()
-		selectUSB()
-	} else {
+	// Parse choice
+	switch choice {
+	case "next":
+		disableVideo(config)
+
+	case "back":
+		SelectGPU(config)
+
+	case "":
 		fmt.Println("")
 		os.Exit(0)
 	}

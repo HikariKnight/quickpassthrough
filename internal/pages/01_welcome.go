@@ -16,7 +16,8 @@ func Welcome() {
 	command.Clear()
 
 	// Write title
-	color.Bold.Println("Welcome to Quickpassthrough!")
+	title := color.New(color.Cyan, color.Bold)
+	title.Println("Welcome to Quickpassthrough!")
 
 	// Write welcome message
 	color.Print(

@@ -10,6 +10,7 @@ import (
 	lsiommu "github.com/HikariKnight/quickpassthrough/internal/lsiommu"
 	"github.com/HikariKnight/quickpassthrough/pkg/command"
 	"github.com/HikariKnight/quickpassthrough/pkg/menu"
+	"github.com/gookit/color"
 )
 
 func genVBIOS_dumper(config *configs.Config) {
@@ -28,6 +29,10 @@ func genVBIOS_dumper(config *configs.Config) {
 	// Get the vbios path and generate the vbios dumping script
 	vbios_path := lsiommu.GetIOMMU("-g", "-i", config.Gpu_Group, "--rom")[0]
 	configs.GenerateVBIOSDumper(vbios_path)
+
+	// Write a title
+	title := color.New(color.Cyan, color.Bold)
+	title.Println("Generated \"dump VBIOS\" script")
 
 	// Tell users about the VBIOS dumper script
 	fmt.Print(

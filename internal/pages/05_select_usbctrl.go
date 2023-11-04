@@ -53,7 +53,8 @@ func viewUSB(id string, config *configs.Config, ext ...int) {
 	group := lsiommu.GetIOMMU("-u", mode, "-i", id, "-F", "vendor:,prod_name,optional_revision:,device_id")
 
 	// Write a title
-	color.Bold.Println("This list should only show the USB controller")
+	title := color.New(color.Cyan, color.Bold)
+	title.Println("This list should only show the USB controller")
 
 	// Print all the usb controllers
 	for _, v := range group {

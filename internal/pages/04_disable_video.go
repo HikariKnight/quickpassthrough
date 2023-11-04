@@ -7,14 +7,16 @@ import (
 	"github.com/HikariKnight/quickpassthrough/internal/configs"
 	"github.com/HikariKnight/quickpassthrough/pkg/command"
 	"github.com/HikariKnight/quickpassthrough/pkg/menu"
+	"github.com/gookit/color"
 )
 
 func disableVideo(config *configs.Config) {
 	// Clear the screen
 	command.Clear()
 
-	// Get our config struct
-	//config := configs.GetConfig()
+	// Write a title
+	title := color.New(color.Cyan, color.Bold)
+	title.Println("Do you want to disable video output on the VFIO card in Linux?")
 
 	fmt.Print(
 		"Disabling video output in Linux for the card you want to use in a VM\n",

@@ -15,7 +15,7 @@ func disableVideo(config *configs.Config) {
 	command.Clear()
 
 	// Write a title
-	title := color.New(color.Cyan, color.Bold)
+	title := color.New(color.BgHiBlue, color.White, color.Bold)
 	title.Println("Do you want to disable video output on the VFIO card in Linux?")
 
 	fmt.Print(

@@ -31,7 +31,7 @@ func genVBIOS_dumper(config *configs.Config) {
 	configs.GenerateVBIOSDumper(vbios_path)
 
 	// Write a title
-	title := color.New(color.Cyan, color.Bold)
+	title := color.New(color.BgHiBlue, color.White, color.Bold)
 	title.Println("Generated \"dump VBIOS\" script")
 
 	// Tell users about the VBIOS dumper script

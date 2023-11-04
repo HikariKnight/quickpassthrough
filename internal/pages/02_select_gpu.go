@@ -53,7 +53,7 @@ func viewGPU(config *configs.Config, ext ...int) {
 	group := lsiommu.GetIOMMU("-g", mode, "-i", config.Gpu_Group, "-F", "vendor:,prod_name,optional_revision:,device_id")
 
 	// Write a title
-	title := color.New(color.Cyan, color.Bold)
+	title := color.New(color.BgHiBlue, color.White, color.Bold)
 	title.Println("This list should only show devices related to your GPU (usually 1 video, 1 audio device)")
 
 	// Print all the gpus

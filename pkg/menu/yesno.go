@@ -1,6 +1,9 @@
 package menu
 
-import "github.com/nexidian/gocliselect"
+import (
+	"github.com/gookit/color"
+	"github.com/nexidian/gocliselect"
+)
 
 // Make a YesNo menu
 func YesNo(msg string) string {
@@ -21,7 +24,7 @@ func YesNoBack(msg string) string {
 	menu := gocliselect.NewMenu(msg)
 	menu.AddItem("Yes", "y")
 	menu.AddItem("No", "n")
-	menu.AddItem("Go Back", "back")
+	menu.AddItem(color.Bold.Sprint("Go Back"), "back")
 
 	// Display the menu
 	choice := menu.Display()

@@ -24,7 +24,7 @@ func Welcome() {
 		"This script is meant to make it easier to setup GPU passthrough for\n",
 		"Qemu based systems. WITH DIFFERENT 2 GPUS ON THE HOST SYSTEM\n",
 		"However due to the complexity of GPU passthrough\n",
-		"This script assumes you know how to do (or have done) the following.\n\n",
+		"This script assumes you know how to do (and have done) the following.\n\n",
 		"* You have already enabled IOMMU, VT-d, SVM and/or AMD-v\n  inside your UEFI/BIOS advanced settings.\n",
 		"* Know how to edit your bootloader\n",
 		"* Have a bootloader timeout of at least 3 seconds to access the menu\n",

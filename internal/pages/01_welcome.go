@@ -32,6 +32,7 @@ func Welcome() {
 		"* Have a backup/snapshot of your system in case the script causes your\n  system to be unbootable\n\n",
 		"By continuing you accept that I am not liable if your system\n",
 		"becomes unbootable, as you will be asked to verify the files generated\n\n",
+		"You can press ESC to exit the program at any time.\n\n",
 	)
 
 	// Make user accept responsibility

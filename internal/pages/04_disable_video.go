@@ -31,12 +31,14 @@ func disableVideo(config *configs.Config) {
 	case "y":
 		// Add disable VFIO video to the config
 		configs.DisableVFIOVideo(1)
-		selectUSB(config)
+		//selectUSB(config)
+		prepModules(config)
 
 	case "n":
 		// Do not disable VFIO Video
 		configs.DisableVFIOVideo(0)
-		selectUSB(config)
+		//selectUSB(config)
+		prepModules(config)
 
 	case "back":
 		genVBIOS_dumper(config)

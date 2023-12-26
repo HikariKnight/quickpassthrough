@@ -22,7 +22,7 @@ func Set_Dracut() {
 	}
 
 	// Write to logger
-	logger.Printf("Writing to %s:\nadd_drivers+=\" %s \"", dracutConf, strings.Join(vfio_modules(), " "))
+	logger.Printf("Writing to %s:\nadd_drivers+=\" %s \"\n", dracutConf, strings.Join(vfio_modules(), " "))
 
 	// Write the dracut config file
 	fileio.AppendContent(fmt.Sprintf("add_drivers+=\" %s \"\n", strings.Join(vfio_modules(), " ")), dracutConf)

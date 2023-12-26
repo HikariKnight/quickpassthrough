@@ -79,7 +79,7 @@ func Set_KernelStub() string {
 	kernel_args := fileio.ReadFile(config.Path.CMDLINE)
 
 	// Write to logger
-	logger.Printf("Running command:\nsudo kernelstub -a \"%s\"", kernel_args)
+	logger.Printf("Running command:\nsudo kernelstub -a \"%s\"\n", kernel_args)
 
 	// Run the command
 	_, err := command.Run("sudo", "kernelstub", "-a", kernel_args)
@@ -98,7 +98,7 @@ func Set_Grubby() string {
 	kernel_args := fileio.ReadFile(config.Path.CMDLINE)
 
 	// Write to logger
-	logger.Printf("Running command:\nsudo grubby --update-kernel=ALL --args=\"%s\"", kernel_args)
+	logger.Printf("Running command:\nsudo grubby --update-kernel=ALL --args=\"%s\"\n", kernel_args)
 
 	// Run the command
 	_, err := command.Run("sudo", "grubby", "--update-kernel=ALL", fmt.Sprintf("--args=%s", kernel_args))
@@ -135,7 +135,7 @@ func Configure_Grub2() {
 	grub_content := fileio.ReadLines(sysfile)
 
 	// Write to logger
-	logger.Printf("Read %s:\n%s", sysfile, strings.Join(grub_content, "\n"))
+	logger.Printf("Read %s:\n%s\n", sysfile, strings.Join(grub_content, "\n"))
 
 	for _, line := range grub_content {
 		if currentargs_re.MatchString(line) {

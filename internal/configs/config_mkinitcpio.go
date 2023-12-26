@@ -33,7 +33,7 @@ func Set_Mkinitcpio() {
 	mkinitcpio_content := fileio.ReadLines(sysfile)
 
 	// Write to logger
-	logger.Printf("Read %s:\n%s", sysfile, strings.Join(mkinitcpio_content, "\n"))
+	logger.Printf("Read %s:\n%s\n", sysfile, strings.Join(mkinitcpio_content, "\n"))
 
 	for _, line := range mkinitcpio_content {
 		// If we are at the line starting with MODULES=
@@ -47,7 +47,7 @@ func Set_Mkinitcpio() {
 			// If vendor-reset is in the current modules
 			if strings.Contains(line, "vendor-reset") {
 				// Write to logger
-				logger.Printf("vendor-reset module detected in %s\nMaking sure it will be loaded before vfio", sysfile)
+				logger.Printf("vendor-reset module detected in %s\nMaking sure it will be loaded before vfio\n", sysfile)
 
 				// Add vendor-reset first
 				modules = append([]string{"vendor-reset"}, modules...)

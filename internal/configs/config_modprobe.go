@@ -22,7 +22,7 @@ func Set_Modprobe(gpu_IDs []string) {
 
 	if strings.Contains(kernel_args, "vfio_pci.disable_vga=1") {
 		// Write to logger
-		logger.Printf("User has disabled vfio video output on host, adding disable_vga=1 to the optional hardcoded vfio_pci options")
+		logger.Printf("User has disabled vfio video output on host, adding disable_vga=1 to the optional hardcoded vfio_pci options\n")
 		vfio_pci_options = append(vfio_pci_options, "disable_vga=1")
 	}
 

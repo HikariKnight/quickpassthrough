@@ -15,8 +15,6 @@ func prepModules(config *configs.Config) {
 		configs.Set_Modprobe(config.Gpu_IDs)
 	}
 
-	logger.Printf(config.Path.DRACUT)
-
 	// If we have a folder for dracut
 	if fileio.FileExist(config.Path.DRACUT) {
 		// Configure dracut

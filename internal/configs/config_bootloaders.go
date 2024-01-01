@@ -233,12 +233,12 @@ func Set_Grub2() ([]string, error) {
 	// Update grub.cfg
 	if fileio.FileExist("/boot/grub/grub.cfg") {
 		output = append(output, fmt.Sprintf("Executed: sudo %s -o /boot/grub/grub.cfg\nSee debug.log for more detailed output", mkconfig))
-		mklog, err := command.Run("sudo", mkconfig, "-o", "/boot/grub/grub.cfg")
+		_, mklog, err := command.RunErr("sudo", mkconfig, "-o", "/boot/grub/grub.cfg")
 		logger.Printf(strings.Join(mklog, "\n"))
 		errorcheck.ErrorCheck(err, "Failed to update /boot/grub/grub.cfg")
 	} else {
 		output = append(output, fmt.Sprintf("Executed: sudo %s -o /boot/grub/grub.cfg\nSee debug.log for more detailed output", mkconfig))
-		mklog, err := command.Run("sudo", mkconfig, "-o", "/boot/grub2/grub.cfg")
+		_, mklog, err := command.RunErr("sudo", mkconfig, "-o", "/boot/grub2/grub.cfg")
 		logger.Printf(strings.Join(mklog, "\n"))
 		errorcheck.ErrorCheck(err, "Failed to update /boot/grub/grub.cfg")
 	}

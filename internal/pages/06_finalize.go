@@ -133,7 +133,7 @@ func installPassthrough(config *configs.Config) {
 
 	} else if config.Bootloader == "grub2" {
 		// Write to logger
-		logger.Printf("Configuring grub2 manually")
+		logger.Printf("Applying grub2 changes")
 		grub_output, _ := configs.Set_Grub2()
 		fmt.Printf("%s\n", strings.Join(grub_output, "\n"))
 

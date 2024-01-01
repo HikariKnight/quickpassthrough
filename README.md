@@ -51,7 +51,7 @@ NOTE: This project is aimed at desktops and headless servers.
 * Generate a script to use for dumping the vbios rom (as some cards require a romfile for passthrough to work), however no rom patching support planned.
 * Configure kernel arguments for systemd-boot (using kernelstub or grubby)
 * Configure kernel arguments for grub2 (editing /etc/default/grub or using grubby)
-* A menu system you can navigate through, built using [Bubble Tea](https://github.com/charmbracelet/bubbletea) (Help appreciated to make this menu better!)
+* A menu system you can navigate through.
 * Make sure [vendor-reset](https://github.com/gnif/vendor-reset) module is loaded before vfio, check the repository for the list of cards that require it!
 * Provides you with the correct kernel arguments to add to your bootloader entry if a supported bootloader is not found
 

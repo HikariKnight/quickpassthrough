@@ -117,6 +117,12 @@ func InitConfigs() {
 		fmt.Sprintf("%s/grub", config.Path.DEFAULT),
 	}
 
+	// If we are using grubby
+	if config.Bootloader == "grubby" {
+		// Do not create an empty /etc/default/grub file
+		files = files[:len(files)-1]
+	}
+
 	for _, conffile := range files {
 		// Get the system file path
 		sysfile := syspath_re.ReplaceAllString(conffile, "")

@@ -69,7 +69,7 @@ NOTE: This project is aimed at desktops and headless servers.
 This project originally started out as a bash only project, upon completing the proof of concept it became very clear that bash would become very messy with all the weird quirks and regex and inline editing of files. <br>
 So the project moved over to golang, this lets us utilize TUI toolkits like to build a proper menu system for the project. <br>
 
-If you know golang, passthrough or qemu, you are welcome to help! Just make a pull request to the [dev branch](https://github.com/HikariKnight/quickpassthrough/tree/dev) with your changes!<br>
+If you know golang, passthrough or qemu, you are welcome to help! Just make a pull request!<br>
 Just remember to add comments to document the work and explain it for people who are less familiar with the golang syntax or anything else you use. 😄
 
 Also if you know English, you can help by just proof reading. English is not my native language, plus I have dyslexia so I often make spelling mistakes.

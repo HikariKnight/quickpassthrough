@@ -5,10 +5,20 @@ A project to simplify setting up GPU passthrough on your Linux host for [QuickEM
 
 You can use it by simply downloading the latest release and run it inside a terminal/shell or by downloading and compiling it yourself with the commands below.
 
+## Build with current dependencies
 ```bash
 git clone https://github.com/HikariKnight/quickpassthrough.git
 cd quickpassthrough
 go mod download
+CGO_ENABLED=0 go build -o quickpassthrough cmd/main.go
+```
+
+## Build with newest dependencies (may break)
+```bash
+git clone https://github.com/HikariKnight/quickpassthrough.git
+cd quickpassthrough
+go mod download
+go get -u ./cmd
 CGO_ENABLED=0 go build -o quickpassthrough cmd/main.go
 ```
 
@@ -29,7 +39,7 @@ NOTE: You can also just remove them from your bootloader permanently and update 
 * Optimize your host machine for Passthrough or Virtualization (out of this projects scope)
 * Setup and configure GPU Passthrough on systems with 1 graphic card (iGPU counts as 1 Graphic Card by itself, so iGPU with another GPU will work)
 * Does not configure passthrough of 3D controllers, as it will not work (this is most gaming laptops so do not even think about it). If you try run this on a laptop with a 3D controller, the "2nd GPU" will not show up.
-NOTE: This project is aimed at desktops
+NOTE: This project is aimed at desktops and headless servers.
   
 ## Features
 * Show general warning to user and inform about making a backup and general expectations
@@ -42,7 +52,6 @@ NOTE: This project is aimed at desktops
 * Configure kernel arguments for systemd-boot (using kernelstub or grubby)
 * Configure kernel arguments for grub2 (editing /etc/default/grub or using grubby)
 * A menu system you can navigate through, built using [Bubble Tea](https://github.com/charmbracelet/bubbletea) (Help appreciated to make this menu better!)
-* ~~Coloured highlight/text for important information?~~ (not implemented yet)
 * Make sure [vendor-reset](https://github.com/gnif/vendor-reset) module is loaded before vfio, check the repository for the list of cards that require it!
 * Provides you with the correct kernel arguments to add to your bootloader entry if a supported bootloader is not found
 
@@ -57,10 +66,10 @@ NOTE: This project is aimed at desktops
 <img src="https://user-images.githubusercontent.com/2557889/156038229-4e70352f-9182-4474-8e32-d14d3ad67566.png" width="250px">
 
 This project originally started out as a bash only project, upon completing the proof of concept it became very clear that bash would become very messy with all the weird quirks and regex and inline editing of files. <br>
-So the project moved over to golang, this lets us utilize TUI toolkits like [Bubble Tea](https://github.com/charmbracelet/bubbletea) to build a proper menu system for the project. <br>
+So the project moved over to golang, this lets us utilize TUI toolkits like to build a proper menu system for the project. <br>
 
-If you know golang, bubbletea, passthrough or qemu, you are welcome to help! Just make a pull request to the [dev branch](https://github.com/HikariKnight/quickpassthrough/tree/dev) with your changes!<br>
-Just remember to add comments to document the work and explain it for people who are less familiar with the bash syntax or anything else you use. 😄
+If you know golang, passthrough or qemu, you are welcome to help! Just make a pull request to the [dev branch](https://github.com/HikariKnight/quickpassthrough/tree/dev) with your changes!<br>
+Just remember to add comments to document the work and explain it for people who are less familiar with the golang syntax or anything else you use. 😄
 
 Also if you know English, you can help by just proof reading. English is not my native language, plus I have dyslexia so I often make spelling mistakes.
 Proof reading is still contribution!

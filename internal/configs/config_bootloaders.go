@@ -180,7 +180,7 @@ func Configure_Grub2() {
 
 func clean_Grub2_Args(old_kernel_args []string) []string {
 	// Make a regex to get the VFIO related kernel arguments removed, if they already existed
-	vfio_args_re := regexp.MustCompile(`(amd|intel)_iommu=(on|1)|iommu=(pt|on)|vfio_pci.ids=.+|vfio_pci.disable_vga=\d{1}`)
+	vfio_args_re := regexp.MustCompile(`(amd|intel)_iommu=(on|1)|iommu=(pt|on)|vfio_pci.ids=.+|vfio_pci.disable_vga=\d{1}|rd.driver.pre=vfio_pci`)
 
 	// Make a stringlist to keep our new arguments
 	var clean_kernel_args []string

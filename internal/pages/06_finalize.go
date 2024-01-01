@@ -187,12 +187,10 @@ func installPassthrough(config *configs.Config) {
 
 		// Update initramfs
 		fmt.Printf("Executed: sudo dracut -f -v --kver %s\nSee debug.log for detailed output", sysinfo.Release)
-		cmd_out, cmd_err, _ := command.RunErr("sudo", "dracut", "-f", "-v", "--kver", sysinfo.Release)
-
-		cmd_out = append(cmd_out, cmd_err...)
+		_, cmd_err, _ := command.RunErr("sudo", "dracut", "-f", "-v", "--kver", sysinfo.Release)
 
 		// Write to logger
-		logger.Printf(strings.Join(cmd_out, "\n"))
+		logger.Printf(strings.Join(cmd_err, "\n"))
 	} else if fileio.FileExist(config.Path.MKINITCPIO) {
 		// Copy dracut config to /etc/dracut.conf.d/vfio
 		output = configs.CopyToSystem(config.Path.MKINITCPIO, "/etc/mkinitcpio.conf")

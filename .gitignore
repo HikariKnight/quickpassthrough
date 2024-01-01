@@ -2,3 +2,8 @@ config/
 backup/
 utils/
 utils.old/
+bin/
+dist/
+main
+quickpassthrough
+debug.log

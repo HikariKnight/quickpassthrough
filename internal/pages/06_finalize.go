@@ -210,4 +210,7 @@ func installPassthrough(config *configs.Config) {
 		// Write to logger
 		logger.Printf(strings.Join(cmd_out, "\n"))
 	}
+
+	// Make sure prompt end up on next line
+	fmt.Print("\n")
 }

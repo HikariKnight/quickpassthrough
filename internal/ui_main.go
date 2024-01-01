@@ -21,13 +21,4 @@ func Tui() {
 
 	// New WIP Tui
 	pages.Welcome()
-	/*
-	   // Make a blank model to keep our state in
-	   m := NewModel()
-
-	   // Start the program with the model
-	   p := tea.NewProgram(m, tea.WithAltScreen())
-	   _, err = p.Run()
-	   errorcheck.ErrorCheck(err, "Failed to initialize UI")
-	*/
 }

@@ -1,7 +1,7 @@
 # QuickPassthrough
 
 A project to simplify setting up GPU passthrough on your Linux host for [QuickEMU](https://github.com/quickemu-project/quickemu)(vfio support not developed yet) and libvirt/virt-manager
-![Quickpassthrough Preview GIF](https://github.com/HikariKnight/quickpassthrough/blob/dev/quickpassthrough_preview.gif?raw=true)
+![Quickpassthrough Preview GIF](https://raw.githubusercontent.com/HikariKnight/quickpassthrough/main/quickpassthrough_preview.gif)
 
 You can use it by simply downloading the latest release and run it inside a terminal/shell or by downloading and compiling it yourself with the commands below.
 

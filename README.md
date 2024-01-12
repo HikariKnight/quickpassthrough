@@ -22,6 +22,11 @@ go get -u ./cmd
 CGO_ENABLED=0 go build -o quickpassthrough cmd/main.go
 ```
 
+## Run with Nix
+```bash
+nix run github:hikariknight/quickpassthrough
+```
+
 ## Does this work on immutable systems?
 Currently no, there might be support for ostree (fedora silverblue, kinoite, etc) at a later time.
 

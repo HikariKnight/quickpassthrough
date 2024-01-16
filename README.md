@@ -30,7 +30,7 @@ There is a "backup/" folder generated on the first run that will have a copy of 
 Copy the files back to your system (blank files inside .d/ folders will be used to "undo" any new config files we wrote) and rebuild your initramfs then remove the kernel arguments listed in config/kernel_args from your bootloader (if your system use kernelstub, grubby or you had to manually add them).
 
 ## How do I just disable vfio for 1 boot?
-Remove the vfio kernel arguments from your bootloader by pressing E on the boot menu. The kernel arguments added to the bootloader can be found in the config/kernel_args file
+Remove the vfio kernel arguments from your bootloader by pressing E on the boot menu. The kernel arguments added to the bootloader can be found in the config/kernel_args file. <br>
 NOTE: You can also just remove them from your bootloader permanently and update your bootloader if you want to keep the config files on your system.
 
 ## What this project does NOT do

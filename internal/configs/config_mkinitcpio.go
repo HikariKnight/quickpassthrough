@@ -26,7 +26,7 @@ func Set_Mkinitcpio() {
 
 	// Make a regex to find the modules line
 	module_line_re := regexp.MustCompile(`^MODULES=`)
-	modules_re := regexp.MustCompile(`MODULES=\((.+?)\)`)
+	modules_re := regexp.MustCompile(`MODULES=\((.*)\)`)
 	vfio_modules_re := regexp.MustCompile(`(vfio_iommu_type1|vfio_pci|vfio_virqfd|vfio|vendor-reset)`)
 
 	// Read the mkinitcpio file

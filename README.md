@@ -3,7 +3,7 @@
 A project to simplify setting up GPU passthrough on your Linux host for libvirt/virt-manager
 ![Quickpassthrough Preview GIF](https://raw.githubusercontent.com/HikariKnight/quickpassthrough/main/quickpassthrough_preview.gif)
 
-You can use it by simply downloading the latest release and run it inside a terminal/shell or by downloading and compiling it yourself with the commands below.
+You can use it by simply downloading the latest [release](https://github.com/HikariKnight/quickpassthrough/releases/) and run it inside a terminal/shell or by downloading and compiling it yourself with the commands below.
 
 ## Build with current dependencies
 ```bash

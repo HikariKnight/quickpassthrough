@@ -189,7 +189,7 @@ func vfio_modules() []string {
 	kernel_re := regexp.MustCompile(`^(6\.1|6\.0|[1-5]\.)`)
 	if kernel_re.MatchString(sysinfo.Kernel) {
 		// Write to the debug log
-		logger.Printf("Linux kernel version %s detected!\nIncluding vfio_virqfd module\n")
+		logger.Printf("Linux kernel version %s detected!\nIncluding vfio_virqfd module\n", sysinfo.Kernel)
 
 		// Include the vfio_virqfd module
 		// NOTE: this driver was merged into the vfio module in 6.2

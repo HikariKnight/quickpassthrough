@@ -40,7 +40,7 @@ func prepModules(config *configs.Config) {
 	// Configure grub2 here as we can make the config without sudo
 	if config.Bootloader == "grub2" {
 		// Write to logger
-		logger.Printf("Configuring grub2 manually")
+		logger.Printf("Configuring grub2 manually\n")
 		configs.Configure_Grub2()
 	}
 
@@ -117,7 +117,7 @@ func installPassthrough(config *configs.Config) {
 	// Based on the bootloader, setup the configuration
 	if config.Bootloader == "kernelstub" {
 		// Write to logger
-		logger.Printf("Configuring systemd-boot using kernelstub")
+		logger.Printf("Configuring systemd-boot using kernelstub\n")
 
 		// Configure kernelstub
 		output = configs.Set_KernelStub()
@@ -125,7 +125,7 @@ func installPassthrough(config *configs.Config) {
 
 	} else if config.Bootloader == "grubby" {
 		// Write to logger
-		logger.Printf("Configuring bootloader using grubby")
+		logger.Printf("Configuring bootloader using grubby\n")
 
 		// Configure kernelstub
 		output = configs.Set_Grubby()
@@ -133,7 +133,7 @@ func installPassthrough(config *configs.Config) {
 
 	} else if config.Bootloader == "grub2" {
 		// Write to logger
-		logger.Printf("Applying grub2 changes")
+		logger.Printf("Applying grub2 changes\n")
 		grub_output, _ := configs.Set_Grub2()
 		fmt.Printf("%s\n", strings.Join(grub_output, "\n"))
 
@@ -164,7 +164,7 @@ func installPassthrough(config *configs.Config) {
 		fmt.Printf("%s\n", output)
 
 		// Write to logger
-		logger.Printf("Executing: sudo update-initramfs -u")
+		logger.Printf("Executing: sudo update-initramfs -u\n")
 
 		// Update initramfs
 		fmt.Println("Executed: sudo update-initramfs -u\nSee debug.log for detailed output")
@@ -183,7 +183,7 @@ func installPassthrough(config *configs.Config) {
 		sysinfo := uname.New()
 
 		// Write to logger
-		logger.Printf("Executing: sudo dracut -f -v --kver %s", sysinfo.Release)
+		logger.Printf("Executing: sudo dracut -f -v --kver %s\n", sysinfo.Release)
 
 		// Update initramfs
 		fmt.Printf("Executed: sudo dracut -f -v --kver %s\nSee debug.log for detailed output", sysinfo.Release)

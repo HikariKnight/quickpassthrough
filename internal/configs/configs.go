@@ -244,7 +244,7 @@ func CopyToSystem(conffile, sysfile string) string {
 	clean_output := clean_re.ReplaceAllString(output[0], "")
 
 	// Write output to logger
-	logger.Printf(clean_output)
+	logger.Printf("%s\n", clean_output)
 
 	// Return the output
 	return fmt.Sprintf("Copying: %s", clean_output)

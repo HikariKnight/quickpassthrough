@@ -211,7 +211,7 @@ func Set_Grub2() ([]string, error) {
 	sysfile := sysfile_re.ReplaceAllString(conffile, "")
 
 	// Write to logger
-	logger.Printf("Executing command:\nsudo cp -v \"%s\" %s", conffile, sysfile)
+	logger.Printf("Executing command:\nsudo cp -v \"%s\" %s\n", conffile, sysfile)
 
 	// Make our output slice
 	var output []string

@@ -169,6 +169,9 @@ func Configure_Grub2() {
 
 					// Write the modules line we generated
 					fileio.AppendContent(fmt.Sprintf("GRUB_CMDLINE_LINUX=\"%s\"\n", strings.Join(new_kernel_args, " ")), conffile)
+				} else {
+					// Since we have edited the GRUB_CMDLINE_LINUX_DEFAULT line, we will just clean up the non default line
+					fileio.AppendContent(fmt.Sprintf("GRUB_CMDLINE_LINUX=\"%s\"\n", strings.Join(clean_Grub2_Args(old_kernel_args), " ")), conffile)
 				}
 			}
 		} else {
@@ -187,9 +190,9 @@ func clean_Grub2_Args(old_kernel_args []string) []string {
 
 	// Loop through current kernel_args and add anything that isnt vfio or vendor-reset related
 	for _, v := range old_kernel_args {
-		// If what we find is not a vfio module or vendor-reset module
+		// If what we find is not a vfio argument
 		if !vfio_args_re.MatchString(v) {
-			// Add module to module list
+			// Add argument to the list
 			clean_kernel_args = append(clean_kernel_args, v)
 		}
 	}

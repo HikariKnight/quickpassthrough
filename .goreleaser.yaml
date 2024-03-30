@@ -16,26 +16,9 @@ builds:
       - CGO_ENABLED=0
     goos:
       - linux
-      - windows
 
     goarch:
       - amd64
-      - arm
-      - arm64
-    goarm:
-      - 6
-      - 7
-
-    # GOAMD64 to build when GOARCH is amd64.
-    # For more info refer to: https://golang.org/doc/install/source#environment
-    #
-    # Default: [ 'v1' ]
-    goamd64:
-      - v1
-      - v2
-      - v3
-      - v4
-
     mod_timestamp: "{{ .CommitTimestamp }}"
 
 archives:

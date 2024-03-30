@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 
 	internal "github.com/HikariKnight/quickpassthrough/internal"
 	downloader "github.com/HikariKnight/quickpassthrough/internal/ls_iommu_downloader"
@@ -13,9 +14,13 @@ func main() {
 	// Get all our arguments in 1 neat struct
 	pArg := params.NewParams()
 
+	// Display the version
 	if pArg.Flag["version"] {
-		fmt.Printf("Quickpassthrough version: %s\n", version.Version)
-	} else {
+		fmt.Printf("QuickPassthrough Version %s\n", version.Version)
+		os.Exit(0)
+	}
+
+	if !pArg.Flag["gui"] {
 		downloader.CheckLsIOMMU()
 		internal.Tui()
 	}

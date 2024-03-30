@@ -56,7 +56,7 @@ func NewParams() *Params {
 	// Add version flag
 	version := parser.Flag("v", "version", &argparse.Options{
 		Required: false,
-		Help:     "Display version",
+		Help:     "Display the version",
 	})
 
 	// Parse arguments
@@ -78,9 +78,9 @@ func NewParams() *Params {
 	}
 
 	// Add all parsed arguments to a struct for portability since we will use them all over the program
+	pArg.addFlag("gui", *gui)
 	pArg.addFlag("version", *version)
-	/*pArg.addFlag("gui", *gui)
-	pArg.addFlag("gpu", *gpu)
+	/*pArg.addFlag("gpu", *gpu)
 	pArg.addFlag("usb", *usb)
 	pArg.addFlag("nic", *nic)
 	pArg.addFlag("sata", *sata)

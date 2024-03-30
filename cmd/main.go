@@ -6,7 +6,7 @@ import (
 	internal "github.com/HikariKnight/quickpassthrough/internal"
 	downloader "github.com/HikariKnight/quickpassthrough/internal/ls_iommu_downloader"
 	"github.com/HikariKnight/quickpassthrough/internal/params"
-	"github.com/HikariKnight/quickpassthrough/internal/version"
+	version "github.com/HikariKnight/quickpassthrough/internal/version"
 )
 
 func main() {

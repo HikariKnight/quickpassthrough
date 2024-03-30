@@ -1,3 +1,3 @@
 package version
 
-type Version string
+var Version string

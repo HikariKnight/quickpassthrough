@@ -2,11 +2,12 @@ package main
 
 import (
 	"fmt"
+	"os"
 
 	internal "github.com/HikariKnight/quickpassthrough/internal"
 	downloader "github.com/HikariKnight/quickpassthrough/internal/ls_iommu_downloader"
 	"github.com/HikariKnight/quickpassthrough/internal/params"
-	version "github.com/HikariKnight/quickpassthrough/internal/version"
+	"github.com/HikariKnight/quickpassthrough/internal/version"
 )
 
 func main() {
@@ -16,6 +17,7 @@ func main() {
 	// Display the version
 	if pArg.Flag["version"] {
 		fmt.Printf("QuickPassthrough Version %s\n", version.Version)
+		os.Exit(0)
 	}
 
 	if !pArg.Flag["gui"] {

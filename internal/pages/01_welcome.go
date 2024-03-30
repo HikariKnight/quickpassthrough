@@ -5,6 +5,8 @@ import (
 	"os"
 
 	"github.com/HikariKnight/quickpassthrough/internal/configs"
+	"github.com/HikariKnight/quickpassthrough/internal/logger"
+	"github.com/HikariKnight/quickpassthrough/internal/version"
 	"github.com/HikariKnight/quickpassthrough/pkg/command"
 	"github.com/HikariKnight/quickpassthrough/pkg/menu"
 	"github.com/gookit/color"
@@ -17,7 +19,8 @@ func Welcome() {
 
 	// Write title
 	title := color.New(color.BgHiBlue, color.White, color.Bold)
-	title.Println("Welcome to Quickpassthrough!")
+	title.Printf("Welcome to Quickpassthrough %s!\n", version.Version)
+	logger.Printf("Welcome to Quickpassthrough %s!\n", version.Version)
 
 	// Write welcome message
 	color.Print(

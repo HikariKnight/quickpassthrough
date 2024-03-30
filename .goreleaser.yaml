@@ -16,9 +16,10 @@ builds:
       - CGO_ENABLED=0
     goos:
       - linux
-
     goarch:
       - amd64
+    ldflags:
+      - -s -w -X version.Version={{ .Tag }}
     mod_timestamp: "{{ .CommitTimestamp }}"
 
 archives:

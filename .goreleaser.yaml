@@ -16,11 +16,11 @@ builds:
       - CGO_ENABLED=0
     goos:
       - linux
-
     goarch:
       - amd64
     mod_timestamp: "{{ .CommitTimestamp }}"
-
+    ldflags:
+      - -s -w -X version.Version={{.Version}}
 archives:
   - format: tar.gz
     # this name template makes the OS and Arch compatible with the results of `uname`.

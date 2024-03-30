@@ -48,9 +48,15 @@ func NewParams() *Params {
 	parser := argparse.NewParser("quickpassthrough", "A utility to help you configure your host for GPU Passthrough")
 
 	// Configure arguments
-	gui := parser.Flag("g", "gui", &argparse.Options{
+	/*gui := parser.Flag("g", "gui", &argparse.Options{
 		Required: false,
 		Help:     "Launch GUI (placeholder for now)",
+	})*/
+
+	// Add version flag
+	version := parser.Flag("v", "version", &argparse.Options{
+		Required: false,
+		Help:     "Display version",
 	})
 
 	version := parser.Flag("v", "version", &argparse.Options{

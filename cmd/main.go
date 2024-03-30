@@ -18,9 +18,7 @@ func main() {
 	if pArg.Flag["version"] {
 		fmt.Printf("QuickPassthrough Version %s\n", version.Version)
 		os.Exit(0)
-	}
-
-	if !pArg.Flag["gui"] {
+	} else {
 		downloader.CheckLsIOMMU()
 		internal.Tui()
 	}

@@ -64,7 +64,7 @@ NOTE: You can also just remove them from your bootloader permanently and update 
 * Optimize your Virtual Machine for Passthrough (again this is your job)
 * Optimize your host machine for Passthrough or Virtualization (out of this projects scope)
 * Setup and configure GPU Passthrough on systems with 1 graphic card (iGPU counts as 1 Graphic Card by itself, so iGPU with another GPU will work)
-* Does not configure passthrough of 3D controllers, as it will not work (this is most gaming laptops so do not even think about it). If you try run this on a laptop with a 3D controller, the "2nd GPU" will not show up.
+* Does not configure passthrough of 3D controllers, [as it will not work](https://lantian.pub/en/article/modify-computer/laptop-intel-nvidia-optimus-passthrough.lantian/) (this is most gaming laptops so do not even think about it). If you try run this on a laptop with a 3D controller, the "2nd GPU" will not show up.
 
 ## Contributing
 <img src="https://user-images.githubusercontent.com/2557889/156038229-4e70352f-9182-4474-8e32-d14d3ad67566.png" width="250px">

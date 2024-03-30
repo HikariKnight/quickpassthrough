@@ -56,11 +56,6 @@ func NewParams() *Params {
 	// Add version flag
 	version := parser.Flag("v", "version", &argparse.Options{
 		Required: false,
-		Help:     "Display version",
-	})
-
-	version := parser.Flag("v", "version", &argparse.Options{
-		Required: false,
 		Help:     "Display the version",
 	})
 

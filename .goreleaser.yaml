@@ -18,8 +18,6 @@ builds:
       - linux
     goarch:
       - amd64
-    ldflags:
-      - -s -w -X version.Version={{ .Tag }}
     mod_timestamp: "{{ .CommitTimestamp }}"
     ldflags:
       - -s -w -X github.com/HikariKnight/quickpassthrough/internal/version.Version={{.Version}}

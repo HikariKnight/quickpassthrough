@@ -14,7 +14,7 @@ func main() {
 	pArg := params.NewParams()
 
 	// Display the version
-	if p.Arg.Flag["version"] {
+	if pArg.Flag["version"] {
 		fmt.Printf("QuickPassthrough Version %s\n", version.Version)
 	}
 

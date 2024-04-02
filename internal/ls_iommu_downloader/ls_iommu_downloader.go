@@ -124,7 +124,8 @@ func CheckLsIOMMU() {
 
 	// Generate checksums.txt url
 	checkSumsUrl := fmt.Sprintf(
-		"https://github.com/HikariKnight/ls-iommu/releases/download/%s/checksums.txt",
+		"https://github.com/HikariKnight/ls-iommu/releases/download/%s/ls-iommu_%s_checksums.txt",
+		result.TagName,
 		result.TagName,
 	)
 

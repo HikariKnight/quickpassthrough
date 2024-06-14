@@ -19,7 +19,7 @@ type Path struct {
 	INITRAMFS  string
 	ETCMODULES string
 	DEFAULT    string
-	QUICKEMU   string
+	QEMU       string
 	DRACUT     string
 	MKINITCPIO string
 }
@@ -40,7 +40,7 @@ func GetConfigPaths() *Path {
 		INITRAMFS:  "config/etc/initramfs-tools",
 		ETCMODULES: "config/etc/modules",
 		DEFAULT:    "config/etc/default",
-		QUICKEMU:   "config/quickemu",
+		QEMU:       "config/qemu",
 		DRACUT:     "config/etc/dracut.conf.d",
 		MKINITCPIO: "config/etc/mkinitcpio.conf",
 	}

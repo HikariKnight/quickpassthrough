@@ -28,7 +28,7 @@ func GenerateVBIOSDumper(vbios_path string) {
 	vbios_script_template := fmt.Sprint(
 		"#!/bin/bash\n",
 		"# THIS FILE IS AUTO GENERATED!\n",
-		"# IF YOU HAVE CHANGED GPU, PLEASE RE-RUN QUICKPASSTHROUGH!\n",
+		"# IF YOU HAVE CHANGED THE GPU, PLEASE RE-RUN QUICKPASSTHROUGH!\n",
 		"mkdir -p \"%s\"\n",
 		"echo Attempting to enable reading from rom\n",
 		"echo 1 | sudo tee %s\n",
@@ -43,13 +43,13 @@ func GenerateVBIOSDumper(vbios_path string) {
 
 	vbios_script := fmt.Sprintf(
 		vbios_script_template,
-		config.Path.QUICKEMU,
+		config.Path.QEMU,
 		vbios_path,
 		vbios_path,
 		scriptdir,
-		config.Path.QUICKEMU,
+		config.Path.QEMU,
 		scriptdir,
-		config.Path.QUICKEMU,
+		config.Path.QEMU,
 		vbios_path,
 	)
 

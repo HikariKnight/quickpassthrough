@@ -61,7 +61,7 @@ func finalize(config *configs.Config) {
 		"located inside the \"config\" folder\n",
 		"\n",
 		"* The \"kernel_args\" file contains kernel arguments that your bootloader needs\n",
-		//"* The \"quickemu\" folder contains files that might be\n  useable for quickemu in the future\n",
+		"* The \"qemu\" folder contains files that might be\n  neccessary for passing through the GPU\n",
 		"* The files inside the \"etc\" folder must be copied to your system.\n",
 		"  NOTE: Verify that these files are correctly formated/edited!\n",
 		"* Once all files have been copied, you need to update your bootloader and rebuild\n",

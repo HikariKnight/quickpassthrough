@@ -11,6 +11,7 @@ import (
 	"github.com/HikariKnight/ls-iommu/pkg/errorcheck"
 )
 
+// Run a command and return STDOUT
 func Run(binary string, args ...string) ([]string, error) {
 	var stdout, stderr bytes.Buffer
 

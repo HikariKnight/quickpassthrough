@@ -6,11 +6,12 @@ import (
 	"regexp"
 
 	"github.com/HikariKnight/ls-iommu/pkg/errorcheck"
+	"github.com/klauspost/cpuid/v2"
+
 	"github.com/HikariKnight/quickpassthrough/internal/logger"
 	"github.com/HikariKnight/quickpassthrough/pkg/command"
 	"github.com/HikariKnight/quickpassthrough/pkg/fileio"
 	"github.com/HikariKnight/quickpassthrough/pkg/uname"
-	"github.com/klauspost/cpuid/v2"
 )
 
 type Path struct {
@@ -30,6 +31,7 @@ type Config struct {
 	Path       *Path
 	Gpu_Group  string
 	Gpu_IDs    []string
+	IsRoot     bool
 }
 
 // Gets the path to all the config files

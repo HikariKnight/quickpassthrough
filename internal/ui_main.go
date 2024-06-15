@@ -14,8 +14,8 @@ import (
 // This is where we build everything
 func Tui() {
 	// Log all errors to a new logfile (super useful feature of BubbleTea!)
-	os.Remove("debug.log")
-	logfile, err := tea.LogToFile("debug.log", "")
+	_ = os.Rename("quickpassthrough_debug.log", "quickpassthrough_debug_old.log")
+	logfile, err := tea.LogToFile("quickpassthrough_debug.log", "")
 	errorcheck.ErrorCheck(err, "Error creating log file")
 	defer logfile.Close()
 

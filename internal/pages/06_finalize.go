@@ -5,9 +5,13 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/exec"
 	"os/user"
 	"strings"
 	"syscall"
+
+	"github.com/gookit/color"
+	"golang.org/x/term"
 
 	"github.com/HikariKnight/quickpassthrough/internal/configs"
 	"github.com/HikariKnight/quickpassthrough/internal/logger"
@@ -15,8 +19,6 @@ import (
 	"github.com/HikariKnight/quickpassthrough/pkg/fileio"
 	"github.com/HikariKnight/quickpassthrough/pkg/menu"
 	"github.com/HikariKnight/quickpassthrough/pkg/uname"
-	"github.com/gookit/color"
-	"golang.org/x/term"
 )
 
 func prepModules(config *configs.Config) {
@@ -48,6 +50,43 @@ func prepModules(config *configs.Config) {
 	finalize(config)
 }
 
+func finalizeNotice(isRoot bool) {
+	color.Print(`
+The configuration files have been generated and are located inside the "config" folder
+
+  * The "kernel_args" file contains kernel arguments that your bootloader needs
+  * The "qemu" folder contains files that may be needed for passthrough
+  * The files inside the "etc" folder must be copied to your system.
+
+	<red>Verify that these files are correctly formated/edited!</>
+
+Once all files have been copied, the following steps must be taken:
+
+  * bootloader configuration must be updated
+  * initramfs must be rebuilt
+
+`)
+	switch isRoot {
+	case true:
+		color.Print("This program can do this for you, if desired.\n")
+	default:
+		color.Print(`This program can do this for you, however your sudo password is required.
+To avoid this:
+
+  * press CTRL+C and perform the steps mentioned above manually.
+       OR
+  * run ` + os.Args[0] + ` as root.
+
+`)
+	}
+
+	color.Print(`
+If you want to go back and change something, choose Back.
+
+NOTE: A backup of the original files from the first run can be found in the backup folder
+`)
+}
+
 func finalize(config *configs.Config) {
 	// Clear the screen
 	command.Clear()
@@ -56,60 +95,45 @@ func finalize(config *configs.Config) {
 	title := color.New(color.BgHiBlue, color.White, color.Bold)
 	title.Println("Finalizing configuration")
 
-	color.Print(
-		"The configuration files have been generated and are\n",
-		"located inside the \"config\" folder\n",
-		"\n",
-		"* The \"kernel_args\" file contains kernel arguments that your bootloader needs\n",
-		"* The \"qemu\" folder contains files that might be\n  neccessary for passing through the GPU\n",
-		"* The files inside the \"etc\" folder must be copied to your system.\n",
-		"  NOTE: Verify that these files are correctly formated/edited!\n",
-		"* Once all files have been copied, you need to update your bootloader and rebuild\n",
-		"  your initramfs using the tools to do so by your system.\n",
-		"\n",
-		"This program can do this for you, however the program will have to\n",
-		"type your password to sudo using STDIN, to avoid using STDIN press CTRL+C\n",
-		"and copy the files, update your bootloader and rebuild your initramfs manually.\n",
-		"If you want to go back and change something, choose Back\n",
-		"\nNOTE: A backup of the original files from the first run can be found in the backup folder\n",
-	)
+	isRoot := os.Getuid() == 0
 
-	// Make a choice of going next or back
-	choice := menu.Next("Press Next to continue with sudo using STDIN, ESC to exit or Back to go back.")
+	config.IsRoot = isRoot
 
-	// Parse the choice
-	switch choice {
+	finalizeNotice(isRoot)
+
+	// Make a choice of going next or back and parse the choice
+	switch menu.Next("Press Next to continue with sudo using STDIN, ESC to exit or Back to go back.") {
 	case "next":
 		installPassthrough(config)
-
 	case "back":
 		// Go back
 		disableVideo(config)
 	}
-
 }
 
 func installPassthrough(config *configs.Config) {
 	// Get the user data
-	user, err := user.Current()
+	currentUser, err := user.Current()
 	if err != nil {
 		log.Fatalf(err.Error())
 	}
 
-	// Provide a password prompt
-	fmt.Printf("[sudo] password for %s: ", user.Username)
-	bytep, err := term.ReadPassword(int(syscall.Stdin))
-	if err != nil {
-		os.Exit(1)
-	}
-	fmt.Print("\n")
+	if !config.IsRoot {
+		// Provide a password prompt
+		fmt.Printf("[sudo] password for %s: ", currentUser.Username)
+		bytep, err := term.ReadPassword(syscall.Stdin)
+		if err != nil {
+			os.Exit(1)
+		}
+		fmt.Print("\n")
 
-	// Elevate with sudo
-	command.Elevate(
-		base64.StdEncoding.EncodeToString(
-			bytep,
-		),
-	)
+		// Elevate with sudo
+		command.Elevate(
+			base64.StdEncoding.EncodeToString(
+				bytep,
+			),
+		)
+	}
 
 	// Make an output string
 	var output string
@@ -151,10 +175,29 @@ func installPassthrough(config *configs.Config) {
 		fmt.Printf("%s\n", output)
 	}
 
+	execAndLogSudo := func(cmd string) {
+		if !config.IsRoot && !strings.HasPrefix(cmd, "sudo") {
+			cmd = fmt.Sprintf("sudo %s", cmd)
+		}
+		// Write to logger
+		logger.Printf("Executing: %s\n", cmd)
+
+		// Update initramfs
+		fmt.Printf("Executing: %s\nSee debug.log for detailed output\n", cmd)
+		cs := strings.Fields(cmd)
+		r := exec.Command(cs[0], cs[1:]...)
+
+		cmd_out, _ := r.CombinedOutput()
+
+		// Write to logger
+		logger.Printf(string(cmd_out) + "\n")
+	}
+
 	// Copy the config files for the system we have
 	initramfsFile := fmt.Sprintf("%s/modules", config.Path.INITRAMFS)
 	dracutFile := fmt.Sprintf("%s/vfio.conf", config.Path.DRACUT)
-	if fileio.FileExist(initramfsFile) {
+	switch {
+	case fileio.FileExist(initramfsFile):
 		// Copy initramfs-tools module to system
 		output = configs.CopyToSystem(initramfsFile, "/etc/initramfs-tools/modules")
 		fmt.Printf("%s\n", output)
@@ -163,18 +206,9 @@ func installPassthrough(config *configs.Config) {
 		output = configs.CopyToSystem(config.Path.ETCMODULES, "/etc/modules")
 		fmt.Printf("%s\n", output)
 
-		// Write to logger
-		logger.Printf("Executing: sudo update-initramfs -u\n")
+		execAndLogSudo("update-initramfs -u")
 
-		// Update initramfs
-		fmt.Println("Executed: sudo update-initramfs -u\nSee debug.log for detailed output")
-		cmd_out, cmd_err, _ := command.RunErr("sudo", "update-initramfs", "-u")
-
-		cmd_out = append(cmd_out, cmd_err...)
-
-		// Write to logger
-		logger.Printf(strings.Join(cmd_out, "\n"))
-	} else if fileio.FileExist(dracutFile) {
+	case fileio.FileExist(dracutFile):
 		// Copy dracut config to /etc/dracut.conf.d/vfio
 		output = configs.CopyToSystem(dracutFile, "/etc/dracut.conf.d/vfio")
 		fmt.Printf("%s\n", output)
@@ -182,31 +216,15 @@ func installPassthrough(config *configs.Config) {
 		// Get systeminfo
 		sysinfo := uname.New()
 
-		// Write to logger
-		logger.Printf("Executing: sudo dracut -f -v --kver %s\n", sysinfo.Release)
+		execAndLogSudo(fmt.Sprintf("dracut -f -v --kver %s\n", sysinfo.Release))
 
-		// Update initramfs
-		fmt.Printf("Executed: sudo dracut -f -v --kver %s\nSee debug.log for detailed output", sysinfo.Release)
-		_, cmd_err, _ := command.RunErr("sudo", "dracut", "-f", "-v", "--kver", sysinfo.Release)
-
-		// Write to logger
-		logger.Printf(strings.Join(cmd_err, "\n"))
-	} else if fileio.FileExist(config.Path.MKINITCPIO) {
+	case fileio.FileExist(config.Path.MKINITCPIO):
 		// Copy dracut config to /etc/dracut.conf.d/vfio
 		output = configs.CopyToSystem(config.Path.MKINITCPIO, "/etc/mkinitcpio.conf")
 		fmt.Printf("%s\n", output)
 
-		// Write to logger
-		logger.Printf("Executing: sudo mkinitcpio -P")
+		execAndLogSudo("mkinitcpio -P")
 
-		// Update initramfs
-		fmt.Println("Executed: sudo mkinitcpio -P\nSee debug.log for detailed output")
-		cmd_out, cmd_err, _ := command.RunErr("sudo", "mkinitcpio", "-P")
-
-		cmd_out = append(cmd_out, cmd_err...)
-
-		// Write to logger
-		logger.Printf(strings.Join(cmd_out, "\n"))
 	}
 
 	// Make sure prompt end up on next line

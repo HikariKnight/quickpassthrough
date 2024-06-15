@@ -5,12 +5,13 @@ import (
 	"os"
 
 	"github.com/HikariKnight/ls-iommu/pkg/errorcheck"
+	"github.com/gookit/color"
+
 	"github.com/HikariKnight/quickpassthrough/internal/configs"
-	lsiommu "github.com/HikariKnight/quickpassthrough/internal/lsiommu"
+	"github.com/HikariKnight/quickpassthrough/internal/lsiommu"
 	"github.com/HikariKnight/quickpassthrough/pkg/command"
 	"github.com/HikariKnight/quickpassthrough/pkg/fileio"
 	"github.com/HikariKnight/quickpassthrough/pkg/menu"
-	"github.com/gookit/color"
 )
 
 func SelectGPU(config *configs.Config) {

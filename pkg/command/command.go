@@ -34,7 +34,7 @@ func Run(binary string, args ...string) ([]string, error) {
 	return outputs, err
 }
 
-// This function is just like command.Run() but also returns STDERR
+// RunErr is just like command.Run() but also returns STDERR
 func RunErr(binary string, args ...string) ([]string, []string, error) {
 	var stdout, stderr bytes.Buffer
 
@@ -59,8 +59,8 @@ func RunErr(binary string, args ...string) ([]string, []string, error) {
 	return outputs, outerrs, err
 }
 
-// This functions runs the command "sudo -Sk -- echo", this forces sudo
-// to re-authenticate and lets us enter the password to STDIN
+// Elevate elevates this functions runs the command "sudo -Sk -- echo",
+// this forces sudo to re-authenticate and lets us enter the password to STDIN
 // giving us the ability to run sudo commands
 func Elevate(password string) {
 	// Do a simple sudo command to just authenticate with sudo

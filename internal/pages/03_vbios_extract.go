@@ -30,17 +30,28 @@ func genVBIOS_dumper(config *configs.Config) {
 	vbios_path := lsiommu.GetIOMMU("-g", "-i", config.Gpu_Group, "--rom")[0]
 	configs.GenerateVBIOSDumper(vbios_path)
 
+	// Make the qemu config folder
+	os.Mkdir(fmt.Sprintf("%s/%s", scriptdir, config.Path.QEMU), os.ModePerm)
+
+	// Generate a dummy rom (1MB rom of zeroes) for use with AMD RX 7000 series cards by recommendation from Gnif
+	// Source: https://forum.level1techs.com/t/the-state-of-amd-rx-7000-series-vfio-passthrough-april-2024/210242
+	command.Run("dd", "if=/dev/zero", fmt.Sprintf("of=%s/%s/dummy.rom", scriptdir, config.Path.QEMU), "bs=1M", "count=1")
+
 	// Write a title
 	title := color.New(color.BgHiBlue, color.White, color.Bold)
-	title.Println("Generated \"dump VBIOS\" script")
+	title.Println("VBIOS roms for Passthrough")
 
-	// Tell users about the VBIOS dumper script
+	// Tell users about the VBIOS dumper script and dummy rom for RX 7000 series cards
 	fmt.Print(
-		"For some GPUs, you will need to dump the VBIOS and pass the\n",
+		"If you have an RX 7000 series (and possibly newer AMD cards) GPUs, please use the dummy.rom file\n",
+		fmt.Sprintf("%s/%s/dummy.rom\n", scriptdir, config.Path.QEMU),
+		"Or disable ROM BAR for the card in qemu/libvirt\n",
+		"\n",
+		"For some other GPUs, you will need to instead dump the VBIOS (and possibly patch it) and pass the\n",
 		"rom to the VM along with the card in order to get a functional passthrough.\n",
 		"In many cases you can find your vbios at https://www.techpowerup.com/vgabios/\n",
 		"\n",
-		"You can also attempt to dump your own vbios using the script in\n",
+		"You can also attempt to dump your own vbios from TTY using the script in\n",
 		fmt.Sprintf("%s/utils/dump_vbios.sh\n", scriptdir),
 		"\n",
 	)

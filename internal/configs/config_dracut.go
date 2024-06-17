@@ -9,7 +9,7 @@ import (
 	"github.com/HikariKnight/quickpassthrough/pkg/fileio"
 )
 
-// This function writes a dracut configuration file for /etc/dracut.conf.d/
+// Set_Dracut writes a dracut configuration file for `/etc/dracut.conf.d/`.
 func Set_Dracut() {
 	config := GetConfig()
 
@@ -17,8 +17,8 @@ func Set_Dracut() {
 	dracutConf := fmt.Sprintf("%s/vfio.conf", config.Path.DRACUT)
 
 	// If the file already exists then delete it
-	if fileio.FileExist(dracutConf) {
-		os.Remove(dracutConf)
+	if exists, _ := fileio.FileExist(dracutConf); exists {
+		_ = os.Remove(dracutConf)
 	}
 
 	// Write to logger

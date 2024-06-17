@@ -95,7 +95,7 @@ func viewGPU(config *configs.Config, ext ...int) {
 		config.Gpu_IDs = lsiommu.GetIOMMU("-g", mode, "-i", config.Gpu_Group, "--id")
 
 		// If the kernel_args file already exists
-		if fileio.FileExist(config.Path.CMDLINE) {
+		if exists, _ := fileio.FileExist(config.Path.CMDLINE); exists {
 			// Delete it as we will have to make a new one anyway
 			err := os.Remove(config.Path.CMDLINE)
 			errorcheck.ErrorCheck(err, fmt.Sprintf("Could not remove %s", config.Path.CMDLINE))
@@ -115,7 +115,7 @@ func viewGPU(config *configs.Config, ext ...int) {
 		)
 
 		// If the kernel_args file already exists
-		if fileio.FileExist(config.Path.CMDLINE) {
+		if exists, _ := fileio.FileExist(config.Path.CMDLINE); exists {
 			// Delete it as we will have to make a new one anyway
 			err := os.Remove(config.Path.CMDLINE)
 			errorcheck.ErrorCheck(err, fmt.Sprintf("Could not remove %s", config.Path.CMDLINE))

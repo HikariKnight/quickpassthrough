@@ -10,14 +10,14 @@ import (
 	"github.com/HikariKnight/quickpassthrough/pkg/fileio"
 )
 
-// This function copies the content of /etc/mkinitcpio.conf to the config folder and does an inline replace/insert on the MODULES=() line
+// Set_Mkinitcpio copies the content of /etc/mkinitcpio.conf to the config folder and does an inline replace/insert on the MODULES=() line
 func Set_Mkinitcpio() {
 	// Get the config struct
 	config := GetConfig()
 
 	// Make sure we start from scratch by deleting any old file
-	if fileio.FileExist(config.Path.MKINITCPIO) {
-		os.Remove(config.Path.MKINITCPIO)
+	if exists, _ := fileio.FileExist(config.Path.MKINITCPIO); exists {
+		_ = os.Remove(config.Path.MKINITCPIO)
 	}
 
 	// Make a regex to get the system path instead of the config path

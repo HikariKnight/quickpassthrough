@@ -5,9 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"os/exec"
 	"os/user"
-	"strings"
 	"syscall"
 
 	"github.com/gookit/color"
@@ -23,19 +21,19 @@ import (
 
 func prepModules(config *configs.Config) {
 	// If we have files for modprobe
-	if fileio.FileExist(config.Path.MODPROBE) {
+	if exists, _ := fileio.FileExist(config.Path.MODPROBE); exists {
 		// Configure modprobe
 		configs.Set_Modprobe(config.Gpu_IDs)
 	}
 
 	// If we have a folder for dracut
-	if fileio.FileExist(config.Path.DRACUT) {
+	if exists, _ := fileio.FileExist(config.Path.DRACUT); exists {
 		// Configure dracut
 		configs.Set_Dracut()
 	}
 
 	// If we have a mkinitcpio.conf file
-	if fileio.FileExist(config.Path.MKINITCPIO) {
+	if exists, _ := fileio.FileExist(config.Path.MKINITCPIO); exists {
 		configs.Set_Mkinitcpio()
 	}
 
@@ -95,11 +93,9 @@ func finalize(config *configs.Config) {
 	title := color.New(color.BgHiBlue, color.White, color.Bold)
 	title.Println("Finalizing configuration")
 
-	isRoot := os.Getuid() == 0
+	config.IsRoot = os.Getuid() == 0
 
-	config.IsRoot = isRoot
-
-	finalizeNotice(isRoot)
+	finalizeNotice(config.IsRoot)
 
 	// Make a choice of going next or back and parse the choice
 	switch menu.Next("Press Next to continue with sudo using STDIN, ESC to exit or Back to go back.") {
@@ -144,22 +140,24 @@ func installPassthrough(config *configs.Config) {
 		logger.Printf("Configuring systemd-boot using kernelstub\n")
 
 		// Configure kernelstub
-		output = configs.Set_KernelStub()
-		fmt.Printf("%s\n", output)
+		// callee logs the output and checks for errors
+		configs.Set_KernelStub(config.IsRoot)
 
 	} else if config.Bootloader == "grubby" {
 		// Write to logger
 		logger.Printf("Configuring bootloader using grubby\n")
 
 		// Configure kernelstub
-		output = configs.Set_Grubby()
+		output = configs.Set_Grubby(config.IsRoot)
 		fmt.Printf("%s\n", output)
 
 	} else if config.Bootloader == "grub2" {
 		// Write to logger
 		logger.Printf("Applying grub2 changes\n")
-		grub_output, _ := configs.Set_Grub2()
-		fmt.Printf("%s\n", strings.Join(grub_output, "\n"))
+		_ = configs.Set_Grub2(config.IsRoot) // note: we set config.IsRoot earlier
+
+		// we'll print the output in the [configs.Set_Grub2] method
+		// fmt.Printf("%s\n", strings.Join(grub_output, "\n"))
 
 	} else {
 		kernel_args := fileio.ReadFile(config.Path.CMDLINE)
@@ -169,62 +167,62 @@ func installPassthrough(config *configs.Config) {
 	// A lot of linux systems support modprobe along with their own module system
 	// So copy the modprobe files if we have them
 	modprobeFile := fmt.Sprintf("%s/vfio.conf", config.Path.MODPROBE)
-	if fileio.FileExist(modprobeFile) {
-		// Copy initramfs-tools module to system
-		output = configs.CopyToSystem(modprobeFile, "/etc/modprobe.d/vfio.conf")
-		fmt.Printf("%s\n", output)
-	}
 
-	execAndLogSudo := func(cmd string) {
-		if !config.IsRoot && !strings.HasPrefix(cmd, "sudo") {
-			cmd = fmt.Sprintf("sudo %s", cmd)
-		}
-		// Write to logger
-		logger.Printf("Executing: %s\n", cmd)
+	// lets hope by now we've already handled any permissions issues...
+	// TODO: verify that we actually can drop the errors on [fileio.FileExist] call below
 
-		// Update initramfs
-		fmt.Printf("Executing: %s\nSee debug.log for detailed output\n", cmd)
-		cs := strings.Fields(cmd)
-		r := exec.Command(cs[0], cs[1:]...)
-
-		cmd_out, _ := r.CombinedOutput()
-
-		// Write to logger
-		logger.Printf(string(cmd_out) + "\n")
+	if exists, _ := fileio.FileExist(modprobeFile); exists {
+		// Copy initramfs-tools module to system, note that CopyToSystem will log the command and output
+		// as well as check for errors
+		configs.CopyToSystem(config.IsRoot, modprobeFile, "/etc/modprobe.d/vfio.conf")
 	}
 
 	// Copy the config files for the system we have
 	initramfsFile := fmt.Sprintf("%s/modules", config.Path.INITRAMFS)
 	dracutFile := fmt.Sprintf("%s/vfio.conf", config.Path.DRACUT)
+
+	initramFsExists, initramFsErr := fileio.FileExist(initramfsFile)
+	dracutExists, dracutErr := fileio.FileExist(dracutFile)
+	mkinitcpioExists, mkinitcpioErr := fileio.FileExist(config.Path.MKINITCPIO)
+
+	for _, err = range []error{initramFsErr, dracutErr, mkinitcpioErr} {
+		if err == nil {
+			continue
+		}
+		// we know this error isn't ErrNotExist, so we should throw it and exit
+		log.Fatalf("Failed to stat file: %s", err)
+	}
+
 	switch {
-	case fileio.FileExist(initramfsFile):
+	case initramFsExists:
 		// Copy initramfs-tools module to system
-		output = configs.CopyToSystem(initramfsFile, "/etc/initramfs-tools/modules")
-		fmt.Printf("%s\n", output)
+		configs.CopyToSystem(config.IsRoot, initramfsFile, "/etc/initramfs-tools/modules")
 
 		// Copy the modules file to /etc/modules
-		output = configs.CopyToSystem(config.Path.ETCMODULES, "/etc/modules")
-		fmt.Printf("%s\n", output)
+		configs.CopyToSystem(config.IsRoot, config.Path.ETCMODULES, "/etc/modules")
 
-		execAndLogSudo("update-initramfs -u")
+		if err = command.ExecAndLogSudo(config.IsRoot, true, "update-initramfs -u"); err != nil {
+			log.Fatalf("Failed to update initramfs: %s", err)
+		}
 
-	case fileio.FileExist(dracutFile):
+	case dracutExists:
 		// Copy dracut config to /etc/dracut.conf.d/vfio
-		output = configs.CopyToSystem(dracutFile, "/etc/dracut.conf.d/vfio")
-		fmt.Printf("%s\n", output)
+		configs.CopyToSystem(config.IsRoot, dracutFile, "/etc/dracut.conf.d/vfio")
 
 		// Get systeminfo
 		sysinfo := uname.New()
 
-		execAndLogSudo(fmt.Sprintf("dracut -f -v --kver %s\n", sysinfo.Release))
+		if err = command.ExecAndLogSudo(config.IsRoot, true, "dracut -f -v --kver "+sysinfo.Release); err != nil {
+			log.Fatalf("Failed to update initramfs: %s", err)
+		}
 
-	case fileio.FileExist(config.Path.MKINITCPIO):
+	case mkinitcpioExists:
 		// Copy dracut config to /etc/dracut.conf.d/vfio
-		output = configs.CopyToSystem(config.Path.MKINITCPIO, "/etc/mkinitcpio.conf")
-		fmt.Printf("%s\n", output)
+		configs.CopyToSystem(config.IsRoot, config.Path.MKINITCPIO, "/etc/mkinitcpio.conf")
 
-		execAndLogSudo("mkinitcpio -P")
-
+		if err = command.ExecAndLogSudo(config.IsRoot, true, "mkinitcpio -P"); err != nil {
+			log.Fatalf("Failed to update initramfs: %s", err)
+		}
 	}
 
 	// Make sure prompt end up on next line

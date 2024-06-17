@@ -1,16 +1,19 @@
 package configs
 
 import (
+	"errors"
 	"fmt"
 	"os"
+	"os/exec"
 	"regexp"
 	"strings"
 
 	"github.com/HikariKnight/ls-iommu/pkg/errorcheck"
+	"github.com/klauspost/cpuid/v2"
+
 	"github.com/HikariKnight/quickpassthrough/internal/logger"
 	"github.com/HikariKnight/quickpassthrough/pkg/command"
 	"github.com/HikariKnight/quickpassthrough/pkg/fileio"
-	"github.com/klauspost/cpuid/v2"
 )
 
 // This function just adds what bootloader the system has to our config.bootloader value
@@ -70,38 +73,32 @@ func Set_Cmdline(gpu_IDs []string) {
 	fileio.AppendContent(fmt.Sprintf(" vfio_pci.ids=%s", strings.Join(gpu_IDs, ",")), config.Path.CMDLINE)
 }
 
-// Configures systemd-boot using kernelstub
-func Set_KernelStub() string {
+// Set_KernelStub configures systemd-boot using kernelstub.
+func Set_KernelStub(isRoot bool) {
 	// Get the config
 	config := GetConfig()
 
 	// Get the kernel args
 	kernel_args := fileio.ReadFile(config.Path.CMDLINE)
 
-	// Write to logger
-	logger.Printf("Running command:\nsudo kernelstub -a \"%s\"\n", kernel_args)
-
-	// Run the command
-	_, err := command.Run("sudo", "kernelstub", "-a", kernel_args)
-	errorcheck.ErrorCheck(err, "Error, kernelstub command returned exit code 1")
-
-	// Return what we did
-	return fmt.Sprintf("Executed: sudo kernelstub -a \"%s\"", kernel_args)
+	// Run and log, check for errors
+	errorcheck.ErrorCheck(command.ExecAndLogSudo(isRoot, true,
+		"kernelstub -a "+kernel_args,
+	),
+		"Error, kernelstub command returned exit code 1",
+	)
 }
 
-// Configures grub2 and/or systemd-boot using grubby
-func Set_Grubby() string {
+// Set_Grubby configures grub2 and/or systemd-boot using grubby
+func Set_Grubby(isRoot bool) string {
 	// Get the config
 	config := GetConfig()
 
 	// Get the kernel args
 	kernel_args := fileio.ReadFile(config.Path.CMDLINE)
 
-	// Write to logger
-	logger.Printf("Running command:\nsudo grubby --update-kernel=ALL --args=\"%s\"\n", kernel_args)
-
-	// Run the command
-	_, err := command.Run("sudo", "grubby", "--update-kernel=ALL", fmt.Sprintf("--args=%s", kernel_args))
+	// Run and log, check for errors
+	err := command.ExecAndLogSudo(isRoot, true, "grubby --update-kernel=ALL "+fmt.Sprintf("--args=%s", kernel_args))
 	errorcheck.ErrorCheck(err, "Error, grubby command returned exit code 1")
 
 	// Return what we did
@@ -116,8 +113,8 @@ func Configure_Grub2() {
 	conffile := fmt.Sprintf("%s/grub", config.Path.DEFAULT)
 
 	// Make sure we start from scratch by deleting any old file
-	if fileio.FileExist(conffile) {
-		os.Remove(conffile)
+	if exists, _ := fileio.FileExist(conffile); exists {
+		_ = os.Remove(conffile)
 	}
 
 	// Make a regex to get the system path instead of the config path
@@ -201,8 +198,8 @@ func clean_Grub2_Args(old_kernel_args []string) []string {
 	return clean_kernel_args
 }
 
-// This function copies our config to /etc/default/grub and updates grub
-func Set_Grub2() ([]string, error) {
+// Set_Grub2 copies our config to /etc/default/grub and updates grub
+func Set_Grub2(isRoot bool) error {
 	// Get the config
 	config := GetConfig()
 
@@ -213,38 +210,45 @@ func Set_Grub2() ([]string, error) {
 	sysfile_re := regexp.MustCompile(`^config`)
 	sysfile := sysfile_re.ReplaceAllString(conffile, "")
 
-	// Write to logger
-	logger.Printf("Executing command:\nsudo cp -v \"%s\" %s\n", conffile, sysfile)
+	// [CopyToSystem] will log the operation
+	// logger.Printf("Executing command:\nsudo cp -v \"%s\" %s\n", conffile, sysfile)
 
-	// Make our output slice
-	var output []string
-
-	// Copy files to system
-	output = append(output, CopyToSystem(conffile, sysfile))
+	// Copy files to system, logging and error checking is done in the function
+	CopyToSystem(isRoot, conffile, sysfile)
 
 	// Set a variable for the mkconfig command
-	mkconfig := "grub-mkconfig"
+	var mkconfig string
+	var grubPath = "/boot/grub/grub.cfg"
+	var lpErr error
+
 	// Check for grub-mkconfig
-	_, err := command.Run("which", "grub-mkconfig")
-	if err == nil {
-		// Set binary as grub-mkconfig
-		mkconfig = "grub-mkconfig"
-	} else {
-		mkconfig = "grub2-mkconfig"
+	mkconfig, lpErr = exec.LookPath("grub-mkconfig")
+	switch {
+	case errors.Is(lpErr, exec.ErrNotFound) || mkconfig == "":
+		// Check for grub2-mkconfig
+		mkconfig, lpErr = exec.LookPath("grub2-mkconfig")
+		if lpErr == nil && mkconfig != "" {
+			grubPath = "/boot/grub2/grub.cfg"
+			break // skip below, we found grub2-mkconfig
+		}
+		if lpErr == nil {
+			// we know mkconfig is empty despite no error;
+			// so set an error for [errorcheck.ErrorCheck].
+			lpErr = errors.New("neither grub-mkconfig or grub2-mkconfig found")
+		}
+		errorcheck.ErrorCheck(lpErr, lpErr.Error()+"\n")
+		return lpErr // note: unreachable as [errorcheck.ErrorCheck] calls fatal
+	default:
 	}
 
-	// Update grub.cfg
-	if fileio.FileExist("/boot/grub/grub.cfg") {
-		output = append(output, fmt.Sprintf("Executed: sudo %s -o /boot/grub/grub.cfg\nSee debug.log for more detailed output", mkconfig))
-		_, mklog, err := command.RunErr("sudo", mkconfig, "-o", "/boot/grub/grub.cfg")
-		logger.Printf(strings.Join(mklog, "\n"))
-		errorcheck.ErrorCheck(err, "Failed to update /boot/grub/grub.cfg")
-	} else {
-		output = append(output, fmt.Sprintf("Executed: sudo %s -o /boot/grub/grub.cfg\nSee debug.log for more detailed output", mkconfig))
-		_, mklog, err := command.RunErr("sudo", mkconfig, "-o", "/boot/grub2/grub.cfg")
-		logger.Printf(strings.Join(mklog, "\n"))
-		errorcheck.ErrorCheck(err, "Failed to update /boot/grub/grub.cfg")
-	}
+	_, mklog, err := command.RunErrSudo(isRoot, mkconfig, "-o", grubPath)
 
-	return output, err
+	// tabulate the output, [command.RunErrSudo] logged the execution.
+	logger.Printf("\t" + strings.Join(mklog, "\n\t"))
+	errorcheck.ErrorCheck(err, "Failed to update /boot/grub/grub.cfg")
+
+	// always returns nil as [errorcheck.ErrorCheck] calls fatal
+	// keeping the ret signature, as we should consider passing down errors
+	// but that's a massive rabbit hole to go down for this codebase as a whole
+	return err
 }

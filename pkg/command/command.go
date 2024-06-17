@@ -3,12 +3,16 @@ package command
 import (
 	"bytes"
 	"encoding/base64"
+	"fmt"
 	"io"
 	"os"
 	"os/exec"
+	"strings"
 	"time"
 
 	"github.com/HikariKnight/ls-iommu/pkg/errorcheck"
+
+	"github.com/HikariKnight/quickpassthrough/internal/logger"
 )
 
 // Run a command and return STDOUT
@@ -27,7 +31,7 @@ func Run(binary string, args ...string) ([]string, error) {
 	output, _ := io.ReadAll(&stdout)
 
 	// Get the output
-	outputs := []string{}
+	outputs := make([]string, 0, 1)
 	outputs = append(outputs, string(output))
 
 	// Return our list of items
@@ -59,6 +63,16 @@ func RunErr(binary string, args ...string) ([]string, []string, error) {
 	return outputs, outerrs, err
 }
 
+func RunErrSudo(isRoot bool, binary string, args ...string) ([]string, []string, error) {
+	if isRoot && binary != "sudo" {
+		args = append([]string{binary}, args...)
+		binary = "sudo"
+	}
+	logger.Printf("Executing (elevated): %s %s\n", binary, strings.Join(args, " "))
+	fmt.Printf("Executing (elevated): %s %s\n", binary, strings.Join(args, " "))
+	return RunErr(binary, args...)
+}
+
 // Elevate elevates this functions runs the command "sudo -Sk -- echo",
 // this forces sudo to re-authenticate and lets us enter the password to STDIN
 // giving us the ability to run sudo commands
@@ -74,7 +88,8 @@ func Elevate(password string) {
 	errorcheck.ErrorCheck(err, "\nFailed to get sudo STDIN")
 
 	// Start the authentication
-	cmd.Start()
+	err = cmd.Start()
+	errorcheck.ErrorCheck(err, "\nFailed to start sudo command")
 
 	// Get the passed password
 	pw, _ := base64.StdEncoding.DecodeString(password)
@@ -84,16 +99,55 @@ func Elevate(password string) {
 	pw = nil
 	password = ""
 
-	stdin.Close()
+	_ = stdin.Close()
 
 	// Wait for the sudo prompt (If the correct password was given, it will not stay behind)
 	err = cmd.Wait()
 	errorcheck.ErrorCheck(err, "\nError, password given was wrong")
 }
 
-// Function to just clear the terminal
+// Clear clears the terminal.
 func Clear() {
 	c := exec.Command("clear")
 	c.Stdout = os.Stdout
-	c.Run()
+	_ = c.Run()
+}
+
+// ExecAndLogSudo executes an elevated command and logs the output.
+//
+// * if we're root, the command is executed directly
+// * if we're not root, the command is prefixed with "sudo"
+//
+//   - noisy determines if we should print the command to the user
+//     noisy isn't set to true by our copy caller, as it logs differently,
+//     but other callers set it.
+func ExecAndLogSudo(isRoot, noisy bool, cmd string) error {
+	if isRoot && !strings.HasPrefix(cmd, "sudo") {
+		cmd = fmt.Sprintf("sudo %s", cmd)
+	}
+
+	// Write to logger
+	logger.Printf("Executing (elevated): %s\n", cmd)
+
+	if noisy {
+		// Print to the user
+		fmt.Printf("Executing (elevated): %s\nSee debug.log for detailed output\n", cmd)
+	}
+
+	cs := strings.Fields(cmd)
+	r := exec.Command(cs[0], cs[1:]...)
+
+	cmdCombinedOut, err := r.CombinedOutput()
+	outStr := string(cmdCombinedOut)
+
+	// Write to logger, tabulate output
+	// tabulation denotes it's hierarchy as a child of the command
+	outStr = strings.ReplaceAll(outStr, "\n", "\n\t")
+	logger.Printf("\t" + string(cmdCombinedOut) + "\n")
+	if noisy {
+		// Print to the user
+		fmt.Printf("%s\n", outStr)
+	}
+
+	return err
 }

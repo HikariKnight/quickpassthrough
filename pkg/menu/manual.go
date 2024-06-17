@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/HikariKnight/ls-iommu/pkg/errorcheck"
 	"github.com/gookit/color"
+
+	"github.com/HikariKnight/quickpassthrough/internal/common"
 )
 
 func ManualInput(msg string, format string) []string {
@@ -18,7 +19,7 @@ func ManualInput(msg string, format string) []string {
 	// Get the user input
 	var input string
 	_, err := fmt.Scan(&input)
-	errorcheck.ErrorCheck(err)
+	common.ErrorCheck(err)
 
 	input_list := strings.Split(input, ",")
 

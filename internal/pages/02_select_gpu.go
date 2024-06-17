@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/HikariKnight/ls-iommu/pkg/errorcheck"
 	"github.com/gookit/color"
 
+	"github.com/HikariKnight/quickpassthrough/internal/common"
 	"github.com/HikariKnight/quickpassthrough/internal/configs"
 	"github.com/HikariKnight/quickpassthrough/internal/lsiommu"
 	"github.com/HikariKnight/quickpassthrough/pkg/command"
@@ -98,7 +98,7 @@ func viewGPU(config *configs.Config, ext ...int) {
 		if exists, _ := fileio.FileExist(config.Path.CMDLINE); exists {
 			// Delete it as we will have to make a new one anyway
 			err := os.Remove(config.Path.CMDLINE)
-			errorcheck.ErrorCheck(err, fmt.Sprintf("Could not remove %s", config.Path.CMDLINE))
+			common.ErrorCheck(err, fmt.Sprintf("Could not remove %s", config.Path.CMDLINE))
 		}
 
 		// Write initial kernel_arg file
@@ -118,7 +118,7 @@ func viewGPU(config *configs.Config, ext ...int) {
 		if exists, _ := fileio.FileExist(config.Path.CMDLINE); exists {
 			// Delete it as we will have to make a new one anyway
 			err := os.Remove(config.Path.CMDLINE)
-			errorcheck.ErrorCheck(err, fmt.Sprintf("Could not remove %s", config.Path.CMDLINE))
+			common.ErrorCheck(err, fmt.Sprintf("Could not remove %s", config.Path.CMDLINE))
 		}
 
 		// Write initial kernel_arg file

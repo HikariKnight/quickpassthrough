@@ -6,7 +6,6 @@ import (
 	"os"
 	"regexp"
 
-	"github.com/HikariKnight/ls-iommu/pkg/errorcheck"
 	"github.com/klauspost/cpuid/v2"
 
 	"github.com/HikariKnight/quickpassthrough/internal/common"
@@ -83,21 +82,21 @@ func InitConfigs() {
 	// Remove old config
 	if err := os.RemoveAll("config"); err != nil && !errors.Is(err, os.ErrNotExist) {
 		if errors.Is(err, os.ErrPermission) {
-			errorcheck.ErrorCheck(err, common.PermissionNotice)
+			common.ErrorCheck(err, common.PermissionNotice)
 			return // note: unreachable due to ErrorCheck calling fatal
 		}
 		// won't be called if the error is ErrNotExist
-		errorcheck.ErrorCheck(err, "\nError removing old config")
+		common.ErrorCheck(err, "\nError removing old config")
 	}
 
 	// Make the config folder
 	if err := os.Mkdir("config", os.ModePerm); err != nil && !errors.Is(err, os.ErrExist) {
 		if errors.Is(err, os.ErrPermission) {
-			errorcheck.ErrorCheck(err, common.PermissionNotice)
+			common.ErrorCheck(err, common.PermissionNotice)
 			return // note: unreachable due to ErrorCheck calling fatal
 		}
 		// won't be called if the error is ErrExist
-		errorcheck.ErrorCheck(err, "\nError making config folder")
+		common.ErrorCheck(err, "\nError making config folder")
 	}
 
 	// Make a regex to get the system path instead of the config path
@@ -113,10 +112,10 @@ func InitConfigs() {
 		// If we received an error that is not ErrNotExist
 		if err != nil {
 			if errors.Is(err, os.ErrPermission) {
-				errorcheck.ErrorCheck(err, common.PermissionNotice)
+				common.ErrorCheck(err, common.PermissionNotice)
 				return // note: unreachable due to ErrorCheck calling fatal
 			}
-			errorcheck.ErrorCheck(err, "\nError checking for directory: "+syspath)
+			common.ErrorCheck(err, "\nError checking for directory: "+syspath)
 			continue // note: also unreachable
 		}
 
@@ -136,10 +135,10 @@ func InitConfigs() {
 			// Create the directories for our configs
 			if err = os.MkdirAll(confpath, os.ModePerm); err != nil && !errors.Is(err, os.ErrExist) {
 				if errors.Is(err, os.ErrPermission) {
-					errorcheck.ErrorCheck(err, common.PermissionNotice)
+					common.ErrorCheck(err, common.PermissionNotice)
 					return // note: unreachable due to ErrorCheck calling fatal
 				}
-				errorcheck.ErrorCheck(err, "\nError making directory: "+confpath)
+				common.ErrorCheck(err, "\nError making directory: "+confpath)
 			}
 		}
 	}
@@ -168,10 +167,10 @@ func InitConfigs() {
 		// If we received an error that is not ErrNotExist
 		if err != nil {
 			if errors.Is(err, os.ErrPermission) {
-				errorcheck.ErrorCheck(err, common.PermissionNotice)
+				common.ErrorCheck(err, common.PermissionNotice)
 				return // note: unreachable due to ErrorCheck calling fatal
 			}
-			errorcheck.ErrorCheck(err, "\nError checking for file: "+sysfile)
+			common.ErrorCheck(err, "\nError checking for file: "+sysfile)
 			continue // note: also unreachable
 		}
 
@@ -186,7 +185,7 @@ func InitConfigs() {
 
 			// Create the directories for our configs
 			file, err := os.Create(conffile)
-			errorcheck.ErrorCheck(err)
+			common.ErrorCheck(err)
 			// Close the file so we can edit it
 			_ = file.Close()
 
@@ -197,10 +196,10 @@ func InitConfigs() {
 		exists, err = fileio.FileExist(conffile)
 		if err != nil {
 			if errors.Is(err, os.ErrPermission) {
-				errorcheck.ErrorCheck(err, common.PermissionNotice)
+				common.ErrorCheck(err, common.PermissionNotice)
 				return // note: unreachable due to ErrorCheck calling fatal
 			}
-			errorcheck.ErrorCheck(err, "\nError checking for file: "+conffile)
+			common.ErrorCheck(err, "\nError checking for file: "+conffile)
 			continue // note: also unreachable
 		}
 
@@ -269,10 +268,10 @@ func backupFile(source string) {
 	for _, err := range []error{configFileError, sysFileError, destFileError} {
 		if err != nil {
 			if errors.Is(configFileError, os.ErrPermission) {
-				errorcheck.ErrorCheck(configFileError, common.PermissionNotice)
+				common.ErrorCheck(configFileError, common.PermissionNotice)
 				return // note: unreachable due to ErrorCheck calling fatal
 			}
-			errorcheck.ErrorCheck(configFileError, "\nError checking for file: "+source)
+			common.ErrorCheck(configFileError, "\nError checking for file: "+source)
 			return // note: also unreachable
 		}
 	}
@@ -282,7 +281,7 @@ func backupFile(source string) {
 	case configExists && !sysExists:
 		// Create the blank file so that a copy of the backup folder to /etc
 		file, err := os.Create(dest)
-		errorcheck.ErrorCheck(err, "Error creating file %s\n", dest)
+		common.ErrorCheck(err, "Error creating file %s\n", dest)
 		_ = file.Close()
 
 		// If a backup of the file does not exist
@@ -302,10 +301,10 @@ func makeBackupDir(dest string) {
 	if err != nil {
 		// If we received an error that is not ErrNotExist
 		if errors.Is(err, os.ErrPermission) {
-			errorcheck.ErrorCheck(err, common.PermissionNotice)
+			common.ErrorCheck(err, common.PermissionNotice)
 			return // note: unreachable due to ErrorCheck calling fatal
 		}
-		errorcheck.ErrorCheck(err, "Error checking for backup/ folder")
+		common.ErrorCheck(err, "Error checking for backup/ folder")
 		return // note: also unreachable
 	}
 
@@ -319,10 +318,10 @@ func makeBackupDir(dest string) {
 		err = nil
 	}
 	if errors.Is(err, os.ErrPermission) {
-		errorcheck.ErrorCheck(err, common.PermissionNotice)
+		common.ErrorCheck(err, common.PermissionNotice)
 		return // note: unreachable due to ErrorCheck calling fatal
 	}
-	errorcheck.ErrorCheck(err, "Error making backup/ folder")
+	common.ErrorCheck(err, "Error making backup/ folder")
 }
 
 // CopyToSystem copies a file to the system.
@@ -334,7 +333,7 @@ func CopyToSystem(isRoot bool, conffile, sysfile string) {
 	fmt.Printf("Copying: %s to %s\n", conffile, sysfile)
 
 	// [command.ExecAndLogSudo] will log the command's output
-	errorcheck.ErrorCheck(command.ExecAndLogSudo(isRoot, false,
+	common.ErrorCheck(command.ExecAndLogSudo(isRoot, false,
 		fmt.Sprintf("cp -v \"%s\" %s", conffile, sysfile),
 	), // if error, log and exit
 		fmt.Sprintf("Failed to copy %s to %s", conffile, sysfile),
@@ -342,7 +341,7 @@ func CopyToSystem(isRoot bool, conffile, sysfile string) {
 
 	// ---------------------------------------------------------------------------------
 	// note that if we failed the error check, the following will not appear in the log!
-	// this is because the [errorcheck.ErrorCheck] function will call [log.Fatalf] and exit
+	// this is because the [common.ErrorCheck] function will call [log.Fatalf] and exit
 	// ---------------------------------------------------------------------------------
 
 	logger.Printf("Copied %s to %s\n", conffile, sysfile)

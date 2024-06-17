@@ -12,9 +12,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/HikariKnight/ls-iommu/pkg/errorcheck"
 	"github.com/cavaliergopher/grab/v3"
 
+	"github.com/HikariKnight/quickpassthrough/internal/common"
 	"github.com/HikariKnight/quickpassthrough/pkg/fileio"
 	"github.com/HikariKnight/quickpassthrough/pkg/untar"
 )
@@ -96,14 +96,14 @@ type Response struct {
 func CheckLsIOMMU() {
 	// Check the API for releases
 	resp, err := http.Get("https://api.github.com/repos/hikariknight/ls-iommu/releases/latest")
-	errorcheck.ErrorCheck(err)
+	common.ErrorCheck(err)
 
 	// Close the response when function ends
 	defer resp.Body.Close()
 
 	// Get the response body
 	body, err := io.ReadAll(resp.Body)
-	errorcheck.ErrorCheck(err)
+	common.ErrorCheck(err)
 
 	var result Response
 	if err := json.Unmarshal(body, &result); err != nil {
@@ -114,7 +114,7 @@ func CheckLsIOMMU() {
 	path := "utils"
 	if exists, _ := fileio.FileExist(path); !exists {
 		err := os.Mkdir(path, os.ModePerm)
-		errorcheck.ErrorCheck(err)
+		common.ErrorCheck(err)
 	}
 
 	// Generate the download url
@@ -134,30 +134,30 @@ func CheckLsIOMMU() {
 
 	// Get the checksum data
 	checksums, err := http.Get(checkSumsUrl)
-	errorcheck.ErrorCheck(err)
+	common.ErrorCheck(err)
 	defer checksums.Body.Close()
 	checksums_txt, err := io.ReadAll(checksums.Body)
-	errorcheck.ErrorCheck(err)
+	common.ErrorCheck(err)
 
 	// Check if the tar.gz exists
 	if exists, _ := fileio.FileExist(fileName); !exists {
 		downloadNewVersion(path, fileName, downloadUrl)
 		if checkSum(string(checksums_txt), fileName) {
 			err = untar.Untar(fmt.Sprintf("%s/", path), fileName)
-			errorcheck.ErrorCheck(err)
+			common.ErrorCheck(err)
 		}
 	} else {
 		if !checkSum(string(checksums_txt), fileName) {
 			downloadNewVersion(path, fileName, downloadUrl)
 			err = untar.Untar(fmt.Sprintf("%s/", path), fileName)
-			errorcheck.ErrorCheck(err)
+			common.ErrorCheck(err)
 		}
 	}
 }
 
 func checkSum(checksums string, fileName string) bool {
 	r, err := os.Open(fileName)
-	errorcheck.ErrorCheck(err)
+	common.ErrorCheck(err)
 	defer r.Close()
 
 	hasher := sha256.New()

@@ -10,8 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/HikariKnight/ls-iommu/pkg/errorcheck"
-
+	"github.com/HikariKnight/quickpassthrough/internal/common"
 	"github.com/HikariKnight/quickpassthrough/internal/logger"
 )
 
@@ -85,16 +84,16 @@ func Elevate(password string) {
 
 	// Open STDIN
 	stdin, err := cmd.StdinPipe()
-	errorcheck.ErrorCheck(err, "\nFailed to get sudo STDIN")
+	common.ErrorCheck(err, "\nFailed to get sudo STDIN")
 
 	// Start the authentication
 	err = cmd.Start()
-	errorcheck.ErrorCheck(err, "\nFailed to start sudo command")
+	common.ErrorCheck(err, "\nFailed to start sudo command")
 
 	// Get the passed password
 	pw, _ := base64.StdEncoding.DecodeString(password)
 	_, err = stdin.Write([]byte(string(pw) + "\n"))
-	errorcheck.ErrorCheck(err, "\nFailed at typing to STDIN")
+	common.ErrorCheck(err, "\nFailed at typing to STDIN")
 	// Clear the password
 	pw = nil
 	password = ""
@@ -103,7 +102,7 @@ func Elevate(password string) {
 
 	// Wait for the sudo prompt (If the correct password was given, it will not stay behind)
 	err = cmd.Wait()
-	errorcheck.ErrorCheck(err, "\nError, password given was wrong")
+	common.ErrorCheck(err, "\nError, password given was wrong")
 }
 
 // Clear clears the terminal.

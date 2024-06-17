@@ -8,9 +8,9 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/HikariKnight/ls-iommu/pkg/errorcheck"
 	"github.com/klauspost/cpuid/v2"
 
+	"github.com/HikariKnight/quickpassthrough/internal/common"
 	"github.com/HikariKnight/quickpassthrough/internal/logger"
 	"github.com/HikariKnight/quickpassthrough/pkg/command"
 	"github.com/HikariKnight/quickpassthrough/pkg/fileio"
@@ -82,7 +82,7 @@ func Set_KernelStub(isRoot bool) {
 	kernel_args := fileio.ReadFile(config.Path.CMDLINE)
 
 	// Run and log, check for errors
-	errorcheck.ErrorCheck(command.ExecAndLogSudo(isRoot, true,
+	common.ErrorCheck(command.ExecAndLogSudo(isRoot, true,
 		"kernelstub -a "+kernel_args,
 	),
 		"Error, kernelstub command returned exit code 1",
@@ -99,7 +99,7 @@ func Set_Grubby(isRoot bool) string {
 
 	// Run and log, check for errors
 	err := command.ExecAndLogSudo(isRoot, true, "grubby --update-kernel=ALL "+fmt.Sprintf("--args=%s", kernel_args))
-	errorcheck.ErrorCheck(err, "Error, grubby command returned exit code 1")
+	common.ErrorCheck(err, "Error, grubby command returned exit code 1")
 
 	// Return what we did
 	return fmt.Sprintf("Executed: sudo grubby --update-kernel=ALL --args=\"%s\"", kernel_args)
@@ -233,11 +233,11 @@ func Set_Grub2(isRoot bool) error {
 		}
 		if lpErr == nil {
 			// we know mkconfig is empty despite no error;
-			// so set an error for [errorcheck.ErrorCheck].
+			// so set an error for [common.ErrorCheck].
 			lpErr = errors.New("neither grub-mkconfig or grub2-mkconfig found")
 		}
-		errorcheck.ErrorCheck(lpErr, lpErr.Error()+"\n")
-		return lpErr // note: unreachable as [errorcheck.ErrorCheck] calls fatal
+		common.ErrorCheck(lpErr, lpErr.Error()+"\n")
+		return lpErr // note: unreachable as [common.ErrorCheck] calls fatal
 	default:
 	}
 
@@ -245,9 +245,9 @@ func Set_Grub2(isRoot bool) error {
 
 	// tabulate the output, [command.RunErrSudo] logged the execution.
 	logger.Printf("\t" + strings.Join(mklog, "\n\t"))
-	errorcheck.ErrorCheck(err, "Failed to update /boot/grub/grub.cfg")
+	common.ErrorCheck(err, "Failed to update /boot/grub/grub.cfg")
 
-	// always returns nil as [errorcheck.ErrorCheck] calls fatal
+	// always returns nil as [common.ErrorCheck] calls fatal
 	// keeping the ret signature, as we should consider passing down errors
 	// but that's a massive rabbit hole to go down for this codebase as a whole
 	return err

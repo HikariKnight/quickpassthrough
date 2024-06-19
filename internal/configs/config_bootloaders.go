@@ -83,7 +83,7 @@ func Set_KernelStub(isRoot bool) {
 
 	// Run and log, check for errors
 	common.ErrorCheck(command.ExecAndLogSudo(isRoot, true,
-		"kernelstub -a "+fmt.Sprintf("\"%s\"", kernel_args),
+		fmt.Sprintf("kernelstub -a \"%s\"", kernel_args),
 	),
 		"Error, kernelstub command returned exit code 1",
 	)

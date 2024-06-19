@@ -30,9 +30,9 @@ func Set_Modprobe(gpu_IDs []string) {
 	conffile := fmt.Sprintf("%s/vfio.conf", config.Path.MODPROBE)
 
 	// If the file exists
-	if fileio.FileExist(conffile) {
+	if exists, _ := fileio.FileExist(conffile); exists {
 		// Delete the old file
-		os.Remove(conffile)
+		_ = os.Remove(conffile)
 	}
 
 	content := fmt.Sprint(

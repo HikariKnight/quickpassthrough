@@ -5,7 +5,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/HikariKnight/ls-iommu/pkg/errorcheck"
+	"github.com/HikariKnight/quickpassthrough/internal/common"
 	"github.com/HikariKnight/quickpassthrough/internal/logger"
 	"github.com/HikariKnight/quickpassthrough/pkg/fileio"
 )
@@ -26,7 +26,7 @@ func DisableVFIOVideo(i int) {
 	if strings.Contains(kernel_args, "vfio_pci.disable_vga") {
 		// Remove the old file
 		err := os.Remove(config.Path.CMDLINE)
-		errorcheck.ErrorCheck(err, fmt.Sprintf("Could not rewrite %s", config.Path.CMDLINE))
+		common.ErrorCheck(err, fmt.Sprintf("Could not rewrite %s", config.Path.CMDLINE))
 
 		// Enable or disable the VGA based on our given value
 		if i == 0 {

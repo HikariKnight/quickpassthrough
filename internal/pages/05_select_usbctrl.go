@@ -4,11 +4,12 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/gookit/color"
+
 	"github.com/HikariKnight/quickpassthrough/internal/configs"
-	lsiommu "github.com/HikariKnight/quickpassthrough/internal/lsiommu"
+	"github.com/HikariKnight/quickpassthrough/internal/lsiommu"
 	"github.com/HikariKnight/quickpassthrough/pkg/command"
 	"github.com/HikariKnight/quickpassthrough/pkg/menu"
-	"github.com/gookit/color"
 )
 
 func selectUSB(config *configs.Config) {

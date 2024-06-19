@@ -81,20 +81,13 @@ func InitConfigs() {
 
 	// Remove old config
 	if err := os.RemoveAll("config"); err != nil && !errors.Is(err, os.ErrNotExist) {
-		if errors.Is(err, os.ErrPermission) {
-			common.ErrorCheck(err, common.PermissionNotice)
-			return // note: unreachable due to ErrorCheck calling fatal
-		}
+
 		// won't be called if the error is ErrNotExist
 		common.ErrorCheck(err, "\nError removing old config")
 	}
 
 	// Make the config folder
 	if err := os.Mkdir("config", os.ModePerm); err != nil && !errors.Is(err, os.ErrExist) {
-		if errors.Is(err, os.ErrPermission) {
-			common.ErrorCheck(err, common.PermissionNotice)
-			return // note: unreachable due to ErrorCheck calling fatal
-		}
 		// won't be called if the error is ErrExist
 		common.ErrorCheck(err, "\nError making config folder")
 	}
@@ -111,12 +104,8 @@ func InitConfigs() {
 
 		// If we received an error that is not ErrNotExist
 		if err != nil {
-			if errors.Is(err, os.ErrPermission) {
-				common.ErrorCheck(err, common.PermissionNotice)
-				return // note: unreachable due to ErrorCheck calling fatal
-			}
 			common.ErrorCheck(err, "\nError checking for directory: "+syspath)
-			continue // note: also unreachable
+			continue // note: unreachable due to ErrorCheck calling fatal
 		}
 
 		// If the path exists
@@ -134,11 +123,8 @@ func InitConfigs() {
 
 			// Create the directories for our configs
 			if err = os.MkdirAll(confpath, os.ModePerm); err != nil && !errors.Is(err, os.ErrExist) {
-				if errors.Is(err, os.ErrPermission) {
-					common.ErrorCheck(err, common.PermissionNotice)
-					return // note: unreachable due to ErrorCheck calling fatal
-				}
 				common.ErrorCheck(err, "\nError making directory: "+confpath)
+				return // note: unreachable due to ErrorCheck calling fatal
 			}
 		}
 	}
@@ -166,12 +152,8 @@ func InitConfigs() {
 
 		// If we received an error that is not ErrNotExist
 		if err != nil {
-			if errors.Is(err, os.ErrPermission) {
-				common.ErrorCheck(err, common.PermissionNotice)
-				return // note: unreachable due to ErrorCheck calling fatal
-			}
 			common.ErrorCheck(err, "\nError checking for file: "+sysfile)
-			continue // note: also unreachable
+			continue // note: unreachable due to ErrorCheck calling fatal
 		}
 
 		if exists {
@@ -195,12 +177,8 @@ func InitConfigs() {
 
 		exists, err = fileio.FileExist(conffile)
 		if err != nil {
-			if errors.Is(err, os.ErrPermission) {
-				common.ErrorCheck(err, common.PermissionNotice)
-				return // note: unreachable due to ErrorCheck calling fatal
-			}
 			common.ErrorCheck(err, "\nError checking for file: "+conffile)
-			continue // note: also unreachable
+			continue // note: unreachable
 		}
 
 		// If we now have a config that exists
@@ -267,12 +245,8 @@ func backupFile(source string) {
 	// If we received an error that is not ErrNotExist on any of the files
 	for _, err := range []error{configFileError, sysFileError, destFileError} {
 		if err != nil {
-			if errors.Is(configFileError, os.ErrPermission) {
-				common.ErrorCheck(configFileError, common.PermissionNotice)
-				return // note: unreachable due to ErrorCheck calling fatal
-			}
 			common.ErrorCheck(configFileError, "\nError checking for file: "+source)
-			return // note: also unreachable
+			return // note: unreachable
 		}
 	}
 
@@ -300,12 +274,8 @@ func makeBackupDir(dest string) {
 	exists, err := fileio.FileExist("backup/")
 	if err != nil {
 		// If we received an error that is not ErrNotExist
-		if errors.Is(err, os.ErrPermission) {
-			common.ErrorCheck(err, common.PermissionNotice)
-			return // note: unreachable due to ErrorCheck calling fatal
-		}
 		common.ErrorCheck(err, "Error checking for backup/ folder")
-		return // note: also unreachable
+		return // note: unreachable
 	}
 
 	if !exists {
@@ -315,12 +285,10 @@ func makeBackupDir(dest string) {
 
 	// Make the empty directories
 	if err = os.MkdirAll(fmt.Sprintf("backup/%s", dest), os.ModePerm); errors.Is(err, os.ErrExist) {
+		// ignore if the directory already exists
 		err = nil
 	}
-	if errors.Is(err, os.ErrPermission) {
-		common.ErrorCheck(err, common.PermissionNotice)
-		return // note: unreachable due to ErrorCheck calling fatal
-	}
+	// will return without incident if there's no error
 	common.ErrorCheck(err, "Error making backup/ folder")
 }
 

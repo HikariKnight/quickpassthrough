@@ -52,10 +52,6 @@ func ReadLines(fileName string) []string {
 func ReadFile(fileName string) string {
 	// Read the whole file
 	content, err := os.ReadFile(fileName)
-	if errors.Is(err, os.ErrPermission) {
-		common.ErrorCheck(err, common.PermissionNotice)
-		return "" // note: unreachable due to ErrorCheck calling fatal
-	}
 	common.ErrorCheck(err, fmt.Sprintf("Failed to ReadFile on %s", fileName))
 
 	// Return all the lines as one string

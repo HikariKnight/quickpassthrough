@@ -1,6 +1,7 @@
 package common
 
 import (
+	"errors"
 	"os"
 	"time"
 
@@ -19,26 +20,31 @@ const PermissionNotice = `
 	<us>Try running QuickPassthrough as root or using sudo if so.</>
 
 	If this does not work, double check your filesystem's permissions,
-	and be sure to check the debug log for more information.`
+	and be sure to check the debug log for more information.
+`
 
 // ErrorCheck serves as a wrapper for HikariKnight/ls-iommu/pkg/common.ErrorCheck that allows for visibile error messages
 func ErrorCheck(err error, msg ...string) {
 	_, _ = os.Stdout.WriteString("\033[H\033[2J") // clear the screen
-	oneMsg := ""
-	if err != nil {
-		if len(msg) < 1 {
-			oneMsg = ""
-		} else {
-			for _, v := range msg {
-				oneMsg += v + "\n"
-			}
-		}
-		color.Printf("\n<red_b>FATAL</>: %s\n%s\nAborting", err.Error(), oneMsg)
-		for i := 0; i < 10; i++ {
-			time.Sleep(1 * time.Second)
-			print(".")
-		}
-		print("\n")
-		errorcheck.ErrorCheck(err, msg...)
+	if err == nil {
+		return
 	}
+	if errors.Is(err, os.ErrPermission) {
+		color.Printf(PermissionNotice)
+	}
+	oneMsg := ""
+	if len(msg) < 1 {
+		oneMsg = ""
+	} else {
+		for _, v := range msg {
+			oneMsg += v + "\n"
+		}
+	}
+	color.Printf("\n<red_b>FATAL</>: %s\n%s\nAborting", err.Error(), oneMsg)
+	for i := 0; i < 10; i++ {
+		time.Sleep(1 * time.Second)
+		print(".")
+	}
+	print("\n")
+	errorcheck.ErrorCheck(err, msg...)
 }

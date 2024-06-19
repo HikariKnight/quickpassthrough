@@ -309,6 +309,7 @@ func CopyToSystem(isRoot bool, conffile, sysfile string) {
 		common.ErrorCheck(err, fmt.Sprintf("Failed to read %s", conffile))
 		err = os.WriteFile(sysfile, fDat, 0644)
 		common.ErrorCheck(err, fmt.Sprintf("Failed to write %s", sysfile))
+		logger.Printf("Copied %s to %s\n", conffile, sysfile)
 		return
 	}
 

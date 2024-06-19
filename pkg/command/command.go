@@ -63,7 +63,7 @@ func RunErr(binary string, args ...string) ([]string, []string, error) {
 }
 
 func RunErrSudo(isRoot bool, binary string, args ...string) ([]string, []string, error) {
-	if isRoot && binary != "sudo" {
+	if !isRoot && binary != "sudo" {
 		args = append([]string{binary}, args...)
 		binary = "sudo"
 	}
@@ -121,7 +121,7 @@ func Clear() {
 //     noisy isn't set to true by our copy caller, as it logs differently,
 //     but other callers set it.
 func ExecAndLogSudo(isRoot, noisy bool, cmd string) error {
-	if isRoot && !strings.HasPrefix(cmd, "sudo") {
+	if !isRoot && !strings.HasPrefix(cmd, "sudo") {
 		cmd = fmt.Sprintf("sudo %s", cmd)
 	}
 

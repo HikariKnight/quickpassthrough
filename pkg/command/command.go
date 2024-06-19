@@ -133,8 +133,14 @@ func ExecAndLogSudo(isRoot, noisy bool, cmd string) error {
 		fmt.Printf("Executing (elevated): %s\nSee debug.log for detailed output\n", cmd)
 	}
 
+	wd, err := os.Getwd()
+	if err != nil {
+		return err
+	}
+
 	cs := strings.Fields(cmd)
 	r := exec.Command(cs[0], cs[1:]...)
+	r.Dir = wd
 
 	cmdCombinedOut, err := r.CombinedOutput()
 	outStr := string(cmdCombinedOut)
@@ -146,6 +152,10 @@ func ExecAndLogSudo(isRoot, noisy bool, cmd string) error {
 	if noisy {
 		// Print to the user
 		fmt.Printf("%s\n", outStr)
+	}
+
+	if err != nil {
+		err = fmt.Errorf("failed to execute %s: %w\n%s", cmd, err, outStr)
 	}
 
 	return err

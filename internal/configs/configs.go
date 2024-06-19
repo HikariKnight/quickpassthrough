@@ -4,7 +4,9 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path/filepath"
 	"regexp"
+	"strings"
 
 	"github.com/klauspost/cpuid/v2"
 
@@ -300,12 +302,32 @@ func CopyToSystem(isRoot bool, conffile, sysfile string) {
 	// ExecAndLogSudo will write to the logger, so just print here
 	fmt.Printf("Copying: %s to %s\n", conffile, sysfile)
 
+	if isRoot {
+		logger.Printf("Copying %s to %s\n", conffile, sysfile)
+		fmt.Printf("Copying %s to %s\n", conffile, sysfile)
+		fDat, err := os.ReadFile(conffile)
+		common.ErrorCheck(err, fmt.Sprintf("Failed to read %s", conffile))
+		err = os.WriteFile(sysfile, fDat, 0644)
+		common.ErrorCheck(err, fmt.Sprintf("Failed to write %s", sysfile))
+		return
+	}
+
+	if !filepath.IsAbs(conffile) {
+		conffile, _ = filepath.Abs(conffile)
+	}
+
+	conffile = strings.ReplaceAll(conffile, " ", "\\ ")
+	cmd := fmt.Sprintf("cp -v %s %s", conffile, sysfile)
+
+	err := command.ExecAndLogSudo(isRoot, false, cmd)
+
+	errMsg := ""
+	if err != nil {
+		errMsg = err.Error()
+	}
+
 	// [command.ExecAndLogSudo] will log the command's output
-	common.ErrorCheck(command.ExecAndLogSudo(isRoot, false,
-		fmt.Sprintf("cp -v \"%s\" %s", conffile, sysfile),
-	), // if error, log and exit
-		fmt.Sprintf("Failed to copy %s to %s", conffile, sysfile),
-	)
+	common.ErrorCheck(err, fmt.Sprintf("Failed to copy %s to %s:\n%s", conffile, sysfile, errMsg))
 
 	// ---------------------------------------------------------------------------------
 	// note that if we failed the error check, the following will not appear in the log!

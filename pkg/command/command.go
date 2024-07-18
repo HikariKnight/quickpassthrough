@@ -112,28 +112,6 @@ func Clear() {
 	_ = c.Run()
 }
 
-func processCmdString(cmd string) (string, []string) {
-	// handle quoted arguments
-	args := strings.Fields(cmd)
-	cmdBin := args[0]
-	args = args[1:]
-	for i, arg := range args {
-		if !strings.HasPrefix(arg, "\"") {
-			continue
-		}
-		// find the end of the quoted argument
-		for j, a := range args[i:] {
-			if strings.HasSuffix(a, "\"") {
-				args[i] = strings.Join(args[i:i+j+1], " ")
-				args = append(args[:i+1], args[i+j+1:]...)
-				break
-			}
-		}
-	}
-
-	return cmdBin, args
-}
-
 // ExecAndLogSudo executes an elevated command and logs the output.
 //
 // * if we're root, the command is executed directly
@@ -160,8 +138,8 @@ func ExecAndLogSudo(isRoot, noisy bool, cmd string) error {
 		return err
 	}
 
-	cmdBin, args := processCmdString(cmd)
-	r := exec.Command(cmdBin, args...)
+	cs := strings.Fields(cmd)
+	r := exec.Command(cs[0], cs[1:]...)
 	r.Dir = wd
 
 	cmdCombinedOut, err := r.CombinedOutput()

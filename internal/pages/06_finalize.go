@@ -201,7 +201,7 @@ func installPassthrough(config *configs.Config) {
 		// Copy the modules file to /etc/modules
 		configs.CopyToSystem(config.IsRoot, config.Path.ETCMODULES, "/etc/modules")
 
-		if err = command.ExecAndLogSudo(config.IsRoot, true, "update-initramfs -u"); err != nil {
+		if err = command.ExecAndLogSudo(config.IsRoot, true, "update-initramfs", "-u"); err != nil {
 			log.Fatalf("Failed to update initramfs: %s", err)
 		}
 
@@ -212,7 +212,7 @@ func installPassthrough(config *configs.Config) {
 		// Get systeminfo
 		sysinfo := uname.New()
 
-		if err = command.ExecAndLogSudo(config.IsRoot, true, "dracut -f -v --kver "+sysinfo.Release); err != nil {
+		if err = command.ExecAndLogSudo(config.IsRoot, true, "dracut", "-f", "-v", "--kver", sysinfo.Release); err != nil {
 			log.Fatalf("Failed to update initramfs: %s", err)
 		}
 
@@ -220,7 +220,7 @@ func installPassthrough(config *configs.Config) {
 		// Copy dracut config to /etc/dracut.conf.d/vfio
 		configs.CopyToSystem(config.IsRoot, config.Path.MKINITCPIO, "/etc/mkinitcpio.conf")
 
-		if err = command.ExecAndLogSudo(config.IsRoot, true, "mkinitcpio -P"); err != nil {
+		if err = command.ExecAndLogSudo(config.IsRoot, true, "mkinitcpio", "-P"); err != nil {
 			log.Fatalf("Failed to update initramfs: %s", err)
 		}
 	}

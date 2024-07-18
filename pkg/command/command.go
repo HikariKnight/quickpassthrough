@@ -120,17 +120,22 @@ func Clear() {
 //   - noisy determines if we should print the command to the user
 //     noisy isn't set to true by our copy caller, as it logs differently,
 //     but other callers set it.
-func ExecAndLogSudo(isRoot, noisy bool, cmd string) error {
-	if !isRoot && !strings.HasPrefix(cmd, "sudo") {
-		cmd = fmt.Sprintf("sudo %s", cmd)
+func ExecAndLogSudo(isRoot, noisy bool, exe string, args ...string) error {
+	if !isRoot && exe != "sudo" {
+		og := exe
+		exe = "sudo"
+		newArgs := make([]string, 0)
+		newArgs = append(newArgs, og)
+		newArgs = append(newArgs, args...)
+		args = newArgs
 	}
 
 	// Write to logger
-	logger.Printf("Executing (elevated): %s\n", cmd)
+	logger.Printf("Executing (elevated): %s %s\n", exe, strings.Join(args, " "))
 
 	if noisy {
 		// Print to the user
-		fmt.Printf("Executing (elevated): %s\nSee debug.log for detailed output\n", cmd)
+		fmt.Printf("Executing (elevated): %s %s\nSee debug.log for detailed output\n", exe, strings.Join(args, " "))
 	}
 
 	wd, err := os.Getwd()
@@ -138,8 +143,7 @@ func ExecAndLogSudo(isRoot, noisy bool, cmd string) error {
 		return err
 	}
 
-	cs := strings.Fields(cmd)
-	r := exec.Command(cs[0], cs[1:]...)
+	r := exec.Command(exe, args...)
 	r.Dir = wd
 
 	cmdCombinedOut, err := r.CombinedOutput()
@@ -155,7 +159,7 @@ func ExecAndLogSudo(isRoot, noisy bool, cmd string) error {
 	}
 
 	if err != nil {
-		err = fmt.Errorf("failed to execute %s: %w\n%s", cmd, err, outStr)
+		err = fmt.Errorf("failed to execute %s: %w\n%s", exe, err, outStr)
 	}
 
 	return err

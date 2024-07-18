@@ -82,9 +82,8 @@ func Set_KernelStub(isRoot bool) {
 	kernel_args := fileio.ReadFile(config.Path.CMDLINE)
 
 	// Run and log, check for errors
-	common.ErrorCheck(command.ExecAndLogSudo(isRoot, true,
-		"kernelstub -a "+fmt.Sprintf("\"%s\"", kernel_args),
-	),
+	common.ErrorCheck(
+		command.ExecAndLogSudo(isRoot, true, "kernelstub", "-a", kernel_args),
 		"Error, kernelstub command returned exit code 1",
 	)
 }
@@ -98,7 +97,7 @@ func Set_Grubby(isRoot bool) string {
 	kernel_args := fileio.ReadFile(config.Path.CMDLINE)
 
 	// Run and log, check for errors
-	err := command.ExecAndLogSudo(isRoot, true, "grubby --update-kernel=ALL "+fmt.Sprintf("--args=%s", kernel_args))
+	err := command.ExecAndLogSudo(isRoot, true, "grubby", "--update-kernel=ALL", fmt.Sprintf("--args=%s", kernel_args))
 	common.ErrorCheck(err, "Error, grubby command returned exit code 1")
 
 	// Return what we did

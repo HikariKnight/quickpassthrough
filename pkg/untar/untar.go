@@ -8,7 +8,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/HikariKnight/ls-iommu/pkg/errorcheck"
+	"github.com/HikariKnight/quickpassthrough/internal/common"
 )
 
 // Slightly modified from source: https://medium.com/@skdomino/taring-untaring-files-in-go-6b07cf56bc07
@@ -17,7 +17,7 @@ import (
 // creating the file structure at 'dst' along the way, and writing any files
 func Untar(dst string, fileName string) error {
 	r, err := os.Open(fileName)
-	errorcheck.ErrorCheck(err, fmt.Sprintf("Failed to open: %s", fileName))
+	common.ErrorCheck(err, fmt.Sprintf("Failed to open: %s", fileName))
 	defer r.Close()
 
 	gzr, err := gzip.NewReader(r)

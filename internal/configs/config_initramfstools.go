@@ -7,7 +7,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/HikariKnight/ls-iommu/pkg/errorcheck"
+	"github.com/HikariKnight/quickpassthrough/internal/common"
 	"github.com/HikariKnight/quickpassthrough/pkg/fileio"
 )
 
@@ -15,7 +15,7 @@ import (
 func initramfs_readHeader(lines int, fileName string) string {
 	// Open the file
 	f, err := os.Open(fileName)
-	errorcheck.ErrorCheck(err, fmt.Sprintf("Error opening %s", fileName))
+	common.ErrorCheck(err, fmt.Sprintf("Error opening %s", fileName))
 	defer f.Close()
 
 	header_re := regexp.MustCompile(`^#`)
@@ -50,7 +50,7 @@ func initramfs_addModules(conffile string) {
 
 	// Open the system file for reading
 	sysfile, err := os.Open(syspath)
-	errorcheck.ErrorCheck(err, fmt.Sprintf("Error opening file for reading %s", syspath))
+	common.ErrorCheck(err, fmt.Sprintf("Error opening file for reading %s", syspath))
 	defer sysfile.Close()
 
 	// Check if user has vendor-reset installed/enabled and make sure that is first

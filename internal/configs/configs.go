@@ -6,7 +6,6 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
-	"strings"
 
 	"github.com/klauspost/cpuid/v2"
 
@@ -317,10 +316,7 @@ func CopyToSystem(isRoot bool, conffile, sysfile string) {
 		conffile, _ = filepath.Abs(conffile)
 	}
 
-	conffile = strings.ReplaceAll(conffile, " ", "\\ ")
-	cmd := fmt.Sprintf("cp -v %s %s", conffile, sysfile)
-
-	err := command.ExecAndLogSudo(isRoot, false, cmd)
+	err := command.ExecAndLogSudo(isRoot, false, "cp", "-v", conffile, sysfile)
 
 	errMsg := ""
 	if err != nil {

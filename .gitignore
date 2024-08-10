@@ -7,3 +7,4 @@ dist/
 main
 quickpassthrough
 debug.log
+quickpassthrough_debug.log

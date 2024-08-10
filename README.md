@@ -5,7 +5,7 @@ A project to simplify setting up GPU passthrough on your Linux host for libvirt/
 
 You can use it by simply downloading the latest [release](https://github.com/HikariKnight/quickpassthrough/releases/) and run it inside a terminal or by downloading and compiling it yourself with the commands below.
 
-This project is aimed at **desktops with 2 GPUs** and **headless servers**, where the only GPU is not needed.
+This project is aimed at **systems with 2 GPUs** and **headless servers**, where the only GPU is not needed.
 
 **Note:** Quickpassthrough is not designed to be installed by a package manager! As you would usually have to only run it once, unless you change the GPU.
 
@@ -47,16 +47,18 @@ go get -u ./cmd
 CGO_ENABLED=0 go build -ldflags="-X github.com/HikariKnight/quickpassthrough/internal/version.Version=$(git rev-parse --short HEAD)" -o quickpassthrough cmd/main.go
 ```
 
-## Does this work on immutable systems?
-Currently no, however [Bazzite](https://bazzite.gg) has an `ujust` command that does a very similar job.
-In Bazzite you run `ujust setup-virtualization` and follow the prompts to `Enable Virtualization` and `Enable VFIO drivers`.
+## Does this work on atomic or immutable systems?
+Currently no, however [Bazzite](https://bazzite.gg), [Bluefin](https://projectbluefin.io) and [Aurora](https://getaurora.dev) has an `ujust` command that does a very similar job.
+
+In Bazzite you run `ujust setup-virtualization` and follow the prompts to `Enable Virtualization` and `Enable VFIO drivers`.<br>
+In Bluefin and Aurora you run `ujust setup-vfio` and follow the prompts.
 
 ## How do I undo the changes?
 There is a `backup/` folder generated on the first run that will have a copy of all your files (and their paths) from before we edited anything.
 Compare that folder with the `config/` folder to see which files you need to delete in addition to copying the files from `backup/` to your system before rebuilding your initramfs and updating your bootloader config.
 
 ## How do I just disable vfio for 1 boot?
-Remove the vfio kernel arguments from your bootloader by pressing E on the boot menu. The kernel arguments added to the bootloader can be found in the config/kernel_args file. <br>
+Remove the vfio kernel arguments from your bootloader by pressing E on the boot menu. The kernel arguments added to the bootloader can be found in the `config/kernel_args` file. <br>
 NOTE: You can also just remove them from your bootloader permanently and update your bootloader if you want to keep the config files on your system.
 
 ## What this project does NOT do

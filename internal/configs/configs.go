@@ -221,7 +221,7 @@ func vfio_modules() []string {
 
 	// If we are on a kernel older than 6.2
 	sysinfo := uname.New()
-	kernel_re := regexp.MustCompile(`^(6\.1|6\.0|[1-5]\.)`)
+	kernel_re := regexp.MustCompile(`^(6\.1|6\.0|[1-5]\.\d{1,2})\.`)
 	if kernel_re.MatchString(sysinfo.Kernel) {
 		// Write to the debug log
 		logger.Printf("Linux kernel version %s detected!\nIncluding vfio_virqfd module\n", sysinfo.Kernel)

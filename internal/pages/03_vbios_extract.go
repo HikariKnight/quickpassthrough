@@ -26,9 +26,11 @@ func genVBIOS_dumper(config *configs.Config) {
 		scriptdir, _ = os.Getwd()
 	}
 
-	// Get the vbios path and generate the vbios dumping script
-	vbios_path := lsiommu.GetIOMMU("-g", "-i", config.Gpu_Group, "--rom")[0]
-	configs.GenerateVBIOSDumper(vbios_path)
+	// Search for a vbios path and generate the vbios dumping script if found
+	vbios_paths := lsiommu.GetIOMMU("-g", "-i", config.Gpu_Group, "--rom")
+	if len(vbios_paths) != 0 {
+		configs.GenerateVBIOSDumper(vbios_paths[0])
+	}
 
 	// Make the qemu config folder
 	os.Mkdir(fmt.Sprintf("%s/%s", scriptdir, config.Path.QEMU), os.ModePerm)
@@ -51,7 +53,7 @@ func genVBIOS_dumper(config *configs.Config) {
 		"rom to the VM along with the card in order to get a functional passthrough.\n",
 		"In many cases you can find your vbios at https://www.techpowerup.com/vgabios/\n",
 		"\n",
-		"You can also attempt to dump your own vbios from TTY using the script in\n",
+		"If we found a romfile for your GPU you can also attempt to dump your own vbios from TTY using the script in\n",
 		fmt.Sprintf("%s/utils/dump_vbios.sh\n", scriptdir),
 		"\n",
 	)

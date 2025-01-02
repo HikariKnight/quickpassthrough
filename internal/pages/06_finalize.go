@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"os/user"
+	"strings"
 	"syscall"
 
 	"github.com/gookit/color"
@@ -29,7 +30,7 @@ func prepModules(config *configs.Config) {
 	// If we have a folder for dracut
 	if exists, _ := fileio.FileExist(config.Path.DRACUT); exists {
 		// Configure dracut
-		configs.Set_Dracut()
+		configs.Set_Dracut(config)
 	}
 
 	// If we have a mkinitcpio.conf file
@@ -208,6 +209,17 @@ func installPassthrough(config *configs.Config) {
 	case dracutExists:
 		// Copy dracut config to /etc/dracut.conf.d/vfio
 		configs.CopyToSystem(config.IsRoot, dracutFile, "/etc/dracut.conf.d/vfio")
+
+		if config.HasDuplicateDeviceIds {
+			moduleSysPath := strings.Replace(config.Path.DRACUTMODULE, "config", "", 1)
+			if err := command.ExecAndLogSudo(config.IsRoot, false, "mkdir", "-p", moduleSysPath); err != nil {
+				log.Fatalf("Failed to create dracut module directory: %s", err)
+			}
+
+			for configPath, sysPath := range config.EarlyBindFilePaths {
+				configs.CopyToSystem(config.IsRoot, configPath, sysPath)
+			}
+		}
 
 		// Get systeminfo
 		sysinfo := uname.New()

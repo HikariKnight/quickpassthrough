@@ -17,36 +17,41 @@ import (
 )
 
 type Path struct {
-	CMDLINE    string
-	MODPROBE   string
-	INITRAMFS  string
-	ETCMODULES string
-	DEFAULT    string
-	QEMU       string
-	DRACUT     string
-	MKINITCPIO string
+	CMDLINE      string
+	MODPROBE     string
+	INITRAMFS    string
+	ETCMODULES   string
+	DEFAULT      string
+	QEMU         string
+	DRACUT       string
+	DRACUTMODULE string
+	MKINITCPIO   string
 }
 
 type Config struct {
-	Bootloader string
-	Cpuvendor  string
-	Path       *Path
-	Gpu_Group  string
-	Gpu_IDs    []string
-	IsRoot     bool
+	Bootloader            string
+	Cpuvendor             string
+	Path                  *Path
+	Gpu_Group             string
+	Gpu_IDs               []string
+	Gpu_Addresses         []string
+	EarlyBindFilePaths    map[string]string
+	IsRoot                bool
+	HasDuplicateDeviceIds bool
 }
 
 // GetConfigPaths retrieves the path to all the config files.
 func GetConfigPaths() *Path {
 	Paths := &Path{
-		CMDLINE:    "config/kernel_args",
-		MODPROBE:   "config/etc/modprobe.d",
-		INITRAMFS:  "config/etc/initramfs-tools",
-		ETCMODULES: "config/etc/modules",
-		DEFAULT:    "config/etc/default",
-		QEMU:       "config/qemu",
-		DRACUT:     "config/etc/dracut.conf.d",
-		MKINITCPIO: "config/etc/mkinitcpio.conf",
+		CMDLINE:      "config/kernel_args",
+		MODPROBE:     "config/etc/modprobe.d",
+		INITRAMFS:    "config/etc/initramfs-tools",
+		ETCMODULES:   "config/etc/modules",
+		DEFAULT:      "config/etc/default",
+		QEMU:         "config/qemu",
+		DRACUT:       "config/etc/dracut.conf.d",
+		DRACUTMODULE: "config/usr/lib/dracut/modules.d/90early-vfio-bind",
+		MKINITCPIO:   "config/etc/mkinitcpio.conf",
 	}
 
 	return Paths
@@ -55,11 +60,14 @@ func GetConfigPaths() *Path {
 // GetConfig retrieves all the configs and returns the struct.
 func GetConfig() *Config {
 	config := &Config{
-		Bootloader: "unknown",
-		Cpuvendor:  cpuid.CPU.VendorString,
-		Path:       GetConfigPaths(),
-		Gpu_Group:  "",
-		Gpu_IDs:    []string{},
+		Bootloader:            "unknown",
+		Cpuvendor:             cpuid.CPU.VendorString,
+		Path:                  GetConfigPaths(),
+		Gpu_Group:             "",
+		Gpu_IDs:               []string{},
+		Gpu_Addresses:         []string{},
+		EarlyBindFilePaths:    map[string]string{},
+		HasDuplicateDeviceIds: false,
 	}
 
 	// Detect the bootloader we are using
@@ -78,6 +86,7 @@ func InitConfigs() {
 		config.Path.INITRAMFS,
 		config.Path.DEFAULT,
 		config.Path.DRACUT,
+		config.Path.DRACUTMODULE,
 	}
 
 	// Remove old config

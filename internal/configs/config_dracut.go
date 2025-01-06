@@ -22,10 +22,10 @@ func Set_Dracut() {
 	}
 
 	// Write to logger
-	logger.Printf("Writing to %s:\nadd_drivers+=\" %s \"\n", dracutConf, strings.Join(vfio_modules(), " "))
+	logger.Printf("Writing to %s:\nforce_drivers+=\" %s \"\n", dracutConf, strings.Join(vfio_modules(), " "))
 
 	// Write the dracut config file
-	fileio.AppendContent(fmt.Sprintf("add_drivers+=\" %s \"\n", strings.Join(vfio_modules(), " ")), dracutConf)
+	fileio.AppendContent(fmt.Sprintf("force_drivers+=\" %s \"\n", strings.Join(vfio_modules(), " ")), dracutConf)
 
 	// Get the current kernel arguments we have generated
 	kernel_args := fileio.ReadFile(config.Path.CMDLINE)

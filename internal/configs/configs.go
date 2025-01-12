@@ -17,15 +17,16 @@ import (
 )
 
 type Path struct {
-	CMDLINE      string
-	MODPROBE     string
-	INITRAMFS    string
-	ETCMODULES   string
-	DEFAULT      string
-	QEMU         string
-	DRACUT       string
-	DRACUTMODULE string
-	MKINITCPIO   string
+	CMDLINE         string
+	MODPROBE        string
+	INITRAMFS       string
+	ETCMODULES      string
+	DEFAULT         string
+	QEMU            string
+	DRACUT          string
+	DRACUTMODULE    string
+	MKINITCPIO      string
+	MKINITCPIOHOOKS string
 }
 
 type Config struct {
@@ -43,15 +44,16 @@ type Config struct {
 // GetConfigPaths retrieves the path to all the config files.
 func GetConfigPaths() *Path {
 	Paths := &Path{
-		CMDLINE:      "config/kernel_args",
-		MODPROBE:     "config/etc/modprobe.d",
-		INITRAMFS:    "config/etc/initramfs-tools",
-		ETCMODULES:   "config/etc/modules",
-		DEFAULT:      "config/etc/default",
-		QEMU:         "config/qemu",
-		DRACUT:       "config/etc/dracut.conf.d",
-		DRACUTMODULE: "config/usr/lib/dracut/modules.d/90early-vfio-bind",
-		MKINITCPIO:   "config/etc/mkinitcpio.conf",
+		CMDLINE:         "config/kernel_args",
+		MODPROBE:        "config/etc/modprobe.d",
+		INITRAMFS:       "config/etc/initramfs-tools",
+		ETCMODULES:      "config/etc/modules",
+		DEFAULT:         "config/etc/default",
+		QEMU:            "config/qemu",
+		DRACUT:          "config/etc/dracut.conf.d",
+		DRACUTMODULE:    "config/usr/lib/dracut/modules.d/90early-vfio-bind",
+		MKINITCPIO:      "config/etc/mkinitcpio.conf",
+		MKINITCPIOHOOKS: "config/etc/initcpio/hooks",
 	}
 
 	return Paths

@@ -105,10 +105,12 @@ func viewGPU(config *configs.Config, ext ...int) {
 	}
 
 	logger.Printf("Checking for duplicate device Ids")
-	hasDuplicateDeviceIds := detectDuplicateDeviceIds(config.Gpu_Group, config.Gpu_IDs)
+	config.HasDuplicateDeviceIds = detectDuplicateDeviceIds(config.Gpu_Group, config.Gpu_IDs)
 
-	if hasDuplicateDeviceIds {
-		config.HasDuplicateDeviceIds = true
+	// TODO remove this
+	config.HasDuplicateDeviceIds = true
+
+	if config.HasDuplicateDeviceIds {
 		config.Gpu_Addresses = lsiommu.GetIOMMU("-g", mode, "-i", config.Gpu_Group, "--pciaddr")
 	}
 

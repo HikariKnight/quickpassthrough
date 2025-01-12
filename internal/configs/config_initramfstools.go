@@ -4,10 +4,12 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"path"
 	"regexp"
 	"strings"
 
 	"github.com/HikariKnight/quickpassthrough/internal/common"
+	"github.com/HikariKnight/quickpassthrough/internal/logger"
 	"github.com/HikariKnight/quickpassthrough/pkg/fileio"
 )
 
@@ -81,4 +83,32 @@ func initramfs_addModules(conffile string) {
 			fileio.AppendContent(fmt.Sprintf("%s\n", scanner.Text()), conffile)
 		}
 	}
+}
+
+func SetInitramfsToolsEarlyBinds(config *Config) {
+	confToSystemPathRe := regexp.MustCompile(`^config`)
+
+	earlyBindScriptConfigPath := path.Join(config.Path.INITRAMFS, "/scripts/init-top/early-vfio-bind.sh")
+	earlyBindScriptSysPath := confToSystemPathRe.ReplaceAllString(earlyBindScriptConfigPath, "")
+	config.EarlyBindFilePaths[earlyBindScriptConfigPath] = earlyBindScriptSysPath
+	if exists, _ := fileio.FileExist(earlyBindScriptConfigPath); exists {
+		_ = os.Remove(earlyBindScriptConfigPath)
+	}
+
+	logger.Printf("Writing to early bind script to %s", earlyBindScriptConfigPath)
+	vfioBindScript := fmt.Sprintf(`#!/bin/bash
+PREREQS=""
+DEVS="%s"
+
+for DEV in $DEVS; do
+	echo "vfio-pci" > /sys/bus/pci/devices/$DEV/driver_override
+done
+
+# Load the vfio-pci module
+modprobe -i vfio-pci`, strings.Join(config.Gpu_Addresses, " "))
+
+	fileio.AppendContent(vfioBindScript, earlyBindScriptConfigPath)
+	err := os.Chmod(earlyBindScriptConfigPath, 0755)
+	common.ErrorCheck(err, fmt.Sprintf("Error, could not chmod %s", earlyBindScriptConfigPath))
+
 }

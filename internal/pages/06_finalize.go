@@ -27,6 +27,11 @@ func prepModules(config *configs.Config) {
 		configs.Set_Modprobe(config.Gpu_IDs)
 	}
 
+	if exists, _ := fileio.FileExist(config.Path.INITRAMFS); exists && config.HasDuplicateDeviceIds {
+		// Configure initramfs early binds
+		configs.SetInitramfsToolsEarlyBinds(config)
+	}
+
 	// If we have a folder for dracut
 	if exists, _ := fileio.FileExist(config.Path.DRACUT); exists {
 		// Configure dracut
@@ -35,7 +40,7 @@ func prepModules(config *configs.Config) {
 
 	// If we have a mkinitcpio.conf file
 	if exists, _ := fileio.FileExist(config.Path.MKINITCPIO); exists {
-		configs.Set_Mkinitcpio()
+		configs.Set_Mkinitcpio(config)
 	}
 
 	// Configure grub2 here as we can make the config without sudo
@@ -112,7 +117,7 @@ func installPassthrough(config *configs.Config) {
 	// Get the user data
 	currentUser, err := user.Current()
 	if err != nil {
-		log.Fatalf(err.Error())
+		log.Fatal(err)
 	}
 
 	if !config.IsRoot {
@@ -202,6 +207,12 @@ func installPassthrough(config *configs.Config) {
 		// Copy the modules file to /etc/modules
 		configs.CopyToSystem(config.IsRoot, config.Path.ETCMODULES, "/etc/modules")
 
+		if config.HasDuplicateDeviceIds {
+			for configPath, sysPath := range config.EarlyBindFilePaths {
+				configs.CopyToSystem(config.IsRoot, configPath, sysPath)
+			}
+		}
+
 		if err = command.ExecAndLogSudo(config.IsRoot, true, "update-initramfs", "-u"); err != nil {
 			log.Fatalf("Failed to update initramfs: %s", err)
 		}
@@ -232,9 +243,16 @@ func installPassthrough(config *configs.Config) {
 		// Copy dracut config to /etc/dracut.conf.d/vfio
 		configs.CopyToSystem(config.IsRoot, config.Path.MKINITCPIO, "/etc/mkinitcpio.conf")
 
+		if config.HasDuplicateDeviceIds {
+			for configPath, sysPath := range config.EarlyBindFilePaths {
+				configs.CopyToSystem(config.IsRoot, configPath, sysPath)
+			}
+		}
+
 		if err = command.ExecAndLogSudo(config.IsRoot, true, "mkinitcpio", "-P"); err != nil {
 			log.Fatalf("Failed to update initramfs: %s", err)
 		}
+
 	}
 
 	// Make sure prompt end up on next line

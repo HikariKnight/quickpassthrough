@@ -10,7 +10,7 @@ import (
 )
 
 const PermissionNotice = `
-<yellowB>Permissions error occured during file operations.</>
+<yellowB>Permissions error occurred during file operations.</>
 
 <blue_b>Hint</>:
 
